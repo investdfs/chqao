@@ -51,49 +51,57 @@ export const AdminManager = () => {
   };
 
   return (
-    <Card>
+    <Card className="shadow-lg hover:shadow-xl transition-shadow">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Gerenciar Administradores</span>
           <div className="flex gap-2">
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
+                <Button className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2">
                   <Plus className="h-4 w-4" />
                   Adicionar Admin
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>Adicionar Novo Administrador</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <label>Email</label>
+                    <label className="text-sm font-medium">Email</label>
                     <Input 
                       type="email" 
                       placeholder="Email do administrador"
                       value={newAdmin.email}
                       onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})}
+                      className="w-full"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label>Senha</label>
+                    <label className="text-sm font-medium">Senha</label>
                     <Input 
                       type="password" 
                       placeholder="Senha"
                       value={newAdmin.password}
                       onChange={(e) => setNewAdmin({...newAdmin, password: e.target.value})}
+                      className="w-full"
                     />
                   </div>
-                  <Button className="w-full" onClick={handleAddAdmin}>
+                  <Button 
+                    className="w-full bg-primary hover:bg-primary-hover text-white"
+                    onClick={handleAddAdmin}
+                  >
                     Adicionar Administrador
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
-            <Button onClick={() => setShowAdmins(!showAdmins)}>
-              <Eye className="h-4 w-4 mr-2" />
+            <Button 
+              onClick={() => setShowAdmins(!showAdmins)}
+              className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2"
+            >
+              <Eye className="h-4 w-4" />
               {showAdmins ? "Ocultar" : "Ver Admins"}
             </Button>
           </div>
@@ -103,30 +111,33 @@ export const AdminManager = () => {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-secondary hover:bg-secondary/80">
                 <TableHead>Email</TableHead>
+                <TableHead>Senha</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {admins.map((admin) => (
-                <TableRow key={admin.id}>
-                  <TableCell>{admin.email}</TableCell>
+                <TableRow key={admin.id} className="hover:bg-gray-50">
+                  <TableCell className="font-medium">{admin.email}</TableCell>
+                  <TableCell className="font-medium">{admin.password}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       admin.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
+                        ? "bg-success-light text-success"
+                        : "bg-error-light text-error"
                     }`}>
                       {admin.status === "active" ? "Ativo" : "Bloqueado"}
                     </span>
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant="outline"
+                      variant={admin.status === "active" ? "destructive" : "default"}
                       size="sm"
                       onClick={() => handleToggleStatus(admin.id)}
+                      className="w-24"
                     >
                       {admin.status === "active" ? "Bloquear" : "Ativar"}
                     </Button>
