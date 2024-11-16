@@ -1,53 +1,26 @@
 import { useState } from "react";
+import { DashboardHeader } from "@/components/admin/DashboardHeader";
+import { StatisticsCards } from "@/components/admin/StatisticsCards";
+import { SubjectManager } from "@/components/admin/SubjectManager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
-import { Upload, Users, BookOpen, BarChart2, Download } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Upload, Download } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedSubject, setSelectedSubject] = useState("");
-  const [selectedTopic, setSelectedTopic] = useState("");
-  const [newSubject, setNewSubject] = useState("");
-  const [newTopic, setNewTopic] = useState("");
   const [showStudents, setShowStudents] = useState(false);
 
-  // Mock data - In a real app, this would come from your database
+  // Mock data - Em uma aplicação real, viria do banco de dados
   const students = [
     { id: 1, name: "João Silva", email: "joao@email.com", status: "active" },
     { id: 2, name: "Maria Santos", email: "maria@email.com", status: "blocked" },
   ];
 
-  const handleAddSubject = () => {
-    if (newSubject) {
-      // Here you would add the subject to your database
-      toast({
-        title: "Matéria adicionada",
-        description: `A matéria ${newSubject} foi adicionada com sucesso.`,
-      });
-      setNewSubject("");
-    }
-  };
-
-  const handleAddTopic = () => {
-    if (selectedSubject && newTopic) {
-      // Here you would add the topic to your database
-      toast({
-        title: "Tópico adicionado",
-        description: `O tópico ${newTopic} foi adicionado à matéria ${selectedSubject}.`,
-      });
-      setNewTopic("");
-    }
-  };
-
   const handleDownloadTemplate = () => {
-    // Here you would generate and download the template file
     toast({
       title: "Download iniciado",
       description: "O modelo de planilha está sendo baixado.",
@@ -55,7 +28,6 @@ const AdminDashboard = () => {
   };
 
   const handleToggleStudentStatus = (studentId: number) => {
-    // Here you would update the student's status in your database
     toast({
       title: "Status atualizado",
       description: "O status do aluno foi atualizado com sucesso.",
@@ -65,96 +37,16 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
-        <header className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold text-primary">CHQAO - Painel Administrativo</h1>
-          <Button variant="outline" onClick={() => navigate("/")}>
-            Sair
-          </Button>
-        </header>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Total de Alunos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">{students.length}</div>
-              <p className="text-gray-600">Alunos cadastrados</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                Questões
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-green-600">150</div>
-              <p className="text-gray-600">Questões no banco</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart2 className="h-5 w-5" />
-                Taxa de Aproveitamento
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-blue-600">78%</div>
-              <p className="text-gray-600">Média geral dos alunos</p>
-            </CardContent>
-          </Card>
-        </div>
+        <DashboardHeader />
+        
+        <StatisticsCards
+          totalStudents={students.length}
+          totalQuestions={150}
+          averagePerformance={78}
+        />
 
         <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gerenciar Matérias e Tópicos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Input
-                  placeholder="Nome da nova matéria"
-                  value={newSubject}
-                  onChange={(e) => setNewSubject(e.target.value)}
-                />
-                <Button className="w-full" onClick={handleAddSubject}>
-                  Adicionar Matéria
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma matéria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject.id} value={subject.name}>
-                        {subject.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Input
-                  placeholder="Nome do novo tópico"
-                  value={newTopic}
-                  onChange={(e) => setNewTopic(e.target.value)}
-                />
-                <Button className="w-full" onClick={handleAddTopic}>
-                  Adicionar Tópico
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SubjectManager />
 
           <Card>
             <CardHeader>
