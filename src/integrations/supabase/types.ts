@@ -14,18 +14,21 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          password: string
           status: Database["public"]["Enums"]["admin_status"] | null
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          password: string
           status?: Database["public"]["Enums"]["admin_status"] | null
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          password?: string
           status?: Database["public"]["Enums"]["admin_status"] | null
         }
         Relationships: []
