@@ -32,7 +32,7 @@ export const StatisticsCards = ({ totalStudents, totalQuestions, averagePerforma
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-green-600">{totalQuestions}</div>
-          <p className="text-gray-600">Questões no banco</p>
+          <p className="text-gray-600">Questões cadastradas</p>
         </CardContent>
       </Card>
 

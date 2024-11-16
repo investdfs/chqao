@@ -55,13 +55,13 @@ export const SubjectManager = () => {
   };
 
   return (
-    <Card>
+    <Card className="col-span-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Gerenciar Matérias e Tópicos</span>
           <Button onClick={() => setShowSubjects(!showSubjects)}>
             <Eye className="h-4 w-4 mr-2" />
-            {showSubjects ? "Ocultar" : "Ver Cadastrados"}
+            {showSubjects ? "Ocultar" : "Ver Matérias"}
           </Button>
         </CardTitle>
       </CardHeader>
