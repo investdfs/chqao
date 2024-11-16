@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -19,93 +20,127 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Here you would typically make an API call to register the user
-    // For now, we'll just simulate it with a timeout
-    setTimeout(() => {
-      setLoading(false);
+    if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Conta criada com sucesso!",
-        description: "Você já pode fazer login na plataforma.",
+        title: "Erro no cadastro",
+        description: "As senhas não coincidem.",
+        variant: "destructive"
       });
-      navigate("/login");
-    }, 1500);
+      setLoading(false);
+      return;
+    }
+
+    // Get existing students or initialize empty array
+    const existingStudents = JSON.parse(localStorage.getItem('students') || '[]');
+    
+    // Check if email already exists
+    if (existingStudents.some((student: any) => student.email === formData.email)) {
+      toast({
+        title: "Erro no cadastro",
+        description: "Este email já está cadastrado.",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Create new student object
+    const newStudent = {
+      id: Date.now(),
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      status: "active",
+      plan: "free"
+    };
+
+    // Add new student to existing students
+    const updatedStudents = [...existingStudents, newStudent];
+    localStorage.setItem('students', JSON.stringify(updatedStudents));
+
+    setLoading(false);
+    toast({
+      title: "Conta criada com sucesso!",
+      description: "Você já pode fazer login na plataforma.",
+    });
+    navigate("/login");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
-      <div className="card max-w-md w-full animate-fade-in">
-        <h1 className="text-2xl font-bold text-center mb-8">Criar Conta</h1>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium mb-2">Nome completo</label>
-            <Input
-              type="text"
-              required
-              className="input-field"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <Input
-              type="email"
-              required
-              className="input-field"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Senha</label>
-            <Input
-              type="password"
-              required
-              className="input-field"
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Confirmar senha
-            </label>
-            <Input
-              type="password"
-              required
-              className="input-field"
-              value={formData.confirmPassword}
-              onChange={(e) =>
-                setFormData({ ...formData, confirmPassword: e.target.value })
-              }
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full btn-primary"
-            disabled={loading}
-          >
-            {loading ? "Criando conta..." : "Criar conta"}
-          </Button>
-        </form>
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Já tem uma conta?{" "}
-            <button
-              onClick={() => navigate("/login")}
-              className="text-primary hover:underline"
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">Criar Conta</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Nome completo</label>
+              <Input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Email</label>
+              <Input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Senha</label>
+              <Input
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Confirmar senha
+              </label>
+              <Input
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
             >
-              Fazer login
-            </button>
-          </p>
-        </div>
-      </div>
+              {loading ? "Criando conta..." : "Criar conta"}
+            </Button>
+          </form>
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Já tem uma conta?{" "}
+              <button
+                onClick={() => navigate("/login")}
+                className="text-primary hover:underline"
+              >
+                Fazer login
+              </button>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
