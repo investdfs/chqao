@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,49 +6,123 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/components/ui/use-toast";
 import { Plus, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { supabase } from "@/integrations/supabase/client";
+
+type Admin = {
+  id: string;
+  email: string;
+  status: 'active' | 'blocked';
+};
 
 export const AdminManager = () => {
   const { toast } = useToast();
   const [showAdmins, setShowAdmins] = useState(false);
-  const [admins, setAdmins] = useState(() => {
-    const savedAdmins = localStorage.getItem('admins');
-    return savedAdmins ? JSON.parse(savedAdmins) : [
-      { id: 1, email: 'willsttar@gmail.com', password: '212300', status: 'active' }
-    ];
-  });
-  const [newAdmin, setNewAdmin] = useState({ email: '', password: '' });
+  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [newAdmin, setNewAdmin] = useState({ email: '' });
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleToggleStatus = (adminId: number) => {
-    setAdmins(prevAdmins =>
-      prevAdmins.map(admin =>
-        admin.id === adminId
-          ? { ...admin, status: admin.status === "active" ? "blocked" : "active" }
-          : admin
+  useEffect(() => {
+    fetchAdmins();
+    
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('admin-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'admins'
+        },
+        (payload) => {
+          console.log('Change received!', payload);
+          fetchAdmins();
+        }
       )
-    );
-    localStorage.setItem('admins', JSON.stringify(admins));
-    toast({
-      title: "Status atualizado",
-      description: "O status do administrador foi atualizado com sucesso.",
-    });
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchAdmins = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('admins')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAdmins(data || []);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+      toast({
+        title: "Erro ao carregar administradores",
+        description: "Ocorreu um erro ao carregar a lista de administradores.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleAddAdmin = () => {
-    const newAdminData = {
-      id: Date.now(),
-      ...newAdmin,
-      status: "active"
-    };
-    
-    const updatedAdmins = [...admins, newAdminData];
-    setAdmins(updatedAdmins);
-    localStorage.setItem('admins', JSON.stringify(updatedAdmins));
-    
-    toast({
-      title: "Administrador adicionado",
-      description: "O novo administrador foi cadastrado com sucesso.",
-    });
+  const handleToggleStatus = async (adminId: string) => {
+    try {
+      const admin = admins.find(a => a.id === adminId);
+      if (!admin) return;
+
+      const newStatus = admin.status === 'active' ? 'blocked' : 'active';
+      
+      const { error } = await supabase
+        .from('admins')
+        .update({ status: newStatus })
+        .eq('id', adminId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status atualizado",
+        description: "O status do administrador foi atualizado com sucesso.",
+      });
+    } catch (error) {
+      console.error('Error updating admin status:', error);
+      toast({
+        title: "Erro ao atualizar status",
+        description: "Ocorreu um erro ao atualizar o status do administrador.",
+        variant: "destructive"
+      });
+    }
   };
+
+  const handleAddAdmin = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('admins')
+        .insert([{ email: newAdmin.email }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Administrador adicionado",
+        description: "O novo administrador foi cadastrado com sucesso.",
+      });
+
+      setNewAdmin({ email: '' });
+    } catch (error) {
+      console.error('Error adding admin:', error);
+      toast({
+        title: "Erro ao adicionar administrador",
+        description: "Ocorreu um erro ao cadastrar o novo administrador.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow">
@@ -78,16 +152,6 @@ export const AdminManager = () => {
                       className="w-full"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Senha</label>
-                    <Input 
-                      type="password" 
-                      placeholder="Senha"
-                      value={newAdmin.password}
-                      onChange={(e) => setNewAdmin({...newAdmin, password: e.target.value})}
-                      className="w-full"
-                    />
-                  </div>
                   <Button 
                     className="w-full bg-primary hover:bg-primary-hover text-white"
                     onClick={handleAddAdmin}
@@ -113,7 +177,6 @@ export const AdminManager = () => {
             <TableHeader>
               <TableRow className="bg-secondary hover:bg-secondary/80">
                 <TableHead>Email</TableHead>
-                <TableHead>Senha</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -122,7 +185,6 @@ export const AdminManager = () => {
               {admins.map((admin) => (
                 <TableRow key={admin.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium">{admin.email}</TableCell>
-                  <TableCell className="font-medium">{admin.password}</TableCell>
                   <TableCell>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       admin.status === "active"
