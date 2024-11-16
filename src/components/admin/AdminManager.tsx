@@ -91,7 +91,10 @@ export const AdminManager = () => {
     try {
       const { error } = await supabase
         .from('admins')
-        .insert([{ email }]);
+        .insert([{ 
+          email,
+          password: 'default_password' // Adding a default password for new admins
+        }]);
 
       if (error) throw error;
 
