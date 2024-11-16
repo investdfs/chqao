@@ -2,6 +2,7 @@ import { DashboardHeader } from "@/components/admin/DashboardHeader";
 import { StatisticsCards } from "@/components/admin/StatisticsCards";
 import { SubjectManager } from "@/components/admin/SubjectManager";
 import { StudentManager } from "@/components/admin/StudentManager";
+import { AdminManager } from "@/components/admin/AdminManager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -36,11 +37,19 @@ const AdminDashboard = () => {
         
         <StatisticsCards
           totalStudents={2}
-          totalQuestions={questions.length}
+          totalQuestions={1}
           weeklyAccess={150}
           newRegistrations={5}
-          topStudents={mockTopStudents}
+          topStudents={[
+            { name: "João Silva", accessCount: 25 },
+            { name: "Maria Santos", accessCount: 20 },
+            { name: "Pedro Oliveira", accessCount: 15 },
+          ]}
         />
+
+        <AdminManager />
+        
+        <StudentManager />
 
         <SubjectManager />
 
@@ -132,8 +141,6 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
-
-        <StudentManager />
       </div>
     </div>
   );

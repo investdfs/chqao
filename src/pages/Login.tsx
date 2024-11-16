@@ -5,20 +5,6 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Mock data - In a real app this would come from your backend
-const registeredUsers = [
-  { 
-    email: "joao@email.com",
-    password: "123456",
-    status: "active"
-  },
-  { 
-    email: "maria@email.com",
-    password: "654321",
-    status: "blocked"
-  },
-];
-
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -33,12 +19,33 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Find user in registered users
-      const user = registeredUsers.find(u => 
-        u.email === formData.email && u.password === formData.password
+      // Check if it's an admin
+      const savedAdmins = localStorage.getItem('admins');
+      const admins = savedAdmins ? JSON.parse(savedAdmins) : [];
+      const adminUser = admins.find((admin: any) => 
+        admin.email === formData.email && 
+        admin.password === formData.password &&
+        admin.status === "active"
       );
 
-      if (!user) {
+      if (adminUser) {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo, Administrador!",
+        });
+        navigate("/admin-dashboard");
+        return;
+      }
+
+      // Check if it's a student
+      const savedStudents = localStorage.getItem('students');
+      const students = savedStudents ? JSON.parse(savedStudents) : [];
+      const studentUser = students.find((student: any) => 
+        student.email === formData.email && 
+        student.password === formData.password
+      );
+
+      if (!studentUser) {
         toast({
           title: "Usuário não encontrado",
           description: "Por favor, registre-se primeiro para acessar o sistema.",
@@ -53,15 +60,9 @@ const Login = () => {
         description: "Bem-vindo ao CHQAO!",
       });
 
-      // If user is admin, redirect to admin dashboard
-      if (formData.email === "admin" && formData.password === "admin") {
-        navigate("/admin-dashboard");
-      } else {
-        // For regular users, redirect to student dashboard
-        navigate("/student-dashboard", { 
-          state: { userStatus: user.status }
-        });
-      }
+      navigate("/student-dashboard", { 
+        state: { userStatus: studentUser.status }
+      });
     } catch (error) {
       toast({
         title: "Erro ao fazer login",

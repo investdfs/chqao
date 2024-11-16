@@ -2,36 +2,25 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, Plus, RefreshCw } from "lucide-react";
-
-// Mock data - Em uma aplicação real, viria do banco de dados
-const initialStudents = [
-  { 
-    id: 1, 
-    name: "João Silva", 
-    email: "joao@email.com", 
-    password: "123456",
-    status: "active",
-    plan: "free" 
-  },
-  { 
-    id: 2, 
-    name: "Maria Santos", 
-    email: "maria@email.com", 
-    password: "654321",
-    status: "blocked",
-    plan: "paid" 
-  },
-];
+import { StudentList } from "./StudentList";
 
 export const StudentManager = () => {
   const { toast } = useToast();
-  const [students, setStudents] = useState(initialStudents);
+  const [students, setStudents] = useState(() => {
+    const savedStudents = localStorage.getItem('students');
+    return savedStudents ? JSON.parse(savedStudents) : [];
+  });
   const [showStudents, setShowStudents] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    name: '',
+    email: '',
+    password: '',
+    plan: 'free'
+  });
 
   const handleToggleStatus = (studentId: number) => {
     setStudents(prevStudents =>
@@ -48,11 +37,20 @@ export const StudentManager = () => {
     });
   };
 
-  const handleRefreshList = () => {
-    // Em uma aplicação real, isso faria uma nova chamada à API
+  const handleAddStudent = () => {
+    const newStudentData = {
+      id: Date.now(),
+      ...newStudent,
+      status: "active"
+    };
+    
+    const updatedStudents = [...students, newStudentData];
+    setStudents(updatedStudents);
+    localStorage.setItem('students', JSON.stringify(updatedStudents));
+    
     toast({
-      title: "Lista atualizada",
-      description: "A lista de alunos foi atualizada com sucesso.",
+      title: "Aluno adicionado",
+      description: "O novo aluno foi cadastrado com sucesso.",
     });
   };
 
@@ -76,19 +74,36 @@ export const StudentManager = () => {
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
                     <label>Nome</label>
-                    <Input placeholder="Nome do aluno" />
+                    <Input 
+                      placeholder="Nome do aluno"
+                      value={newStudent.name}
+                      onChange={(e) => setNewStudent({...newStudent, name: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label>Email</label>
-                    <Input type="email" placeholder="Email do aluno" />
+                    <Input 
+                      type="email" 
+                      placeholder="Email do aluno"
+                      value={newStudent.email}
+                      onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label>Senha</label>
-                    <Input type="password" placeholder="Senha inicial" />
+                    <Input 
+                      type="password" 
+                      placeholder="Senha inicial"
+                      value={newStudent.password}
+                      onChange={(e) => setNewStudent({...newStudent, password: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label>Plano</label>
-                    <Select>
+                    <Select 
+                      value={newStudent.plan}
+                      onValueChange={(value) => setNewStudent({...newStudent, plan: value})}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o plano" />
                       </SelectTrigger>
@@ -98,18 +113,22 @@ export const StudentManager = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button className="w-full" onClick={() => {
-                    toast({
-                      title: "Aluno adicionado",
-                      description: "O novo aluno foi cadastrado com sucesso.",
-                    });
-                  }}>
+                  <Button className="w-full" onClick={handleAddStudent}>
                     Adicionar Aluno
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
-            <Button variant="outline" onClick={handleRefreshList}>
+            <Button variant="outline" onClick={() => {
+              const savedStudents = localStorage.getItem('students');
+              if (savedStudents) {
+                setStudents(JSON.parse(savedStudents));
+              }
+              toast({
+                title: "Lista atualizada",
+                description: "A lista de alunos foi atualizada com sucesso.",
+              });
+            }}>
               <RefreshCw className="h-4 w-4 mr-2" />
               Atualizar Lista
             </Button>
@@ -122,102 +141,7 @@ export const StudentManager = () => {
       </CardHeader>
       {showStudents && (
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Senha</TableHead>
-                <TableHead>Plano</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {students.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.email}</TableCell>
-                  <TableCell>{student.password}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      student.plan === "paid" 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
-                      {student.plan === "paid" ? "Pago" : "Free"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      student.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}>
-                      {student.status === "active" ? "Ativo" : "Bloqueado"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleToggleStatus(student.id)}
-                      >
-                        {student.status === "active" ? "Bloquear" : "Ativar"}
-                      </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            Editar
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Editar Dados do Aluno</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                              <label>Nome</label>
-                              <Input defaultValue={student.name} />
-                            </div>
-                            <div className="space-y-2">
-                              <label>Email</label>
-                              <Input defaultValue={student.email} />
-                            </div>
-                            <div className="space-y-2">
-                              <label>Nova Senha</label>
-                              <Input type="password" placeholder="Digite a nova senha" />
-                            </div>
-                            <div className="space-y-2">
-                              <label>Plano</label>
-                              <Select defaultValue={student.plan}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="free">Free</SelectItem>
-                                  <SelectItem value="paid">Pago</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <Button className="w-full" onClick={() => {
-                              toast({
-                                title: "Dados atualizados",
-                                description: "Os dados do aluno foram atualizados com sucesso.",
-                              });
-                            }}>
-                              Salvar Alterações
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <StudentList students={students} onToggleStatus={handleToggleStatus} />
         </CardContent>
       )}
     </Card>
