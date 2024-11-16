@@ -24,11 +24,10 @@ const Login = () => {
 
     try {
       if (isAdmin) {
-        // Check admin credentials against Supabase
         const { data: adminData, error: adminError } = await supabase
           .from('admins')
           .select('*')
-          .eq('email', formData.email)
+          .eq('email', formData.email.toLowerCase().trim())
           .eq('password', formData.password)
           .single();
 
@@ -64,7 +63,7 @@ const Login = () => {
       const { data: studentData, error: studentError } = await supabase
         .from('students')
         .select('*')
-        .eq('email', formData.email)
+        .eq('email', formData.email.toLowerCase().trim())
         .eq('password', formData.password)
         .single();
 
@@ -72,6 +71,16 @@ const Login = () => {
         toast({
           title: "Usuário não encontrado",
           description: "Email ou senha incorretos.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (studentData.status === 'blocked') {
+        toast({
+          title: "Acesso bloqueado",
+          description: "Sua conta está bloqueada. Entre em contato com o suporte.",
           variant: "destructive"
         });
         setLoading(false);
@@ -87,6 +96,7 @@ const Login = () => {
         state: { userStatus: studentData.status }
       });
     } catch (error) {
+      console.error('Error during login:', error);
       toast({
         title: "Erro ao fazer login",
         description: "Por favor, tente novamente.",
