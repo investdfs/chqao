@@ -16,9 +16,9 @@ interface StatisticsCardsProps {
 export const StatisticsCards = ({ 
   totalStudents, 
   totalQuestions, 
-  weeklyAccess,
-  newRegistrations,
-  topStudents 
+  weeklyAccess = 0,
+  newRegistrations = 0,
+  topStudents = []
 }: StatisticsCardsProps) => {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

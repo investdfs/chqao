@@ -19,7 +19,13 @@ const questions = [
     correctAnswer: "4",
     difficulty: "Fácil"
   },
-  // ... mais questões aqui
+];
+
+// Mock data for top students
+const mockTopStudents = [
+  { name: "João Silva", accessCount: 25 },
+  { name: "Maria Santos", accessCount: 20 },
+  { name: "Pedro Oliveira", accessCount: 15 },
 ];
 
 const AdminDashboard = () => {
@@ -31,7 +37,9 @@ const AdminDashboard = () => {
         <StatisticsCards
           totalStudents={2}
           totalQuestions={questions.length}
-          averagePerformance={78}
+          weeklyAccess={150}
+          newRegistrations={5}
+          topStudents={mockTopStudents}
         />
 
         <SubjectManager />
