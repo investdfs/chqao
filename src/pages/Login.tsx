@@ -22,14 +22,19 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
+    const normalizedEmail = formData.email.toLowerCase().trim();
+    console.log('Attempting login with email:', normalizedEmail);
+
     try {
       if (isAdmin) {
         const { data: adminData, error: adminError } = await supabase
           .from('admins')
           .select('*')
-          .eq('email', formData.email.toLowerCase().trim())
+          .eq('email', normalizedEmail)
           .eq('password', formData.password)
           .single();
+
+        console.log('Admin login attempt result:', { data: adminData, error: adminError });
 
         if (adminError || !adminData) {
           toast({
@@ -59,13 +64,15 @@ const Login = () => {
         return;
       }
 
-      // Check student credentials against Supabase
+      // Student login
       const { data: studentData, error: studentError } = await supabase
         .from('students')
         .select('*')
-        .eq('email', formData.email.toLowerCase().trim())
+        .eq('email', normalizedEmail)
         .eq('password', formData.password)
         .single();
+
+      console.log('Student login attempt result:', { data: studentData, error: studentError });
 
       if (studentError || !studentData) {
         toast({
