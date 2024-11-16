@@ -1,23 +1,20 @@
+import * as XLSX from 'xlsx';
+
 export const downloadExcelTemplate = () => {
-  // In a real application, this would generate an actual Excel file
-  // For now, we'll create a simple CSV that Excel can open
-  const headers = ["Matéria", "Tópico", "Questão", "Resposta Correta", "Dificuldade"];
+  const headers = ["Matéria", "Tópico", "Questão", "Opção A", "Opção B", "Opção C", "Opção D", "Opção E", "Resposta Correta", "Explicação", "Dificuldade"];
+  
   const data = [
-    ["Matemática", "Álgebra", "Quanto é 2 + 2?", "4", "Fácil"],
-    ["Português", "Gramática", "O que é um substantivo?", "Palavra que nomeia seres", "Médio"]
+    ["Matemática", "Álgebra", "Quanto é 2 + 2?", "2", "3", "4", "5", "6", "C", "A soma de 2 + 2 é igual a 4", "Fácil"],
+    ["Português", "Gramática", "O que é um substantivo?", "Palavra que indica ação", "Palavra que nomeia seres", "Palavra que qualifica", "Palavra que liga", "Palavra que modifica", "B", "Substantivo é a palavra que nomeia seres, objetos, lugares, sentimentos, etc.", "Médio"]
   ];
 
-  const csvContent = [
-    headers.join(","),
-    ...data.map(row => row.join(","))
-  ].join("\n");
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Template");
 
-  const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "modelo_questoes.xls");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Adjust column widths
+  const colWidths = headers.map(() => ({ wch: 20 }));
+  ws['!cols'] = colWidths;
+
+  XLSX.writeFile(wb, "modelo_questoes.xlsx");
 };

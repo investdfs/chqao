@@ -1,6 +1,7 @@
 import { Check, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
 
 interface QuestionOption {
   id: string;
@@ -18,6 +19,7 @@ interface QuestionCardProps {
   selectedAnswer: string;
   hasAnswered: boolean;
   onAnswerSelect: (value: string) => void;
+  isUserBlocked?: boolean;
 }
 
 const QuestionCard = ({
@@ -25,7 +27,31 @@ const QuestionCard = ({
   selectedAnswer,
   hasAnswered,
   onAnswerSelect,
+  isUserBlocked = false,
 }: QuestionCardProps) => {
+  if (isUserBlocked) {
+    return (
+      <Card className="animate-fade-in">
+        <CardContent className="p-6">
+          <div className="space-y-6 text-center">
+            <div className="text-lg font-medium text-red-600">
+              Usuário bloqueado
+            </div>
+            <p className="text-gray-600">
+              Entre em contato com o administrador para mais informações
+            </p>
+            <Button
+              className="w-full"
+              onClick={() => window.open("https://wa.me/5532988847713", "_blank")}
+            >
+              Contatar Administrador
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="animate-fade-in">
       <CardContent className="p-6">
