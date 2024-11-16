@@ -93,7 +93,7 @@ export const AdminManager = () => {
         .from('admins')
         .insert([{ 
           email,
-          password: 'default_password' // Adding a default password for new admins
+          password: 'admin2300' // Changed from 'default_password' to 'admin2300'
         }]);
 
       if (error) throw error;
