@@ -3,26 +3,63 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { Upload, Users, BookOpen, BarChart2 } from "lucide-react";
+import { Upload, Users, BookOpen, BarChart2, Download } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const subjects = [
-  { id: 1, name: "História", topics: ["Idade Moderna", "Brasil Colônia", "Segunda Guerra Mundial"] },
-  { id: 2, name: "Geografia", topics: ["Clima", "Relevo", "População"] },
-  { id: 3, name: "Biologia", topics: ["Genética", "Ecologia", "Evolução"] },
-];
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedTopic, setSelectedTopic] = useState("");
+  const [newSubject, setNewSubject] = useState("");
+  const [newTopic, setNewTopic] = useState("");
+  const [showStudents, setShowStudents] = useState(false);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Here you would handle the file upload to your backend
-      console.log("File to upload:", file);
+  // Mock data - In a real app, this would come from your database
+  const students = [
+    { id: 1, name: "João Silva", email: "joao@email.com", status: "active" },
+    { id: 2, name: "Maria Santos", email: "maria@email.com", status: "blocked" },
+  ];
+
+  const handleAddSubject = () => {
+    if (newSubject) {
+      // Here you would add the subject to your database
+      toast({
+        title: "Matéria adicionada",
+        description: `A matéria ${newSubject} foi adicionada com sucesso.`,
+      });
+      setNewSubject("");
     }
+  };
+
+  const handleAddTopic = () => {
+    if (selectedSubject && newTopic) {
+      // Here you would add the topic to your database
+      toast({
+        title: "Tópico adicionado",
+        description: `O tópico ${newTopic} foi adicionado à matéria ${selectedSubject}.`,
+      });
+      setNewTopic("");
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    // Here you would generate and download the template file
+    toast({
+      title: "Download iniciado",
+      description: "O modelo de planilha está sendo baixado.",
+    });
+  };
+
+  const handleToggleStudentStatus = (studentId: number) => {
+    // Here you would update the student's status in your database
+    toast({
+      title: "Status atualizado",
+      description: "O status do aluno foi atualizado com sucesso.",
+    });
   };
 
   return (
@@ -35,7 +72,7 @@ const AdminDashboard = () => {
           </Button>
         </header>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -44,8 +81,8 @@ const AdminDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">1,234</div>
-              <p className="text-gray-600">Alunos ativos</p>
+              <div className="text-3xl font-bold text-primary">{students.length}</div>
+              <p className="text-gray-600">Alunos cadastrados</p>
             </CardContent>
           </Card>
 
@@ -57,7 +94,7 @@ const AdminDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">5,678</div>
+              <div className="text-3xl font-bold text-green-600">150</div>
               <p className="text-gray-600">Questões no banco</p>
             </CardContent>
           </Card>
@@ -66,12 +103,12 @@ const AdminDashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart2 className="h-5 w-5" />
-                Média de Desempenho
+                Taxa de Aproveitamento
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-blue-600">78%</div>
-              <p className="text-gray-600">Taxa média de acerto</p>
+              <p className="text-gray-600">Média geral dos alunos</p>
             </CardContent>
           </Card>
         </div>
@@ -83,7 +120,17 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Matéria</label>
+                <Input
+                  placeholder="Nome da nova matéria"
+                  value={newSubject}
+                  onChange={(e) => setNewSubject(e.target.value)}
+                />
+                <Button className="w-full" onClick={handleAddSubject}>
+                  Adicionar Matéria
+                </Button>
+              </div>
+
+              <div className="space-y-2">
                 <Select value={selectedSubject} onValueChange={setSelectedSubject}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione uma matéria" />
@@ -96,33 +143,15 @@ const AdminDashboard = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tópico</label>
-                <Select
-                  value={selectedTopic}
-                  onValueChange={setSelectedTopic}
-                  disabled={!selectedSubject}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um tópico" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subjects
-                      .find((s) => s.name === selectedSubject)
-                      ?.topics.map((topic) => (
-                        <SelectItem key={topic} value={topic}>
-                          {topic}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex gap-2">
-                <Button className="flex-1">Adicionar Matéria</Button>
-                <Button className="flex-1">Adicionar Tópico</Button>
+                <Input
+                  placeholder="Nome do novo tópico"
+                  value={newTopic}
+                  onChange={(e) => setNewTopic(e.target.value)}
+                />
+                <Button className="w-full" onClick={handleAddTopic}>
+                  Adicionar Tópico
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -131,34 +160,143 @@ const AdminDashboard = () => {
             <CardHeader>
               <CardTitle>Importar Questões</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <Input
-                    type="file"
-                    accept=".csv,.xlsx"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="cursor-pointer flex flex-col items-center space-y-2"
-                  >
-                    <Upload className="h-8 w-8 text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      Clique para fazer upload ou arraste um arquivo
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      Suporta arquivos CSV e Excel
-                    </span>
-                  </label>
-                </div>
-                <Button className="w-full">Processar Arquivo</Button>
+            <CardContent className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg space-y-2">
+                <h3 className="font-medium">Instruções para importação:</h3>
+                <ol className="list-decimal list-inside space-y-1 text-sm">
+                  <li>Baixe o modelo de planilha clicando no botão abaixo</li>
+                  <li>Preencha as questões seguindo o formato do modelo</li>
+                  <li>Não modifique as colunas ou sua ordem</li>
+                  <li>Salve o arquivo em formato .xlsx ou .csv</li>
+                  <li>Faça upload do arquivo preenchido</li>
+                </ol>
+              </div>
+
+              <Button className="w-full flex items-center gap-2" onClick={handleDownloadTemplate}>
+                <Download className="h-4 w-4" />
+                Baixar Modelo de Planilha
+              </Button>
+
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Input
+                  type="file"
+                  accept=".csv,.xlsx"
+                  className="hidden"
+                  id="file-upload"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      toast({
+                        title: "Arquivo recebido",
+                        description: "Processando arquivo de questões...",
+                      });
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer flex flex-col items-center space-y-2"
+                >
+                  <Upload className="h-8 w-8 text-gray-400" />
+                  <span className="text-sm text-gray-600">
+                    Clique para fazer upload ou arraste um arquivo
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    Suporta arquivos CSV e Excel
+                  </span>
+                </label>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Gerenciar Alunos</span>
+              <Button onClick={() => setShowStudents(!showStudents)}>
+                {showStudents ? "Ocultar Alunos" : "Ver Alunos"}
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          {showStudents && (
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {students.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell>{student.name}</TableCell>
+                      <TableCell>{student.email}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            student.status === "active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {student.status === "active" ? "Ativo" : "Bloqueado"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleToggleStudentStatus(student.id)}
+                          >
+                            {student.status === "active" ? "Bloquear" : "Ativar"}
+                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                Editar
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Editar Dados do Aluno</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                  <label>Nome</label>
+                                  <Input defaultValue={student.name} />
+                                </div>
+                                <div className="space-y-2">
+                                  <label>Email</label>
+                                  <Input defaultValue={student.email} />
+                                </div>
+                                <div className="space-y-2">
+                                  <label>Nova Senha</label>
+                                  <Input type="password" placeholder="Digite a nova senha" />
+                                </div>
+                                <Button className="w-full" onClick={() => {
+                                  toast({
+                                    title: "Dados atualizados",
+                                    description: "Os dados do aluno foram atualizados com sucesso.",
+                                  });
+                                }}>
+                                  Salvar Alterações
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          )}
+        </Card>
       </div>
     </div>
   );
