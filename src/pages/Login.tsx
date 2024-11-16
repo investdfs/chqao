@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,23 +24,15 @@ const Login = () => {
 
     try {
       if (isAdmin) {
-        // Check if it's an admin
-        const savedAdmins = localStorage.getItem('admins');
-        const admins = savedAdmins ? JSON.parse(savedAdmins) : [];
-        const adminUser = admins.find((admin: any) => 
-          admin.email === formData.email && 
-          admin.password === formData.password &&
-          admin.status === "active"
-        );
+        // Check admin credentials against Supabase
+        const { data: adminData, error: adminError } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('email', formData.email)
+          .eq('password', formData.password)
+          .single();
 
-        if (adminUser) {
-          toast({
-            title: "Login realizado com sucesso!",
-            description: "Bem-vindo, Administrador!",
-          });
-          navigate("/admin-dashboard");
-          return;
-        } else {
+        if (adminError || !adminData) {
           toast({
             title: "Acesso negado",
             description: "Credenciais de administrador inválidas.",
@@ -48,23 +41,40 @@ const Login = () => {
           setLoading(false);
           return;
         }
+
+        if (adminData.status === 'blocked') {
+          toast({
+            title: "Acesso bloqueado",
+            description: "Sua conta de administrador está bloqueada.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo, Administrador!",
+        });
+        navigate("/admin-dashboard");
+        return;
       }
 
-      // Check if it's a student
-      const savedStudents = localStorage.getItem('students');
-      const students = savedStudents ? JSON.parse(savedStudents) : [];
-      const studentUser = students.find((student: any) => 
-        student.email === formData.email && 
-        student.password === formData.password
-      );
+      // Check student credentials
+      const { data: studentData, error: studentError } = await supabase
+        .from('students')
+        .select('*')
+        .eq('email', formData.email)
+        .eq('password', formData.password)
+        .single();
 
-      if (!studentUser) {
+      if (studentError || !studentData) {
         toast({
           title: "Usuário não encontrado",
-          description: "Por favor, registre-se primeiro para acessar o sistema.",
+          description: "Email ou senha incorretos.",
           variant: "destructive"
         });
-        navigate("/register");
+        setLoading(false);
         return;
       }
 
@@ -74,7 +84,7 @@ const Login = () => {
       });
 
       navigate("/student-dashboard", { 
-        state: { userStatus: studentUser.status }
+        state: { userStatus: studentData.status }
       });
     } catch (error) {
       toast({
