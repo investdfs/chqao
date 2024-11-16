@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import QuestionCard from "@/components/student/QuestionCard";
 import QuestionFilters from "@/components/student/QuestionFilters";
+import { PerformanceMetrics } from "@/components/student/PerformanceMetrics";
+import { SubjectProgress } from "@/components/student/SubjectProgress";
+import { StudyGuide } from "@/components/student/StudyGuide";
 
 const subjects = [
   { 
@@ -44,6 +47,24 @@ const StudentDashboard = () => {
   const [hasAnswered, setHasAnswered] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
 
+  // Sample data - In a real app, this would come from an API/database
+  const performanceData = {
+    correctAnswers: 3,
+    totalQuestions: 4,
+    studyTime: "5m 12s",
+    averageTime: "1m 18s",
+  };
+
+  const subjectsProgress = [
+    { name: "Biologia", questionsAnswered: 3, correctAnswers: 2 },
+    { name: "Português", questionsAnswered: 1, correctAnswers: 1 },
+  ];
+
+  const studyGuideData = {
+    weakPoints: ["Genética", "Ecologia"],
+    strongPoints: ["Evolução", "População"],
+  };
+
   const handleAnswerSelect = (value: string) => {
     setSelectedAnswer(value);
     setHasAnswered(true);
@@ -60,7 +81,13 @@ const StudentDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        <div className={`space-y-6 ${isFocusMode ? 'hidden' : ''}`}>
+          <PerformanceMetrics {...performanceData} />
+          <SubjectProgress subjects={subjectsProgress} />
+          <StudyGuide {...studyGuideData} />
+        </div>
+
         <QuestionFilters
           selectedSubject={selectedSubject}
           selectedTopic={selectedTopic}
