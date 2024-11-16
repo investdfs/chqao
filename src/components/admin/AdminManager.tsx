@@ -1,30 +1,24 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Eye } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminList } from "./AdminList";
+import { AddAdminDialog } from "./AddAdminDialog";
+import type { Database } from "@/integrations/supabase/types";
 
-type Admin = {
-  id: string;
-  email: string;
-  status: 'active' | 'blocked';
-};
+type Admin = Database['public']['Tables']['admins']['Row'];
 
 export const AdminManager = () => {
   const { toast } = useToast();
   const [showAdmins, setShowAdmins] = useState(false);
   const [admins, setAdmins] = useState<Admin[]>([]);
-  const [newAdmin, setNewAdmin] = useState({ email: '' });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchAdmins();
     
-    // Subscribe to realtime changes
     const channel = supabase
       .channel('admin-changes')
       .on(
@@ -34,8 +28,7 @@ export const AdminManager = () => {
           schema: 'public',
           table: 'admins'
         },
-        (payload) => {
-          console.log('Change received!', payload);
+        () => {
           fetchAdmins();
         }
       )
@@ -94,13 +87,11 @@ export const AdminManager = () => {
     }
   };
 
-  const handleAddAdmin = async () => {
+  const handleAddAdmin = async (email: string) => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('admins')
-        .insert([{ email: newAdmin.email }])
-        .select()
-        .single();
+        .insert([{ email }]);
 
       if (error) throw error;
 
@@ -108,8 +99,6 @@ export const AdminManager = () => {
         title: "Administrador adicionado",
         description: "O novo administrador foi cadastrado com sucesso.",
       });
-
-      setNewAdmin({ email: '' });
     } catch (error) {
       console.error('Error adding admin:', error);
       toast({
@@ -130,37 +119,7 @@ export const AdminManager = () => {
         <CardTitle className="flex items-center justify-between">
           <span>Gerenciar Administradores</span>
           <div className="flex gap-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Adicionar Admin
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Adicionar Novo Administrador</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Email</label>
-                    <Input 
-                      type="email" 
-                      placeholder="Email do administrador"
-                      value={newAdmin.email}
-                      onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})}
-                      className="w-full"
-                    />
-                  </div>
-                  <Button 
-                    className="w-full bg-primary hover:bg-primary-hover text-white"
-                    onClick={handleAddAdmin}
-                  >
-                    Adicionar Administrador
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <AddAdminDialog onAdd={handleAddAdmin} />
             <Button 
               onClick={() => setShowAdmins(!showAdmins)}
               className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2"
@@ -173,41 +132,7 @@ export const AdminManager = () => {
       </CardHeader>
       {showAdmins && (
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-secondary hover:bg-secondary/80">
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {admins.map((admin) => (
-                <TableRow key={admin.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">{admin.email}</TableCell>
-                  <TableCell>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      admin.status === "active"
-                        ? "bg-success-light text-success"
-                        : "bg-error-light text-error"
-                    }`}>
-                      {admin.status === "active" ? "Ativo" : "Bloqueado"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant={admin.status === "active" ? "destructive" : "default"}
-                      size="sm"
-                      onClick={() => handleToggleStatus(admin.id)}
-                      className="w-24"
-                    >
-                      {admin.status === "active" ? "Bloquear" : "Ativar"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <AdminList admins={admins} onToggleStatus={handleToggleStatus} />
         </CardContent>
       )}
     </Card>
