@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Progress } from "@/components/ui/progress";
-import { Check, X, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import QuestionCard from "@/components/student/QuestionCard";
+import QuestionFilters from "@/components/student/QuestionFilters";
 
 const subjects = [
-  { id: 1, name: "História", topics: ["Idade Moderna", "Brasil Colônia", "Segunda Guerra Mundial"] },
-  { id: 2, name: "Geografia", topics: ["Clima", "Relevo", "População"] },
-  { id: 3, name: "Biologia", topics: ["Genética", "Ecologia", "Evolução"] },
+  { 
+    id: 1, 
+    name: "História", 
+    topics: ["Idade Moderna", "Brasil Colônia", "Segunda Guerra Mundial"] 
+  },
+  { 
+    id: 2, 
+    name: "Geografia", 
+    topics: ["Clima", "Relevo", "População"] 
+  },
+  { 
+    id: 3, 
+    name: "Biologia", 
+    topics: ["Genética", "Ecologia", "Evolução"] 
+  },
 ];
 
 const sampleQuestion = {
@@ -23,7 +32,8 @@ const sampleQuestion = {
     { id: "D", text: "O movimento de reformas religiosas." },
     { id: "E", text: "A manutenção do sistema feudal." }
   ],
-  correctAnswer: "A"
+  correctAnswer: "A",
+  explanation: "A expansão marítima europeia dos séculos XV e XVI contribuiu diretamente para o agravamento do desmatamento devido à necessidade de madeira para a construção de navios e desenvolvimento da indústria naval, além do aumento do comércio que intensificou a exploração de recursos florestais."
 };
 
 const StudentDashboard = () => {
@@ -32,168 +42,46 @@ const StudentDashboard = () => {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
-  const [questionsAnswered, setQuestionsAnswered] = useState(2);
-  const totalQuestions = 10;
+  const [isFocusMode, setIsFocusMode] = useState(false);
 
-  const handleAnswer = () => {
+  const handleAnswerSelect = (value: string) => {
+    setSelectedAnswer(value);
     setHasAnswered(true);
-    if (selectedAnswer === sampleQuestion.correctAnswer) {
-      setQuestionsAnswered((prev) => Math.min(prev + 1, totalQuestions));
-    }
-  };
-
-  const resetQuestion = () => {
-    setSelectedAnswer("");
-    setHasAnswered(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <header className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+    <div className="min-h-screen bg-gray-50">
+      <header className={`bg-white shadow-sm transition-opacity duration-300 ${isFocusMode ? 'opacity-0' : 'opacity-100'}`}>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-primary">CHQAO - Estude Praticando</h1>
           <Button variant="outline" onClick={() => navigate("/")}>
             Sair
           </Button>
-        </header>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Progresso Diário</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Progress value={(questionsAnswered / totalQuestions) * 100} />
-                <p className="text-sm text-gray-600">
-                  {questionsAnswered}/{totalQuestions} questões respondidas
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Selecione a Matéria</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Escolha uma matéria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.name}>
-                      {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Selecione o Tópico</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                value={selectedTopic}
-                onValueChange={setSelectedTopic}
-                disabled={!selectedSubject}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Escolha um tópico" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects
-                    .find((s) => s.name === selectedSubject)
-                    ?.topics.map((topic) => (
-                      <SelectItem key={topic} value={topic}>
-                        {topic}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
         </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <QuestionFilters
+          selectedSubject={selectedSubject}
+          selectedTopic={selectedTopic}
+          onSubjectChange={setSelectedSubject}
+          onTopicChange={setSelectedTopic}
+          subjects={subjects}
+          onFocusMode={() => setIsFocusMode(!isFocusMode)}
+          isFocusMode={isFocusMode}
+        />
 
         {selectedSubject && selectedTopic && (
-          <Card className="animate-fade-in">
-            <CardContent className="p-6">
-              <div className="space-y-6">
-                <div className="text-lg font-medium">{sampleQuestion.text}</div>
-                
-                <RadioGroup
-                  value={selectedAnswer}
-                  onValueChange={setSelectedAnswer}
-                  disabled={hasAnswered}
-                  className="space-y-3"
-                >
-                  {sampleQuestion.options.map((option) => (
-                    <div
-                      key={option.id}
-                      className={`flex items-center space-x-2 p-4 rounded-lg border ${
-                        hasAnswered
-                          ? option.id === sampleQuestion.correctAnswer
-                            ? "border-success bg-success-light"
-                            : option.id === selectedAnswer
-                            ? "border-error bg-error-light"
-                            : "border-gray-200"
-                          : "border-gray-200 hover:border-primary hover:bg-primary-light"
-                      }`}
-                    >
-                      <RadioGroupItem value={option.id} id={option.id} />
-                      <label
-                        htmlFor={option.id}
-                        className="flex-1 cursor-pointer"
-                      >
-                        {option.text}
-                      </label>
-                      {hasAnswered && option.id === sampleQuestion.correctAnswer && (
-                        <Check className="h-5 w-5 text-success" />
-                      )}
-                      {hasAnswered &&
-                        option.id === selectedAnswer &&
-                        option.id !== sampleQuestion.correctAnswer && (
-                          <X className="h-5 w-5 text-error" />
-                        )}
-                    </div>
-                  ))}
-                </RadioGroup>
-
-                <div className="flex justify-between items-center">
-                  {hasAnswered ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={resetQuestion}
-                        className="flex items-center gap-2"
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                        Refazer
-                      </Button>
-                      <div className="flex items-center gap-4">
-                        <Button variant="outline">Anterior</Button>
-                        <Button>Próxima</Button>
-                      </div>
-                    </>
-                  ) : (
-                    <Button
-                      onClick={handleAnswer}
-                      disabled={!selectedAnswer}
-                      className="ml-auto"
-                    >
-                      Responder
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="mt-6">
+            <QuestionCard
+              question={sampleQuestion}
+              selectedAnswer={selectedAnswer}
+              hasAnswered={hasAnswered}
+              onAnswerSelect={handleAnswerSelect}
+            />
+          </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
