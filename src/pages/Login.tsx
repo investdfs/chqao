@@ -60,7 +60,7 @@ const Login = () => {
         return;
       }
 
-      // Check student credentials
+      // Check student credentials against Supabase
       const { data: studentData, error: studentError } = await supabase
         .from('students')
         .select('*')

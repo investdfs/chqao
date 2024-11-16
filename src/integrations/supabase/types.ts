@@ -33,6 +33,30 @@ export type Database = {
         }
         Relationships: []
       }
+      students: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          password: string
+          status: Database["public"]["Enums"]["student_status"] | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          password: string
+          status?: Database["public"]["Enums"]["student_status"] | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          password?: string
+          status?: Database["public"]["Enums"]["student_status"] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -42,6 +66,7 @@ export type Database = {
     }
     Enums: {
       admin_status: "active" | "blocked"
+      student_status: "active" | "blocked"
     }
     CompositeTypes: {
       [_ in never]: never
