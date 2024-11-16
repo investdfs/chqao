@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import QuestionCard from "@/components/student/QuestionCard";
 import QuestionFilters from "@/components/student/QuestionFilters";
@@ -41,6 +41,9 @@ const sampleQuestion = {
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const userStatus = location.state?.userStatus || "active";
+  
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -105,6 +108,7 @@ const StudentDashboard = () => {
               selectedAnswer={selectedAnswer}
               hasAnswered={hasAnswered}
               onAnswerSelect={handleAnswerSelect}
+              isUserBlocked={userStatus === "blocked"}
             />
           </div>
         )}

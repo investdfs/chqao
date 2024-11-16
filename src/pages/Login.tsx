@@ -5,12 +5,26 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+// Mock data - In a real app this would come from your backend
+const registeredUsers = [
+  { 
+    email: "joao@email.com",
+    password: "123456",
+    status: "active"
+  },
+  { 
+    email: "maria@email.com",
+    password: "654321",
+    status: "blocked"
+  },
+];
+
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -18,22 +32,45 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulating login validation
-    if (formData.username === "admin" && formData.password === "admin") {
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo, Administrador!",
-      });
-      navigate("/admin-dashboard");
-    } else {
-      // Here you would typically validate against your database
+    try {
+      // Find user in registered users
+      const user = registeredUsers.find(u => 
+        u.email === formData.email && u.password === formData.password
+      );
+
+      if (!user) {
+        toast({
+          title: "Usuário não encontrado",
+          description: "Por favor, registre-se primeiro para acessar o sistema.",
+          variant: "destructive"
+        });
+        navigate("/register");
+        return;
+      }
+
       toast({
         title: "Login realizado com sucesso!",
         description: "Bem-vindo ao CHQAO!",
       });
-      navigate("/student-dashboard");
+
+      // If user is admin, redirect to admin dashboard
+      if (formData.email === "admin" && formData.password === "admin") {
+        navigate("/admin-dashboard");
+      } else {
+        // For regular users, redirect to student dashboard
+        navigate("/student-dashboard", { 
+          state: { userStatus: user.status }
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao fazer login",
+        description: "Por favor, tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -45,13 +82,13 @@ const Login = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Usuário</label>
+              <label className="text-sm font-medium">Email</label>
               <Input
-                type="text"
+                type="email"
                 required
-                value={formData.username}
+                value={formData.email}
                 onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
+                  setFormData({ ...formData, email: e.target.value })
                 }
               />
             </div>
