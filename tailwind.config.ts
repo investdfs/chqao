@@ -25,22 +25,26 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#2B7A4B",
-          hover: "#236A3E",
-          light: "#EAF5ED",
-          dark: "#1B5A33",
+          DEFAULT: "#1a4d2e",
+          hover: "#143a23",
+          light: "#e8f5ed",
+          dark: "#0d2b1a",
         },
         secondary: {
-          DEFAULT: "#F4F7F5",
+          DEFAULT: "#edf2ef",
           foreground: "#1A1F2C",
         },
         success: {
-          DEFAULT: "#4CAF50",
-          light: "#E8F5E9",
+          DEFAULT: "#2e7d32",
+          light: "#e8f5e9",
         },
         error: {
-          DEFAULT: "#F44336",
-          light: "#FFEBEE",
+          DEFAULT: "#d32f2f",
+          light: "#ffebee",
+        },
+        card: {
+          DEFAULT: "#ffffff",
+          hover: "#f8faf9",
         },
       },
       keyframes: {
