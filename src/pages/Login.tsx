@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,22 +22,32 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Check if it's an admin
-      const savedAdmins = localStorage.getItem('admins');
-      const admins = savedAdmins ? JSON.parse(savedAdmins) : [];
-      const adminUser = admins.find((admin: any) => 
-        admin.email === formData.email && 
-        admin.password === formData.password &&
-        admin.status === "active"
-      );
+      if (isAdmin) {
+        // Check if it's an admin
+        const savedAdmins = localStorage.getItem('admins');
+        const admins = savedAdmins ? JSON.parse(savedAdmins) : [];
+        const adminUser = admins.find((admin: any) => 
+          admin.email === formData.email && 
+          admin.password === formData.password &&
+          admin.status === "active"
+        );
 
-      if (adminUser) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Bem-vindo, Administrador!",
-        });
-        navigate("/admin-dashboard");
-        return;
+        if (adminUser) {
+          toast({
+            title: "Login realizado com sucesso!",
+            description: "Bem-vindo, Administrador!",
+          });
+          navigate("/admin-dashboard");
+          return;
+        } else {
+          toast({
+            title: "Acesso negado",
+            description: "Credenciais de administrador inválidas.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
       }
 
       // Check if it's a student
@@ -82,6 +95,14 @@ const Login = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="admin-mode"
+                checked={isAdmin}
+                onCheckedChange={setIsAdmin}
+              />
+              <Label htmlFor="admin-mode">Logar como Administrador</Label>
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Email</label>
               <Input
@@ -112,17 +133,19 @@ const Login = () => {
               {loading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            <p className="text-gray-600">
-              Não tem uma conta?{" "}
-              <button
-                onClick={() => navigate("/register")}
-                className="text-primary hover:underline"
-              >
-                Registre-se
-              </button>
-            </p>
-          </div>
+          {!isAdmin && (
+            <div className="mt-4 text-center text-sm">
+              <p className="text-gray-600">
+                Não tem uma conta?{" "}
+                <button
+                  onClick={() => navigate("/register")}
+                  className="text-primary hover:underline"
+                >
+                  Registre-se
+                </button>
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
