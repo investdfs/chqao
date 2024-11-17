@@ -127,7 +127,6 @@ const AdminDashboard = () => {
                                 <TableHead>Tópico</TableHead>
                                 <TableHead>Questão</TableHead>
                                 <TableHead>Resposta</TableHead>
-                                <TableHead>Dificuldade</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -135,9 +134,8 @@ const AdminDashboard = () => {
                                 <TableRow key={question.id}>
                                   <TableCell>{question.subject}</TableCell>
                                   <TableCell>{question.topic}</TableCell>
-                                  <TableCell>{question.question}</TableCell>
+                                  <TableCell>{question.text}</TableCell>
                                   <TableCell>{question.correctAnswer}</TableCell>
-                                  <TableCell>{question.difficulty}</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
