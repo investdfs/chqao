@@ -15,6 +15,11 @@
   body {
     @apply bg-gray-50 text-foreground antialiased;
   }
+
+  /* Add styles for dropdowns and dialogs */
+  [data-radix-popper-content-wrapper] {
+    @apply bg-white shadow-lg rounded-lg border border-gray-200;
+  }
 }
 
 @layer components {
