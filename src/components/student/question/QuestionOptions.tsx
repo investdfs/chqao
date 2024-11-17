@@ -33,11 +33,11 @@ const QuestionOptions = ({
           key={option.id}
           className={`flex items-center space-x-2 p-4 rounded-lg border transition-colors ${
             !hasAnswered
-              ? "hover:border-primary hover:bg-primary-light dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
+              ? "hover:border-primary hover:bg-primary-light dark:hover:bg-blue-900/30 dark:hover:border-blue-600 border-gray-200 dark:border-gray-700"
               : option.id === correctAnswer
-              ? "border-success bg-success-light dark:bg-green-900/30"
+              ? "border-success bg-success-light dark:bg-blue-900/30 dark:border-blue-600"
               : option.id === selectedAnswer
-              ? "border-error bg-error-light dark:bg-red-900/30"
+              ? "border-error bg-error-light dark:bg-red-900/30 dark:border-red-600"
               : "border-gray-200 dark:border-gray-700"
           }`}
         >
@@ -49,7 +49,7 @@ const QuestionOptions = ({
             {option.text}
           </label>
           {hasAnswered && option.id === correctAnswer && (
-            <Check className="h-5 w-5 text-success dark:text-green-400" />
+            <Check className="h-5 w-5 text-success dark:text-blue-400" />
           )}
           {hasAnswered &&
             option.id === selectedAnswer &&

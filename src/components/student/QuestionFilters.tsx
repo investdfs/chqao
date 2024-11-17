@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface QuestionFiltersProps {
   selectedSubject: string;
@@ -13,6 +15,12 @@ interface QuestionFiltersProps {
   }>;
   onFocusMode: () => void;
   isFocusMode: boolean;
+  questionCount: number;
+  onQuestionCountChange: (value: string) => void;
+  skipCompleted: boolean;
+  onSkipCompletedChange: (checked: boolean) => void;
+  prioritizeErrors: boolean;
+  onPrioritizeErrorsChange: (checked: boolean) => void;
 }
 
 const QuestionFilters = ({
@@ -23,49 +31,90 @@ const QuestionFilters = ({
   subjects,
   onFocusMode,
   isFocusMode,
+  questionCount,
+  onQuestionCountChange,
+  skipCompleted,
+  onSkipCompletedChange,
+  prioritizeErrors,
+  onPrioritizeErrorsChange,
 }: QuestionFiltersProps) => {
   return (
-    <div className="flex items-center justify-between bg-white p-4 border-b">
-      <div className="flex items-center gap-4">
-        <Select value={selectedSubject} onValueChange={onSubjectChange}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Escolha uma matéria" />
-          </SelectTrigger>
-          <SelectContent>
-            {subjects.map((subject) => (
-              <SelectItem key={subject.id} value={subject.name}>
-                {subject.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={selectedTopic}
-          onValueChange={onTopicChange}
-          disabled={!selectedSubject}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Escolha um tópico" />
-          </SelectTrigger>
-          <SelectContent>
-            {subjects
-              .find((s) => s.name === selectedSubject)
-              ?.topics.map((topic) => (
-                <SelectItem key={topic} value={topic}>
-                  {topic}
+    <div className="flex flex-col gap-4 bg-white dark:bg-gray-800 p-4 border-b dark:border-gray-700">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Select value={selectedSubject} onValueChange={onSubjectChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Escolha uma matéria" />
+            </SelectTrigger>
+            <SelectContent>
+              {subjects.map((subject) => (
+                <SelectItem key={subject.id} value={subject.name}>
+                  {subject.name}
                 </SelectItem>
               ))}
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedTopic}
+            onValueChange={onTopicChange}
+            disabled={!selectedSubject}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Escolha um tópico" />
+            </SelectTrigger>
+            <SelectContent>
+              {subjects
+                .find((s) => s.name === selectedSubject)
+                ?.topics.map((topic) => (
+                  <SelectItem key={topic} value={topic}>
+                    {topic}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={String(questionCount)} onValueChange={onQuestionCountChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Número de questões" />
+            </SelectTrigger>
+            <SelectContent>
+              {[5, 10, 15, 20, 25, 30].map((count) => (
+                <SelectItem key={count} value={String(count)}>
+                  {count} questões
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button 
+          variant={isFocusMode ? "default" : "outline"}
+          onClick={onFocusMode}
+        >
+          {isFocusMode ? "Desativar Foco" : "Ativar Foco"}
+        </Button>
       </div>
 
-      <Button 
-        variant={isFocusMode ? "default" : "outline"}
-        onClick={onFocusMode}
-      >
-        {isFocusMode ? "Desativar Foco" : "Ativar Foco"}
-      </Button>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="skipCompleted"
+            checked={skipCompleted}
+            onCheckedChange={onSkipCompletedChange}
+          />
+          <Label htmlFor="skipCompleted">Pular questões já realizadas</Label>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="prioritizeErrors"
+            checked={prioritizeErrors}
+            onCheckedChange={onPrioritizeErrorsChange}
+          />
+          <Label htmlFor="prioritizeErrors">Priorizar questões erradas</Label>
+        </div>
+      </div>
     </div>
   );
 };

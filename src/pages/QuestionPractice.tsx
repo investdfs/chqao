@@ -46,6 +46,9 @@ const QuestionPractice = () => {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isFocusMode, setIsFocusMode] = useState(false);
+  const [questionCount, setQuestionCount] = useState(10);
+  const [skipCompleted, setSkipCompleted] = useState(false);
+  const [prioritizeErrors, setPrioritizeErrors] = useState(false);
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < sampleQuestions.length - 1) {
@@ -62,17 +65,21 @@ const QuestionPractice = () => {
   return (
     <ThemeProvider attribute="class" defaultTheme="light">
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-        <div className={isFocusMode ? "hidden" : "block"}>
-          <QuestionFilters
-            selectedSubject={selectedSubject}
-            selectedTopic={selectedTopic}
-            onSubjectChange={setSelectedSubject}
-            onTopicChange={setSelectedTopic}
-            subjects={subjects}
-            onFocusMode={() => setIsFocusMode(!isFocusMode)}
-            isFocusMode={isFocusMode}
-          />
-        </div>
+        <QuestionFilters
+          selectedSubject={selectedSubject}
+          selectedTopic={selectedTopic}
+          onSubjectChange={setSelectedSubject}
+          onTopicChange={setSelectedTopic}
+          subjects={subjects}
+          onFocusMode={() => setIsFocusMode(!isFocusMode)}
+          isFocusMode={isFocusMode}
+          questionCount={questionCount}
+          onQuestionCountChange={(value) => setQuestionCount(Number(value))}
+          skipCompleted={skipCompleted}
+          onSkipCompletedChange={setSkipCompleted}
+          prioritizeErrors={prioritizeErrors}
+          onPrioritizeErrorsChange={setPrioritizeErrors}
+        />
 
         <div className="max-w-3xl mx-auto px-4 py-6">
           <QuestionCard
