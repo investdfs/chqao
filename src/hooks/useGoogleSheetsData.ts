@@ -1,17 +1,20 @@
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/client'
+import { useQuery } from '@tanstack/react-query';
+import { fetchSheetData } from '@/integrations/sheetdb/client';
 
 export const useGoogleSheetsData = () => {
   return useQuery({
     queryKey: ['sheetsData'],
     queryFn: async () => {
-      const { data: functionData, error } = await supabase.functions.invoke('google-sheets')
+      const data = await fetchSheetData();
       
-      if (error) {
-        throw new Error('Erro ao buscar dados do Google Sheets')
-      }
+      // Separar os dados em usuários e questões
+      const users = data.filter((row: any) => row.type === 'admin' || row.type === 'student');
+      const questions = data.filter((row: any) => row.type === 'question');
       
-      return functionData
+      return {
+        users,
+        questions
+      };
     },
-  })
-}
+  });
+};
