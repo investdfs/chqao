@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,76 +18,42 @@ const Login = () => {
     password: "",
   });
 
+  const { data: sheetsData, isLoading: isLoadingData } = useGoogleSheetsData();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     const normalizedEmail = formData.email.toLowerCase().trim();
-    console.log('Attempting login with email:', normalizedEmail);
-
+    
     try {
-      if (isAdmin) {
-        const { data: adminData, error: adminError } = await supabase
-          .from('admins')
-          .select('*')
-          .eq('email', normalizedEmail)
-          .eq('password', formData.password)
-          .single();
-
-        console.log('Admin login attempt result:', { data: adminData, error: adminError });
-
-        if (adminError || !adminData) {
-          toast({
-            title: "Acesso negado",
-            description: "Credenciais de administrador inválidas.",
-            variant: "destructive"
-          });
-          setLoading(false);
-          return;
-        }
-
-        if (adminData.status === 'blocked') {
-          toast({
-            title: "Acesso bloqueado",
-            description: "Sua conta de administrador está bloqueada.",
-            variant: "destructive"
-          });
-          setLoading(false);
-          return;
-        }
-
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Bem-vindo, Administrador!",
-        });
-        navigate("/admin-dashboard");
-        return;
+      if (!sheetsData?.users) {
+        throw new Error('Erro ao carregar dados dos usuários');
       }
 
-      // Student login
-      const { data: studentData, error: studentError } = await supabase
-        .from('students')
-        .select('*')
-        .eq('email', normalizedEmail)
-        .eq('password', formData.password)
-        .single();
+      const user = sheetsData.users.find(
+        (u: any) => 
+          u.email === normalizedEmail && 
+          u.password === formData.password &&
+          u.type === (isAdmin ? 'admin' : 'student')
+      );
 
-      console.log('Student login attempt result:', { data: studentData, error: studentError });
-
-      if (studentError || !studentData) {
+      if (!user) {
         toast({
-          title: "Usuário não encontrado",
-          description: "Email ou senha incorretos.",
+          title: "Acesso negado",
+          description: isAdmin ? "Credenciais de administrador inválidas." : "Email ou senha incorretos.",
           variant: "destructive"
         });
         setLoading(false);
         return;
       }
 
-      if (studentData.status === 'blocked') {
+      if (user.status === 'blocked') {
         toast({
           title: "Acesso bloqueado",
-          description: "Sua conta está bloqueada. Entre em contato com o suporte.",
+          description: isAdmin 
+            ? "Sua conta de administrador está bloqueada."
+            : "Sua conta está bloqueada. Entre em contato com o suporte.",
           variant: "destructive"
         });
         setLoading(false);
@@ -96,11 +62,11 @@ const Login = () => {
 
       toast({
         title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao CHQAO!",
+        description: isAdmin ? "Bem-vindo, Administrador!" : "Bem-vindo ao CHQAO!",
       });
 
-      navigate("/student-dashboard", { 
-        state: { userStatus: studentData.status }
+      navigate(isAdmin ? "/admin-dashboard" : "/student-dashboard", {
+        state: { userStatus: user.status }
       });
     } catch (error) {
       console.error('Error during login:', error);
@@ -113,6 +79,14 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (isLoadingData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary">
+        <p>Carregando...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
@@ -161,7 +135,7 @@ const Login = () => {
             </Button>
           </form>
           {!isAdmin && (
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-4 text-center">
               <p className="text-gray-600">
                 Não tem uma conta?{" "}
                 <button
