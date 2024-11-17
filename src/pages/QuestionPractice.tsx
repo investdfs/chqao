@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ThemeProvider } from "next-themes";
 import QuestionCard from "@/components/student/QuestionCard";
 import QuestionFilters from "@/components/student/QuestionFilters";
 
@@ -59,30 +60,32 @@ const QuestionPractice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className={isFocusMode ? "hidden" : "block"}>
-        <QuestionFilters
-          selectedSubject={selectedSubject}
-          selectedTopic={selectedTopic}
-          onSubjectChange={setSelectedSubject}
-          onTopicChange={setSelectedTopic}
-          subjects={subjects}
-          onFocusMode={() => setIsFocusMode(!isFocusMode)}
-          isFocusMode={isFocusMode}
-        />
-      </div>
+    <ThemeProvider attribute="class" defaultTheme="light">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className={isFocusMode ? "hidden" : "block"}>
+          <QuestionFilters
+            selectedSubject={selectedSubject}
+            selectedTopic={selectedTopic}
+            onSubjectChange={setSelectedSubject}
+            onTopicChange={setSelectedTopic}
+            subjects={subjects}
+            onFocusMode={() => setIsFocusMode(!isFocusMode)}
+            isFocusMode={isFocusMode}
+          />
+        </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-6">
-        <QuestionCard
-          question={sampleQuestions[currentQuestionIndex]}
-          onNextQuestion={handleNextQuestion}
-          onPreviousQuestion={handlePreviousQuestion}
-          questionNumber={currentQuestionIndex + 1}
-          totalQuestions={sampleQuestions.length}
-          isUserBlocked={false}
-        />
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          <QuestionCard
+            question={sampleQuestions[currentQuestionIndex]}
+            onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
+            questionNumber={currentQuestionIndex + 1}
+            totalQuestions={sampleQuestions.length}
+            isUserBlocked={false}
+          />
+        </div>
       </div>
-    </div>
+    </ThemeProvider>
   );
 };
 
