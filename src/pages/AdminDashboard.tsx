@@ -46,7 +46,6 @@ const AdminDashboard = () => {
         
         <StatisticsCards
           totalStudents={students.length}
-          totalQuestions={questions.length}
           onlineUsers={onlineUsers}
         />
 
