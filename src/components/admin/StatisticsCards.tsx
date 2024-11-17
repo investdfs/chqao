@@ -1,14 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
+import { Users, BookOpen, TrendingUp, ChevronDown, ChevronUp, Signal } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface StatisticsCardsProps {
   totalStudents: number;
   totalQuestions: number;
   weeklyAccess: number;
   newRegistrations: number;
+  onlineUsers?: number;
   topStudents: Array<{
     name: string;
     accessCount: number;
@@ -20,12 +21,13 @@ export const StatisticsCards = ({
   totalQuestions, 
   weeklyAccess = 0,
   newRegistrations = 0,
+  onlineUsers = 0,
   topStudents = []
 }: StatisticsCardsProps) => {
   const [showInfo, setShowInfo] = useState(false);
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="shadow-md hover:shadow-lg transition-shadow">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-primary">
@@ -52,7 +54,20 @@ export const StatisticsCards = ({
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 lg:col-span-3 shadow-md hover:shadow-lg transition-shadow">
+      <Card className="shadow-md hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-primary">
+            <Signal className="h-5 w-5" />
+            Usuários Online
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold text-primary">{onlineUsers}</div>
+          <p className="text-gray-600">Atualmente ativos</p>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-1 lg:col-span-4 shadow-md hover:shadow-lg transition-shadow">
         <CardHeader>
           <CardTitle className="flex items-center justify-between text-primary">
             <div className="flex items-center gap-2">

@@ -10,37 +10,55 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Eye, Download } from "lucide-react";
 import { downloadExcelTemplate } from "@/utils/excelUtils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-
-// Mock data - Em uma aplicação real, viria do banco de dados
-const questions = [
-  {
-    id: 1,
-    subject: "Matemática",
-    topic: "Álgebra",
-    question: "Quanto é 2 + 2?",
-    correctAnswer: "4",
-    difficulty: "Fácil"
-  },
-];
-
-// Mock data for top students
-const mockTopStudents = [
-  { name: "João Silva", accessCount: 25 },
-  { name: "Maria Santos", accessCount: 20 },
-  { name: "Pedro Oliveira", accessCount: 15 },
-];
+import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
+import { useState, useEffect } from "react";
 
 const AdminDashboard = () => {
+  const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
+  const [onlineUsers, setOnlineUsers] = useState(0);
+
+  // Refresh data every 20 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+      // Simulating online users count (replace with actual implementation)
+      setOnlineUsers(Math.floor(Math.random() * 10) + 1);
+    }, 20000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
+
+  // Initial data fetch
+  useEffect(() => {
+    refetch();
+    setOnlineUsers(Math.floor(Math.random() * 10) + 1);
+  }, [refetch]);
+
+  const students = sheetsData?.users.filter(user => user.type === 'student') || [];
+  const questions = sheetsData?.questions || [];
+
+  // Mock data for top students (replace with actual data)
+  const mockTopStudents = [
+    { name: "João Silva", accessCount: 25 },
+    { name: "Maria Santos", accessCount: 20 },
+    { name: "Pedro Oliveira", accessCount: 15 },
+  ];
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         <DashboardHeader />
         
         <StatisticsCards
-          totalStudents={2}
-          totalQuestions={1}
+          totalStudents={students.length}
+          totalQuestions={questions.length}
           weeklyAccess={150}
           newRegistrations={5}
+          onlineUsers={onlineUsers}
           topStudents={mockTopStudents}
         />
 
