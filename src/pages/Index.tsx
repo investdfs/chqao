@@ -40,6 +40,18 @@ const Index = () => {
                     >
                       Registro
                     </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      className="cursor-pointer block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      onClick={() => navigate("/student-dashboard")}
+                    >
+                      Dashboard do Aluno
+                    </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      className="cursor-pointer block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      onClick={() => navigate("/admin-dashboard")}
+                    >
+                      Dashboard do Admin
+                    </NavigationMenuLink>
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
