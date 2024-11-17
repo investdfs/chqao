@@ -5,15 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 
 interface AddAdminDialogProps {
-  onAdd: (email: string) => void;
+  onAdd: (email: string, name: string) => void;
 }
 
 export const AddAdminDialog = ({ onAdd }: AddAdminDialogProps) => {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
 
   const handleSubmit = () => {
-    onAdd(email);
+    onAdd(email, name);
     setEmail('');
+    setName('');
   };
 
   return (
@@ -29,6 +31,16 @@ export const AddAdminDialog = ({ onAdd }: AddAdminDialogProps) => {
           <DialogTitle>Adicionar Novo Administrador</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Nome</label>
+            <Input 
+              type="text" 
+              placeholder="Nome do administrador"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full"
+            />
+          </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Email</label>
             <Input 

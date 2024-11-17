@@ -4,20 +4,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Student {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  status: string;
-  plan: string;
-}
+import { User } from "@/hooks/useGoogleSheetsData";
 
 interface StudentListProps {
-  students: Student[];
+  students: User[];
   onToggleStatus: (id: string) => void;
-  onUpdateStudent: (id: string, data: Partial<Student>) => void;
+  onUpdateStudent: (id: string, data: Partial<User>) => void;
 }
 
 export const StudentList = ({ students, onToggleStatus, onUpdateStudent }: StudentListProps) => {
@@ -30,7 +22,6 @@ export const StudentList = ({ students, onToggleStatus, onUpdateStudent }: Stude
           <TableHead>Nome</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Senha</TableHead>
-          <TableHead>Plano</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Ações</TableHead>
         </TableRow>
@@ -41,15 +32,6 @@ export const StudentList = ({ students, onToggleStatus, onUpdateStudent }: Stude
             <TableCell>{student.name}</TableCell>
             <TableCell>{student.email}</TableCell>
             <TableCell>{student.password}</TableCell>
-            <TableCell>
-              <span className={`px-2 py-1 rounded-full text-xs ${
-                student.plan === "paid" 
-                  ? "bg-green-100 text-green-800" 
-                  : "bg-gray-100 text-gray-800"
-              }`}>
-                {student.plan === "paid" ? "Pago" : "Free"}
-              </span>
-            </TableCell>
             <TableCell>
               <span className={`px-2 py-1 rounded-full text-xs ${
                 student.status === "active"
@@ -90,18 +72,6 @@ export const StudentList = ({ students, onToggleStatus, onUpdateStudent }: Stude
                       <div className="space-y-2">
                         <label>Nova Senha</label>
                         <Input type="password" placeholder="Digite a nova senha" />
-                      </div>
-                      <div className="space-y-2">
-                        <label>Plano</label>
-                        <Select defaultValue={student.plan}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="free">Free</SelectItem>
-                            <SelectItem value="paid">Pago</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
                       <Button className="w-full" onClick={() => {
                         toast({

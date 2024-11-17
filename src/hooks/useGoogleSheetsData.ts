@@ -3,10 +3,12 @@ import { fetchSheetData } from '@/integrations/sheetdb/client';
 
 export interface User {
   id: string;
+  name: string;
   email: string;
   password: string;
-  status: string;
+  status: 'active' | 'blocked';
   type: 'admin' | 'student';
+  created_at: string;
 }
 
 export interface Question {

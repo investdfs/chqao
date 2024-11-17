@@ -1,11 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Database } from "@/integrations/supabase/types";
-
-type Admin = Database['public']['Tables']['admins']['Row'];
+import { User } from "@/hooks/useGoogleSheetsData";
 
 interface AdminListProps {
-  admins: Admin[];
+  admins: User[];
   onToggleStatus: (adminId: string) => void;
 }
 

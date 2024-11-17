@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, Plus } from "lucide-react";
 import { StudentList } from "./StudentList";
@@ -17,7 +16,6 @@ export const StudentManager = () => {
     name: '',
     email: '',
     password: '',
-    plan: 'free'
   });
 
   const students = sheetsData?.users.filter(user => user.type === 'student') || [];
@@ -78,7 +76,6 @@ export const StudentManager = () => {
         name: '',
         email: '',
         password: '',
-        plan: 'free'
       });
     } catch (error) {
       console.error('Error adding student:', error);
@@ -137,21 +134,6 @@ export const StudentManager = () => {
                       value={newStudent.password}
                       onChange={(e) => setNewStudent({...newStudent, password: e.target.value})}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <label>Plano</label>
-                    <Select 
-                      value={newStudent.plan}
-                      onValueChange={(value) => setNewStudent({...newStudent, plan: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o plano" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="free">Free</SelectItem>
-                        <SelectItem value="paid">Pago</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <Button className="w-full" onClick={handleAddStudent}>
                     Adicionar Aluno

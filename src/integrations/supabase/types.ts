@@ -14,6 +14,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          name: string
           password: string
           status: Database["public"]["Enums"]["admin_status"] | null
         }
@@ -21,6 +22,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          name?: string
           password: string
           status?: Database["public"]["Enums"]["admin_status"] | null
         }
@@ -28,6 +30,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          name?: string
           password?: string
           status?: Database["public"]["Enums"]["admin_status"] | null
         }
@@ -38,6 +41,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          name: string
           password: string
           status: Database["public"]["Enums"]["student_status"] | null
         }
@@ -45,6 +49,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          name?: string
           password: string
           status?: Database["public"]["Enums"]["student_status"] | null
         }
@@ -52,6 +57,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          name?: string
           password?: string
           status?: Database["public"]["Enums"]["student_status"] | null
         }
