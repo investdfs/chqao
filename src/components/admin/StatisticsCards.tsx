@@ -1,18 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, BookOpen, Signal } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 
 interface StatisticsCardsProps {
   totalStudents: number;
-  totalQuestions: number;
   onlineUsers: number;
 }
 
 export const StatisticsCards = ({ 
-  totalStudents, 
-  totalQuestions, 
+  totalStudents,
   onlineUsers = 0,
 }: StatisticsCardsProps) => {
+  const { data: sheetsData, isLoading } = useGoogleSheetsData();
+  const totalQuestions = sheetsData?.questions?.length || 0;
+
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card className="shadow-md hover:shadow-lg transition-shadow">
