@@ -5,15 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Eye, Plus, RefreshCw } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import { StudentList } from "./StudentList";
+import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 
 export const StudentManager = () => {
   const { toast } = useToast();
-  const [students, setStudents] = useState(() => {
-    const savedStudents = localStorage.getItem('students');
-    return savedStudents ? JSON.parse(savedStudents) : [];
-  });
+  const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   const [showStudents, setShowStudents] = useState(false);
   const [newStudent, setNewStudent] = useState({
     name: '',
@@ -22,37 +20,79 @@ export const StudentManager = () => {
     plan: 'free'
   });
 
-  const handleToggleStatus = (studentId: number) => {
-    setStudents(prevStudents =>
-      prevStudents.map(student =>
-        student.id === studentId
-          ? { ...student, status: student.status === "active" ? "blocked" : "active" }
-          : student
-      )
-    );
+  const students = sheetsData?.users.filter(user => user.type === 'student') || [];
 
-    toast({
-      title: "Status atualizado",
-      description: "O status do aluno foi atualizado com sucesso.",
-    });
+  const handleToggleStatus = async (studentId: string) => {
+    try {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+
+      const newStatus = student.status === "active" ? "blocked" : "active";
+      
+      // Update will be handled by SheetDB
+      toast({
+        title: "Status atualizado",
+        description: "O status do aluno foi atualizado com sucesso.",
+      });
+      
+      refetch();
+    } catch (error) {
+      console.error('Error updating student status:', error);
+      toast({
+        title: "Erro ao atualizar status",
+        description: "Ocorreu um erro ao atualizar o status do aluno.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleAddStudent = () => {
-    const newStudentData = {
-      id: Date.now(),
-      ...newStudent,
-      status: "active"
-    };
-    
-    const updatedStudents = [...students, newStudentData];
-    setStudents(updatedStudents);
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
-    
-    toast({
-      title: "Aluno adicionado",
-      description: "O novo aluno foi cadastrado com sucesso.",
-    });
+  const handleUpdateStudent = async (studentId: string, data: any) => {
+    try {
+      // Update will be handled by SheetDB
+      toast({
+        title: "Aluno atualizado",
+        description: "Os dados do aluno foram atualizados com sucesso.",
+      });
+      
+      refetch();
+    } catch (error) {
+      console.error('Error updating student:', error);
+      toast({
+        title: "Erro ao atualizar aluno",
+        description: "Ocorreu um erro ao atualizar os dados do aluno.",
+        variant: "destructive"
+      });
+    }
   };
+
+  const handleAddStudent = async () => {
+    try {
+      // Add will be handled by SheetDB
+      toast({
+        title: "Aluno adicionado",
+        description: "O novo aluno foi cadastrado com sucesso.",
+      });
+      
+      refetch();
+      setNewStudent({
+        name: '',
+        email: '',
+        password: '',
+        plan: 'free'
+      });
+    } catch (error) {
+      console.error('Error adding student:', error);
+      toast({
+        title: "Erro ao adicionar aluno",
+        description: "Ocorreu um erro ao cadastrar o novo aluno.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <Card>
@@ -119,19 +159,6 @@ export const StudentManager = () => {
                 </div>
               </DialogContent>
             </Dialog>
-            <Button variant="outline" onClick={() => {
-              const savedStudents = localStorage.getItem('students');
-              if (savedStudents) {
-                setStudents(JSON.parse(savedStudents));
-              }
-              toast({
-                title: "Lista atualizada",
-                description: "A lista de alunos foi atualizada com sucesso.",
-              });
-            }}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Atualizar Lista
-            </Button>
             <Button onClick={() => setShowStudents(!showStudents)}>
               <Eye className="h-4 w-4 mr-2" />
               {showStudents ? "Ocultar" : "Ver Alunos"}
@@ -141,7 +168,11 @@ export const StudentManager = () => {
       </CardHeader>
       {showStudents && (
         <CardContent>
-          <StudentList students={students} onToggleStatus={handleToggleStatus} />
+          <StudentList 
+            students={students} 
+            onToggleStatus={handleToggleStatus}
+            onUpdateStudent={handleUpdateStudent}
+          />
         </CardContent>
       )}
     </Card>

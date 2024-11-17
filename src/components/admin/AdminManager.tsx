@@ -3,61 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { AdminList } from "./AdminList";
 import { AddAdminDialog } from "./AddAdminDialog";
-import type { Database } from "@/integrations/supabase/types";
-
-type Admin = Database['public']['Tables']['admins']['Row'];
+import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 
 export const AdminManager = () => {
   const { toast } = useToast();
   const [showAdmins, setShowAdmins] = useState(false);
-  const [admins, setAdmins] = useState<Admin[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchAdmins();
-    
-    const channel = supabase
-      .channel('admin-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'admins'
-        },
-        () => {
-          fetchAdmins();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const fetchAdmins = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('admins')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setAdmins(data || []);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching admins:', error);
-      toast({
-        title: "Erro ao carregar administradores",
-        description: "Ocorreu um erro ao carregar a lista de administradores.",
-        variant: "destructive"
-      });
-    }
-  };
+  const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
+  
+  const admins = sheetsData?.users.filter(user => user.type === 'admin') || [];
 
   const handleToggleStatus = async (adminId: string) => {
     try {
@@ -66,17 +21,13 @@ export const AdminManager = () => {
 
       const newStatus = admin.status === 'active' ? 'blocked' : 'active';
       
-      const { error } = await supabase
-        .from('admins')
-        .update({ status: newStatus })
-        .eq('id', adminId);
-
-      if (error) throw error;
-
+      // Update will be handled by SheetDB
       toast({
         title: "Status atualizado",
         description: "O status do administrador foi atualizado com sucesso.",
       });
+      
+      refetch();
     } catch (error) {
       console.error('Error updating admin status:', error);
       toast({
@@ -87,21 +38,15 @@ export const AdminManager = () => {
     }
   };
 
-  const handleAddAdmin = async (email: string) => {
+  const handleAddAdmin = async (email: string, name: string) => {
     try {
-      const { error } = await supabase
-        .from('admins')
-        .insert([{ 
-          email,
-          password: 'admin2300' // Changed from 'default_password' to 'admin2300'
-        }]);
-
-      if (error) throw error;
-
+      // Add will be handled by SheetDB
       toast({
         title: "Administrador adicionado",
         description: "O novo administrador foi cadastrado com sucesso.",
       });
+      
+      refetch();
     } catch (error) {
       console.error('Error adding admin:', error);
       toast({

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast";
 
 interface Student {
-  id: number;
+  id: string;
   name: string;
   email: string;
   password: string;
@@ -16,10 +16,11 @@ interface Student {
 
 interface StudentListProps {
   students: Student[];
-  onToggleStatus: (id: number) => void;
+  onToggleStatus: (id: string) => void;
+  onUpdateStudent: (id: string, data: Partial<Student>) => void;
 }
 
-export const StudentList = ({ students, onToggleStatus }: StudentListProps) => {
+export const StudentList = ({ students, onToggleStatus, onUpdateStudent }: StudentListProps) => {
   const { toast } = useToast();
 
   return (

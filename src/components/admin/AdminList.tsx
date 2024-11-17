@@ -14,6 +14,7 @@ export const AdminList = ({ admins, onToggleStatus }: AdminListProps) => {
     <Table>
       <TableHeader>
         <TableRow className="bg-secondary hover:bg-secondary/80">
+          <TableHead>Nome</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Senha</TableHead>
           <TableHead>Status</TableHead>
@@ -23,8 +24,9 @@ export const AdminList = ({ admins, onToggleStatus }: AdminListProps) => {
       <TableBody>
         {admins.map((admin) => (
           <TableRow key={admin.id} className="hover:bg-gray-50">
-            <TableCell className="font-medium">{admin.email}</TableCell>
-            <TableCell className="font-medium">{admin.password}</TableCell>
+            <TableCell className="font-medium">{admin.name}</TableCell>
+            <TableCell>{admin.email}</TableCell>
+            <TableCell>{admin.password}</TableCell>
             <TableCell>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                 admin.status === "active"
