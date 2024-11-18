@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Check, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionMetadata from "./question/QuestionMetadata";
 import QuestionOptions from "./question/QuestionOptions";
+import QuestionFeedback from "./question/QuestionFeedback";
+import NavigationButtons from "./question/NavigationButtons";
 
 interface QuestionOption {
   id: string;
@@ -53,7 +54,7 @@ const QuestionCard = ({
               Entre em contato com o administrador para mais informações
             </p>
             <Button
-              className="w-full"
+              className="w-full sm:w-auto"
               onClick={() => window.open("https://wa.me/5532988847713", "_blank")}
             >
               Contatar Administrador
@@ -70,6 +71,11 @@ const QuestionCard = ({
     }
   };
 
+  const handleReset = () => {
+    setSelectedAnswer("");
+    setHasAnswered(false);
+  };
+
   return (
     <div className="space-y-6">
       <QuestionHeader
@@ -78,7 +84,7 @@ const QuestionCard = ({
       />
 
       <Card className="animate-fade-in dark:bg-gray-800">
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="space-y-6">
             <QuestionMetadata
               id={question.id}
@@ -87,7 +93,9 @@ const QuestionCard = ({
               source={question.source}
             />
 
-            <div className="text-base dark:text-gray-200">{question.text}</div>
+            <div className="text-base dark:text-gray-200 text-left">
+              {question.text}
+            </div>
 
             <QuestionOptions
               options={question.options}
@@ -97,87 +105,22 @@ const QuestionCard = ({
               onAnswerSelect={setSelectedAnswer}
             />
 
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={onPreviousQuestion}
-                className="flex-1"
-              >
-                ← Anterior
-              </Button>
-
-              <Button
-                className="flex-1 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
-                onClick={handleAnswer}
-                disabled={!selectedAnswer || hasAnswered}
-              >
-                Responder
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={onNextQuestion}
-                className="flex-1"
-              >
-                Próxima →
-              </Button>
-            </div>
+            <NavigationButtons
+              onPrevious={onPreviousQuestion}
+              onNext={onNextQuestion}
+              onAnswer={handleAnswer}
+              canAnswer={!!selectedAnswer}
+              hasAnswered={hasAnswered}
+            />
 
             {hasAnswered && (
-              <>
-                <div
-                  className={`p-4 rounded-lg ${
-                    selectedAnswer === question.correctAnswer
-                      ? "bg-success-light border border-success dark:bg-blue-900/30 dark:border-blue-700"
-                      : "bg-error-light border border-error dark:bg-red-900/30 dark:border-red-700"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    {selectedAnswer === question.correctAnswer ? (
-                      <>
-                        <Check className="h-5 w-5 text-success dark:text-blue-400" />
-                        <span className="font-medium text-success dark:text-blue-400">
-                          Você acertou! 🎉
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <X className="h-5 w-5 text-error dark:text-red-400" />
-                        <span className="font-medium text-error dark:text-red-400">
-                          Você errou! ⚠️
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <p className="text-sm dark:text-gray-300">
-                    Resposta correta: {question.correctAnswer}
-                  </p>
-                  <p className="text-sm mt-2 dark:text-gray-300">
-                    {question.explanation}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedAnswer("");
-                      setHasAnswered(false);
-                    }}
-                  >
-                    Refazer
-                  </Button>
-                  <div className="flex items-center gap-4">
-                    <Button variant="outline" size="sm">
-                      Gabarito comentado
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Estatísticas
-                    </Button>
-                  </div>
-                </div>
-              </>
+              <QuestionFeedback
+                isCorrect={selectedAnswer === question.correctAnswer}
+                selectedAnswer={selectedAnswer}
+                correctAnswer={question.correctAnswer}
+                explanation={question.explanation}
+                onReset={handleReset}
+              />
             )}
           </div>
         </CardContent>

@@ -40,10 +40,10 @@ const QuestionFilters = ({
 }: QuestionFiltersProps) => {
   return (
     <div className="flex flex-col gap-4 bg-white dark:bg-gray-800 p-4 border-b dark:border-gray-700">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full lg:w-auto">
           <Select value={selectedSubject} onValueChange={onSubjectChange}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Escolha uma matéria" />
             </SelectTrigger>
             <SelectContent>
@@ -60,7 +60,7 @@ const QuestionFilters = ({
             onValueChange={onTopicChange}
             disabled={!selectedSubject}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Escolha um tópico" />
             </SelectTrigger>
             <SelectContent>
@@ -75,7 +75,7 @@ const QuestionFilters = ({
           </Select>
 
           <Select value={String(questionCount)} onValueChange={onQuestionCountChange}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Número de questões" />
             </SelectTrigger>
             <SelectContent>
@@ -91,19 +91,22 @@ const QuestionFilters = ({
         <Button 
           variant={isFocusMode ? "default" : "outline"}
           onClick={onFocusMode}
+          className="w-full lg:w-auto"
         >
           {isFocusMode ? "Desativar Foco" : "Ativar Foco"}
         </Button>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
         <div className="flex items-center gap-2">
           <Checkbox
             id="skipCompleted"
             checked={skipCompleted}
             onCheckedChange={onSkipCompletedChange}
           />
-          <Label htmlFor="skipCompleted">Pular questões já realizadas</Label>
+          <Label htmlFor="skipCompleted" className="text-sm sm:text-base">
+            Pular questões já realizadas
+          </Label>
         </div>
 
         <div className="flex items-center gap-2">
@@ -112,7 +115,9 @@ const QuestionFilters = ({
             checked={prioritizeErrors}
             onCheckedChange={onPrioritizeErrorsChange}
           />
-          <Label htmlFor="prioritizeErrors">Priorizar questões erradas</Label>
+          <Label htmlFor="prioritizeErrors" className="text-sm sm:text-base">
+            Priorizar questões erradas
+          </Label>
         </div>
       </div>
     </div>

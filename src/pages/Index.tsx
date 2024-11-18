@@ -19,11 +19,11 @@ const Index = () => {
         <nav className="bg-white shadow-sm py-4">
           <div className="container mx-auto px-4">
             <NavigationMenu>
-              <NavigationMenuList>
+              <NavigationMenuList className="flex-wrap justify-center">
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Páginas</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid gap-3 p-4 w-[200px]">
+                    <div className="grid gap-3 p-4 min-w-[200px]">
                       <NavigationMenuLink 
                         className="cursor-pointer block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                         onClick={() => navigate("/")}
@@ -63,29 +63,28 @@ const Index = () => {
         </nav>
       )}
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary-light to-white py-20">
+      <section className="bg-gradient-to-b from-primary-light to-white py-12 sm:py-20">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
-            <div className="lg:w-1/2 animate-fade-in">
-              <h1 className="text-4xl lg:text-6xl font-bold text-primary-dark mb-6">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+            <div className="lg:w-1/2 animate-fade-in text-center lg:text-left">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-primary-dark mb-4 sm:mb-6">
                 CHQAO - Estude Praticando
               </h1>
-              <p className="text-lg text-gray-700 mb-8">
+              <p className="text-base sm:text-lg text-gray-700 mb-6 sm:mb-8">
                 A melhor plataforma para praticar questões e se preparar para suas provas.
                 Milhares de questões comentadas para você estudar no seu ritmo.
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button
                   onClick={() => navigate("/register")}
-                  className="btn-primary"
+                  className="w-full sm:w-auto btn-primary"
                 >
                   Começar Agora - É Grátis!
                 </Button>
                 <Button
                   onClick={() => navigate("/login")}
                   variant="outline"
-                  className="btn-secondary"
+                  className="w-full sm:w-auto btn-secondary"
                 >
                   Já tenho conta
                 </Button>
@@ -102,42 +101,40 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
+      <section className="py-12 sm:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
             Por que escolher o CHQAO?
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="card hover:shadow-md transition-shadow animate-fade-in"
+                className="card hover:shadow-md transition-shadow animate-fade-in p-6"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="text-primary mb-4 text-4xl">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <div className="text-primary mb-4 text-3xl sm:text-4xl">{feature.icon}</div>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600 text-sm sm:text-base">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="bg-primary-light py-20">
+      <section className="bg-primary-light py-12 sm:py-20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="animate-fade-in"
+                className="animate-fade-in text-center"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="text-4xl font-bold text-primary mb-2">
+                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
                   {stat.value}
                 </div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-gray-600 text-sm sm:text-base">{stat.label}</div>
               </div>
             ))}
           </div>
