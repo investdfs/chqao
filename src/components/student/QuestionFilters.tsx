@@ -9,7 +9,7 @@ interface QuestionFiltersProps {
   onSubjectChange: (value: string) => void;
   onTopicChange: (value: string) => void;
   subjects: Array<{
-    id: number;
+    id: string; // Mudamos de number para string
     name: string;
     topics: string[];
   }>;
