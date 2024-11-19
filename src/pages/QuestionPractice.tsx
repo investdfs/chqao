@@ -32,10 +32,10 @@ const QuestionPractice = () => {
     explanation: q.explanation,
   })) || [];
 
-  // Get unique subjects and their topics
+  // Get unique subjects and their topics, converting subject IDs to numbers
   const subjects = Array.from(new Set(questions.map(q => q.subject)))
     .map(subject => ({
-      id: subject,
+      id: subject.toLowerCase().replace(/\s+/g, '-'), // Create a URL-friendly string ID
       name: subject,
       topics: Array.from(new Set(questions
         .filter(q => q.subject === subject)
