@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import QuestionHeader from "./question/QuestionHeader";
@@ -41,6 +41,12 @@ const QuestionCard = ({
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
+
+  // Reset states when question changes
+  useEffect(() => {
+    setSelectedAnswer("");
+    setHasAnswered(false);
+  }, [question.id]);
 
   if (isUserBlocked) {
     return (
