@@ -3,22 +3,62 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Download, Loader2 } from "lucide-react";
+import { Eye, Download, Loader2, Search } from "lucide-react";
 import { downloadExcelTemplate, processExcelFile } from "@/utils/excelUtils";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export const QuestionImporter = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
   const [showQuestions, setShowQuestions] = useState(false);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [topics, setTopics] = useState<string[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedTopic, setSelectedTopic] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+
+  const fetchSubjectsAndTopics = async () => {
+    console.log('Buscando matérias e tópicos únicos...');
+    const { data: questionsData, error } = await supabase
+      .from('questions')
+      .select('subject, topic');
+
+    if (error) {
+      console.error('Erro ao buscar matérias e tópicos:', error);
+      return;
+    }
+
+    const uniqueSubjects = [...new Set(questionsData.map(q => q.subject))];
+    const uniqueTopics = [...new Set(questionsData.map(q => q.topic).filter(Boolean))];
+    
+    console.log('Matérias encontradas:', uniqueSubjects);
+    console.log('Tópicos encontrados:', uniqueTopics);
+    
+    setSubjects(uniqueSubjects);
+    setTopics(uniqueTopics);
+  };
 
   const fetchQuestions = async () => {
     console.log('Buscando questões do banco...');
-    const { data, error } = await supabase
+    let query = supabase
       .from('questions')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (selectedSubject) {
+      query = query.eq('subject', selectedSubject);
+    }
+    if (selectedTopic) {
+      query = query.eq('topic', selectedTopic);
+    }
+    if (searchTerm) {
+      query = query.ilike('text', `%${searchTerm}%`);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Erro ao buscar questões:', error);
@@ -55,6 +95,7 @@ export const QuestionImporter = () => {
       });
 
       await fetchQuestions();
+      await fetchSubjectsAndTopics();
     } catch (error) {
       console.error('Erro ao processar arquivo:', error);
       toast({
@@ -100,6 +141,7 @@ export const QuestionImporter = () => {
               onClick={() => {
                 setShowQuestions(true);
                 fetchQuestions();
+                fetchSubjectsAndTopics();
               }}
             >
               <Eye className="h-4 w-4" />
@@ -110,6 +152,58 @@ export const QuestionImporter = () => {
             <DialogHeader>
               <DialogTitle>Questões Cadastradas</DialogTitle>
             </DialogHeader>
+            
+            <div className="space-y-4 mb-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Filtrar por matéria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todas as matérias</SelectItem>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Filtrar por tópico" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os tópicos</SelectItem>
+                    {topics.map((topic) => (
+                      <SelectItem key={topic} value={topic}>
+                        {topic}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Pesquisar questões..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+
+                <Button 
+                  variant="secondary"
+                  onClick={() => {
+                    fetchQuestions();
+                  }}
+                >
+                  Filtrar
+                </Button>
+              </div>
+            </div>
+
             <Table>
               <TableHeader>
                 <TableRow>
