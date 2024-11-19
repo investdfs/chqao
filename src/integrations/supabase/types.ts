@@ -36,6 +36,54 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          difficulty: Database["public"]["Enums"]["question_difficulty"] | null
+          explanation: string | null
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          option_e: string
+          subject: string
+          text: string
+          topic: string | null
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string
+          difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          explanation?: string | null
+          id?: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          option_e: string
+          subject: string
+          text: string
+          topic?: string | null
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          explanation?: string | null
+          id?: string
+          option_a?: string
+          option_b?: string
+          option_c?: string
+          option_d?: string
+          option_e?: string
+          subject?: string
+          text?: string
+          topic?: string | null
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           created_at: string
@@ -72,6 +120,7 @@ export type Database = {
     }
     Enums: {
       admin_status: "active" | "blocked"
+      question_difficulty: "Fácil" | "Médio" | "Difícil"
       student_status: "active" | "blocked"
     }
     CompositeTypes: {

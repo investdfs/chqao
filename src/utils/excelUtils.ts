@@ -20,39 +20,61 @@ export const downloadExcelTemplate = () => {
 };
 
 export const processExcelFile = async (file: File): Promise<any[]> => {
+  console.log('Iniciando processamento do arquivo Excel:', file.name);
+  
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
     reader.onload = async (e) => {
       try {
+        console.log('Arquivo carregado, iniciando parse');
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        console.log('Dados parseados:', jsonData);
 
-        // Mapear os dados para o formato correto
+        // Mapear os dados para o formato do banco
         const questions = jsonData.map((row: any) => ({
           subject: row['Matéria'],
           topic: row['Tópico'],
           text: row['Questão'],
-          optionA: row['Opção A'],
-          optionB: row['Opção B'],
-          optionC: row['Opção C'],
-          optionD: row['Opção D'],
-          optionE: row['Opção E'],
-          correctAnswer: row['Resposta Correta'],
+          option_a: row['Opção A'],
+          option_b: row['Opção B'],
+          option_c: row['Opção C'],
+          option_d: row['Opção D'],
+          option_e: row['Opção E'],
+          correct_answer: row['Resposta Correta'],
           explanation: row['Explicação'],
           difficulty: row['Dificuldade']
         }));
 
-        resolve(questions);
+        // Inserir questões no banco
+        console.log('Iniciando inserção no banco:', questions);
+        const { data: insertedData, error } = await supabase
+          .from('questions')
+          .insert(questions)
+          .select();
+
+        if (error) {
+          console.error('Erro ao inserir questões:', error);
+          throw error;
+        }
+
+        console.log('Questões inseridas com sucesso:', insertedData);
+        resolve(insertedData);
       } catch (error) {
+        console.error('Erro no processamento:', error);
         reject(error);
       }
     };
 
-    reader.onerror = (error) => reject(error);
+    reader.onerror = (error) => {
+      console.error('Erro na leitura do arquivo:', error);
+      reject(error);
+    };
+    
     reader.readAsBinaryString(file);
   });
 };

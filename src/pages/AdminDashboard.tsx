@@ -8,17 +8,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Download } from "lucide-react";
+import { Eye, Download, Loader2 } from "lucide-react";
 import { downloadExcelTemplate, processExcelFile } from "@/utils/excelUtils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
   const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [showQuestions, setShowQuestions] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,10 +36,27 @@ const AdminDashboard = () => {
   useEffect(() => {
     refetch();
     setOnlineUsers(Math.floor(Math.random() * 10) + 1);
+    fetchQuestions();
   }, [refetch]);
 
-  const students = sheetsData?.users.filter(user => user.type === 'student') || [];
-  const questions = sheetsData?.questions || [];
+  const fetchQuestions = async () => {
+    const { data, error } = await supabase
+      .from('questions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao buscar questões:', error);
+      toast({
+        title: "Erro ao carregar questões",
+        description: "Não foi possível carregar as questões do banco de dados.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setQuestions(data || []);
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -49,18 +69,16 @@ const AdminDashboard = () => {
     });
 
     try {
-      const questions = await processExcelFile(file);
-      console.log('Questões processadas:', questions);
+      const insertedQuestions = await processExcelFile(file);
+      console.log('Questões processadas:', insertedQuestions);
 
-      // Aqui você pode adicionar a lógica para salvar as questões no banco
-      // Por enquanto, apenas mostraremos uma mensagem de sucesso
       toast({
         title: "Sucesso!",
-        description: `${questions.length} questões foram importadas com sucesso.`,
+        description: `${insertedQuestions.length} questões foram importadas com sucesso.`,
       });
 
       // Atualiza a lista de questões
-      await refetch();
+      await fetchQuestions();
     } catch (error) {
       console.error('Erro ao processar arquivo:', error);
       toast({
@@ -74,6 +92,8 @@ const AdminDashboard = () => {
       event.target.value = '';
     }
   };
+
+  const students = sheetsData?.users.filter(user => user.type === 'student') || [];
 
   if (isLoading) {
     return <div>Carregando...</div>;
@@ -123,9 +143,13 @@ const AdminDashboard = () => {
 
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-2"
+                    onClick={() => setShowQuestions(true)}
+                  >
                     <Eye className="h-4 w-4" />
-                    Ver Questões
+                    Ver Questões ({questions.length})
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white">
@@ -147,7 +171,7 @@ const AdminDashboard = () => {
                           <TableCell>{question.subject}</TableCell>
                           <TableCell>{question.topic}</TableCell>
                           <TableCell>{question.text}</TableCell>
-                          <TableCell>{question.correctAnswer}</TableCell>
+                          <TableCell>{question.correct_answer}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -169,12 +193,21 @@ const AdminDashboard = () => {
                 htmlFor="file-upload"
                 className={`cursor-pointer flex flex-col items-center space-y-2 ${isUploading ? 'opacity-50' : ''}`}
               >
-                <span className="text-sm text-gray-600">
-                  {isUploading ? 'Processando...' : 'Clique para fazer upload ou arraste um arquivo'}
-                </span>
-                <span className="text-xs text-gray-400">
-                  Suporta arquivos CSV e Excel
-                </span>
+                {isUploading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Processando arquivo...</span>
+                  </div>
+                ) : (
+                  <>
+                    <span className="text-sm text-gray-600">
+                      Clique para fazer upload ou arraste um arquivo
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      Suporta arquivos CSV e Excel
+                    </span>
+                  </>
+                )}
               </label>
             </div>
           </CardContent>
