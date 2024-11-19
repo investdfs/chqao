@@ -44,19 +44,6 @@ export const StatisticsCards = ({
           console.log('Total questions:', questionsCount);
           setTotalQuestions(questionsCount || 0);
         }
-
-        // Get online users from presence state
-        const presenceState = await supabase.channel('online-users').subscribe(async (status) => {
-          if (status === 'SUBSCRIBED') {
-            console.log('Subscribed to presence channel');
-          }
-        });
-
-        const presence = presenceState.presenceState();
-        const uniqueOnlineUsers = new Set(Object.values(presence).flat().map((p: any) => p.user_id));
-        setOnlineUsers(uniqueOnlineUsers.size);
-        console.log('Online users:', uniqueOnlineUsers.size);
-
       } catch (error) {
         console.error('Error fetching statistics:', error);
       }
@@ -64,18 +51,50 @@ export const StatisticsCards = ({
 
     fetchStatistics();
 
-    // Set up real-time subscription for online users
-    const channel = supabase.channel('online-users');
-    
-    channel.on('presence', { event: 'sync' }, () => {
-      const presence = channel.presenceState();
-      const uniqueOnlineUsers = new Set(Object.values(presence).flat().map((p: any) => p.user_id));
-      setOnlineUsers(uniqueOnlineUsers.size);
-      console.log('Online users updated:', uniqueOnlineUsers.size);
+    // Set up real-time presence tracking
+    const channel = supabase.channel('online-users', {
+      config: {
+        presence: {
+          key: 'user_presence',
+        },
+      },
     });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const presenceState = channel.presenceState();
+        console.log('Presence state updated:', presenceState);
+        
+        // Count unique users across all states
+        const uniqueUsers = new Set();
+        Object.values(presenceState).forEach(stateUsers => {
+          (stateUsers as any[]).forEach(user => {
+            uniqueUsers.add(user.user_id);
+          });
+        });
+        
+        console.log('Online users count:', uniqueUsers.size);
+        setOnlineUsers(uniqueUsers.size);
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        console.log('User joined:', newPresences);
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        console.log('User left:', leftPresences);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          const status = await channel.track({
+            online_at: new Date().toISOString(),
+            user_id: Math.random().toString(), // In a real app, use actual user ID
+          });
+          console.log('Presence tracking status:', status);
+        }
+      });
 
     // Cleanup
     return () => {
+      console.log('Cleaning up presence channel...');
       channel.unsubscribe();
     };
   }, []);
