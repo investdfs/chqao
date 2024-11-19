@@ -2,44 +2,7 @@ import { useState } from "react";
 import { ThemeProvider } from "next-themes";
 import QuestionCard from "@/components/student/QuestionCard";
 import QuestionFilters from "@/components/student/QuestionFilters";
-
-const subjects = [
-  { 
-    id: 1, 
-    name: "História", 
-    topics: ["Idade Moderna", "Brasil Colônia", "Segunda Guerra Mundial"] 
-  },
-  { 
-    id: 2, 
-    name: "Geografia", 
-    topics: ["Clima", "Relevo", "População"] 
-  },
-  { 
-    id: 3, 
-    name: "Biologia", 
-    topics: ["Genética", "Ecologia", "Evolução"] 
-  },
-];
-
-const sampleQuestions = [
-  {
-    id: 1,
-    subject: "História",
-    topic: "Idade Moderna",
-    source: "Fuvest (USP) 2024 1ª Fase - Prova V",
-    text: "Os séculos XV e XVI, quando se vão desmoronando as estruturas socioeconômicas da Idade Média perante os novos imperativos da Época moderna, constituem um momento-chave na história florestal de toda a Europa Ocidental. Qual acontecimento do período contribuiu diretamente para o agravamento da situação descrita?",
-    options: [
-      { id: "A", text: "O processo de expansão marítima." },
-      { id: "B", text: "A eclosão do renascimento cultural." },
-      { id: "C", text: "A concretização da centralização política." },
-      { id: "D", text: "O movimento de reformas religiosas." },
-      { id: "E", text: "A manutenção do sistema feudal." }
-    ],
-    correctAnswer: "A",
-    explanation: "A expansão marítima europeia dos séculos XV e XVI contribuiu diretamente para o agravamento do desmatamento devido à necessidade de madeira para a construção de navios e desenvolvimento da indústria naval, além do aumento do comércio que intensificou a exploração de recursos florestais."
-  },
-  // Add more sample questions here
-];
+import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 
 const QuestionPractice = () => {
   const [selectedSubject, setSelectedSubject] = useState("");
@@ -50,8 +13,37 @@ const QuestionPractice = () => {
   const [skipCompleted, setSkipCompleted] = useState(false);
   const [prioritizeErrors, setPrioritizeErrors] = useState(false);
 
+  const { data: sheetsData, isLoading } = useGoogleSheetsData();
+
+  // Transform sheet questions to the format expected by QuestionCard
+  const questions = sheetsData?.questions.map(q => ({
+    id: parseInt(q.id),
+    text: q.text,
+    subject: q.subject,
+    topic: q.topic,
+    options: [
+      { id: "A", text: q.optionA },
+      { id: "B", text: q.optionB },
+      { id: "C", text: q.optionC },
+      { id: "D", text: q.optionD },
+      { id: "E", text: q.optionE },
+    ],
+    correctAnswer: q.correctAnswer,
+    explanation: q.explanation,
+  })) || [];
+
+  // Get unique subjects and their topics
+  const subjects = Array.from(new Set(questions.map(q => q.subject)))
+    .map(subject => ({
+      id: subject,
+      name: subject,
+      topics: Array.from(new Set(questions
+        .filter(q => q.subject === subject)
+        .map(q => q.topic)))
+    }));
+
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < sampleQuestions.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
@@ -61,6 +53,10 @@ const QuestionPractice = () => {
       setCurrentQuestionIndex(prev => prev - 1);
     }
   };
+
+  if (isLoading) {
+    return <div>Carregando questões...</div>;
+  }
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light">
@@ -82,14 +78,20 @@ const QuestionPractice = () => {
         />
 
         <div className="max-w-3xl mx-auto px-4 py-6">
-          <QuestionCard
-            question={sampleQuestions[currentQuestionIndex]}
-            onNextQuestion={handleNextQuestion}
-            onPreviousQuestion={handlePreviousQuestion}
-            questionNumber={currentQuestionIndex + 1}
-            totalQuestions={sampleQuestions.length}
-            isUserBlocked={false}
-          />
+          {questions.length > 0 ? (
+            <QuestionCard
+              question={questions[currentQuestionIndex]}
+              onNextQuestion={handleNextQuestion}
+              onPreviousQuestion={handlePreviousQuestion}
+              questionNumber={currentQuestionIndex + 1}
+              totalQuestions={questions.length}
+              isUserBlocked={false}
+            />
+          ) : (
+            <div className="text-center py-8">
+              <p>Nenhuma questão encontrada.</p>
+            </div>
+          )}
         </div>
       </div>
     </ThemeProvider>

@@ -7,20 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Download } from "lucide-react";
+import { Eye, Download, RefreshCw } from "lucide-react";
 import { downloadExcelTemplate } from "@/utils/excelUtils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const AdminDashboard = () => {
   const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   const [onlineUsers, setOnlineUsers] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     const interval = setInterval(() => {
       refetch();
-      // Simulating online users count (this should be replaced with actual online users tracking)
       setOnlineUsers(Math.floor(Math.random() * 10) + 1);
     }, 20000);
 
@@ -35,6 +36,23 @@ const AdminDashboard = () => {
   const students = sheetsData?.users.filter(user => user.type === 'student') || [];
   const questions = sheetsData?.questions || [];
 
+  const handleSyncDatabase = async () => {
+    try {
+      await refetch();
+      toast({
+        title: "Sincronização concluída",
+        description: "O banco de dados foi atualizado com sucesso.",
+      });
+    } catch (error) {
+      console.error('Erro ao sincronizar banco de dados:', error);
+      toast({
+        title: "Erro na sincronização",
+        description: "Ocorreu um erro ao sincronizar o banco de dados.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (isLoading) {
     return <div>Carregando...</div>;
   }
@@ -42,7 +60,16 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
-        <DashboardHeader />
+        <div className="flex justify-between items-center">
+          <DashboardHeader />
+          <Button 
+            onClick={handleSyncDatabase}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Sincronizar Banco de Dados
+          </Button>
+        </div>
         
         <StatisticsCards
           totalStudents={students.length}
