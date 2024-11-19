@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Eye, Pencil } from "lucide-react";
 
-// Lista de matérias disponíveis (em uma aplicação real, viria do banco de dados)
 const availableSubjects = [
   { 
     id: "1", 
@@ -23,7 +22,7 @@ const availableSubjects = [
   { 
     id: "3", 
     name: "História",
-    topics: ["Brasil Colônia", "Idade Média", "Segunda Guerra"]
+    topics: []
   },
 ];
 
