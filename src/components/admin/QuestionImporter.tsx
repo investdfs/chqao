@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Download, Loader2, Search } from "lucide-react";
+import { Eye, Download, Loader2 } from "lucide-react";
 import { downloadExcelTemplate, processExcelFile } from "@/utils/excelUtils";
 import { supabase } from "@/integrations/supabase/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { QuestionFilters } from "./questions/QuestionFilters";
+import { QuestionsTable } from "./questions/QuestionsTable";
 
 export const QuestionImporter = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -15,62 +14,62 @@ export const QuestionImporter = () => {
   const [showQuestions, setShowQuestions] = useState(false);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
-  const [selectedTopic, setSelectedTopic] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState<string>("all");
+  const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
   const fetchSubjectsAndTopics = async () => {
-    console.log('Buscando matérias e tópicos únicos...');
+    console.log("Buscando matérias e tópicos únicos...");
     const { data: questionsData, error } = await supabase
-      .from('questions')
-      .select('subject, topic');
+      .from("questions")
+      .select("subject, topic");
 
     if (error) {
-      console.error('Erro ao buscar matérias e tópicos:', error);
+      console.error("Erro ao buscar matérias e tópicos:", error);
       return;
     }
 
-    const uniqueSubjects = [...new Set(questionsData.map(q => q.subject))];
-    const uniqueTopics = [...new Set(questionsData.map(q => q.topic).filter(Boolean))];
-    
-    console.log('Matérias encontradas:', uniqueSubjects);
-    console.log('Tópicos encontrados:', uniqueTopics);
-    
+    const uniqueSubjects = [...new Set(questionsData.map((q) => q.subject))];
+    const uniqueTopics = [...new Set(questionsData.map((q) => q.topic).filter(Boolean))];
+
+    console.log("Matérias encontradas:", uniqueSubjects);
+    console.log("Tópicos encontrados:", uniqueTopics);
+
     setSubjects(uniqueSubjects);
     setTopics(uniqueTopics);
   };
 
   const fetchQuestions = async () => {
-    console.log('Buscando questões do banco...');
+    console.log("Buscando questões do banco...");
     let query = supabase
-      .from('questions')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("questions")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    if (selectedSubject) {
-      query = query.eq('subject', selectedSubject);
+    if (selectedSubject !== "all") {
+      query = query.eq("subject", selectedSubject);
     }
-    if (selectedTopic) {
-      query = query.eq('topic', selectedTopic);
+    if (selectedTopic !== "all") {
+      query = query.eq("topic", selectedTopic);
     }
     if (searchTerm) {
-      query = query.ilike('text', `%${searchTerm}%`);
+      query = query.ilike("text", `%${searchTerm}%`);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Erro ao buscar questões:', error);
+      console.error("Erro ao buscar questões:", error);
       toast({
         title: "Erro ao carregar questões",
         description: "Não foi possível carregar as questões do banco de dados.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    console.log('Questões carregadas:', data);
+    console.log("Questões carregadas:", data);
     setQuestions(data || []);
   };
 
@@ -78,7 +77,7 @@ export const QuestionImporter = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    console.log('Iniciando upload do arquivo:', file.name);
+    console.log("Iniciando upload do arquivo:", file.name);
     setIsUploading(true);
     toast({
       title: "Processando arquivo",
@@ -87,7 +86,7 @@ export const QuestionImporter = () => {
 
     try {
       const insertedQuestions = await processExcelFile(file);
-      console.log('Questões processadas com sucesso:', insertedQuestions);
+      console.log("Questões processadas com sucesso:", insertedQuestions);
 
       toast({
         title: "Sucesso!",
@@ -97,16 +96,16 @@ export const QuestionImporter = () => {
       await fetchQuestions();
       await fetchSubjectsAndTopics();
     } catch (error) {
-      console.error('Erro ao processar arquivo:', error);
+      console.error("Erro ao processar arquivo:", error);
       toast({
         title: "Erro ao importar questões",
         description: "Verifique se o arquivo está no formato correto e tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsUploading(false);
       if (event.target) {
-        event.target.value = '';
+        event.target.value = "";
       }
     }
   };
@@ -125,18 +124,15 @@ export const QuestionImporter = () => {
       </div>
 
       <div className="flex gap-2">
-        <Button 
-          className="w-full flex items-center gap-2" 
-          onClick={downloadExcelTemplate}
-        >
+        <Button className="w-full flex items-center gap-2" onClick={downloadExcelTemplate}>
           <Download className="h-4 w-4" />
           Baixar Modelo de Planilha
         </Button>
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="flex items-center gap-2"
               onClick={() => {
                 setShowQuestions(true);
@@ -152,78 +148,20 @@ export const QuestionImporter = () => {
             <DialogHeader>
               <DialogTitle>Questões Cadastradas</DialogTitle>
             </DialogHeader>
-            
-            <div className="space-y-4 mb-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                  <SelectTrigger className="w-full sm:w-[200px]">
-                    <SelectValue placeholder="Filtrar por matéria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Todas as matérias</SelectItem>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
 
-                <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                  <SelectTrigger className="w-full sm:w-[200px]">
-                    <SelectValue placeholder="Filtrar por tópico" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Todos os tópicos</SelectItem>
-                    {topics.map((topic) => (
-                      <SelectItem key={topic} value={topic}>
-                        {topic}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <QuestionFilters
+              subjects={subjects}
+              topics={topics}
+              selectedSubject={selectedSubject}
+              selectedTopic={selectedTopic}
+              searchTerm={searchTerm}
+              onSubjectChange={setSelectedSubject}
+              onTopicChange={setSelectedTopic}
+              onSearchChange={setSearchTerm}
+              onFilter={fetchQuestions}
+            />
 
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Pesquisar questões..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-
-                <Button 
-                  variant="secondary"
-                  onClick={() => {
-                    fetchQuestions();
-                  }}
-                >
-                  Filtrar
-                </Button>
-              </div>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Matéria</TableHead>
-                  <TableHead>Tópico</TableHead>
-                  <TableHead>Questão</TableHead>
-                  <TableHead>Resposta</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {questions.map((question) => (
-                  <TableRow key={question.id}>
-                    <TableCell>{question.subject}</TableCell>
-                    <TableCell>{question.topic}</TableCell>
-                    <TableCell>{question.text}</TableCell>
-                    <TableCell>{question.correct_answer}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <QuestionsTable questions={questions} />
           </DialogContent>
         </Dialog>
       </div>
@@ -239,7 +177,9 @@ export const QuestionImporter = () => {
         />
         <label
           htmlFor="file-upload"
-          className={`cursor-pointer flex flex-col items-center space-y-2 ${isUploading ? 'opacity-50' : ''}`}
+          className={`cursor-pointer flex flex-col items-center space-y-2 ${
+            isUploading ? "opacity-50" : ""
+          }`}
         >
           {isUploading ? (
             <div className="flex items-center gap-2">
@@ -251,9 +191,7 @@ export const QuestionImporter = () => {
               <span className="text-sm text-gray-600">
                 Clique para fazer upload ou arraste um arquivo
               </span>
-              <span className="text-xs text-gray-400">
-                Suporta arquivos CSV e Excel
-              </span>
+              <span className="text-xs text-gray-400">Suporta arquivos CSV e Excel</span>
             </>
           )}
         </label>
