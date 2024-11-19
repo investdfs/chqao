@@ -7,6 +7,8 @@ import { downloadExcelTemplate, processExcelFile } from "@/utils/excelUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { QuestionFilters } from "./questions/QuestionFilters";
 import { QuestionsTable } from "./questions/QuestionsTable";
+import { UpdateHistory } from "./questions/UpdateHistory";
+import { DownloadQuestions } from "./questions/DownloadQuestions";
 
 export const QuestionImporter = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -123,11 +125,15 @@ export const QuestionImporter = () => {
         </ol>
       </div>
 
-      <div className="flex gap-2">
-        <Button className="w-full flex items-center gap-2" onClick={downloadExcelTemplate}>
+      <div className="flex gap-2 flex-wrap">
+        <Button className="flex items-center gap-2" onClick={downloadExcelTemplate}>
           <Download className="h-4 w-4" />
           Baixar Modelo de Planilha
         </Button>
+
+        <DownloadQuestions />
+        
+        <UpdateHistory />
 
         <Dialog>
           <DialogTrigger asChild>
