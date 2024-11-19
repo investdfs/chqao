@@ -45,8 +45,8 @@ export const downloadExcelTemplate = () => {
 
     console.log('Preparando para download do arquivo');
     
-    // Salvar o arquivo
-    XLSX.writeFile(wb, "modelo_questoes.xlsx");
+    // Salvar o arquivo no formato .xls em vez de .xlsx
+    XLSX.writeFile(wb, "modelo_questoes.xls", { bookType: "xls" });
     
     console.log('Download do template concluído com sucesso');
   } catch (error) {
