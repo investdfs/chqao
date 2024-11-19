@@ -9,14 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Eye, Download } from "lucide-react";
-import { downloadExcelTemplate } from "@/utils/excelUtils";
+import { downloadExcelTemplate, processExcelFile } from "@/utils/excelUtils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const AdminDashboard = () => {
   const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   const [onlineUsers, setOnlineUsers] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -34,6 +37,43 @@ const AdminDashboard = () => {
 
   const students = sheetsData?.users.filter(user => user.type === 'student') || [];
   const questions = sheetsData?.questions || [];
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    toast({
+      title: "Processando arquivo",
+      description: "Aguarde enquanto importamos as questões...",
+    });
+
+    try {
+      const questions = await processExcelFile(file);
+      console.log('Questões processadas:', questions);
+
+      // Aqui você pode adicionar a lógica para salvar as questões no banco
+      // Por enquanto, apenas mostraremos uma mensagem de sucesso
+      toast({
+        title: "Sucesso!",
+        description: `${questions.length} questões foram importadas com sucesso.`,
+      });
+
+      // Atualiza a lista de questões
+      await refetch();
+    } catch (error) {
+      console.error('Erro ao processar arquivo:', error);
+      toast({
+        title: "Erro ao importar questões",
+        description: "Verifique se o arquivo está no formato correto e tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+      // Limpa o input de arquivo
+      event.target.value = '';
+    }
+  };
 
   if (isLoading) {
     return <div>Carregando...</div>;
@@ -122,18 +162,15 @@ const AdminDashboard = () => {
                 accept=".csv,.xlsx"
                 className="hidden"
                 id="file-upload"
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    // Handle file upload
-                  }
-                }}
+                onChange={handleFileUpload}
+                disabled={isUploading}
               />
               <label
                 htmlFor="file-upload"
-                className="cursor-pointer flex flex-col items-center space-y-2"
+                className={`cursor-pointer flex flex-col items-center space-y-2 ${isUploading ? 'opacity-50' : ''}`}
               >
                 <span className="text-sm text-gray-600">
-                  Clique para fazer upload ou arraste um arquivo
+                  {isUploading ? 'Processando...' : 'Clique para fazer upload ou arraste um arquivo'}
                 </span>
                 <span className="text-xs text-gray-400">
                   Suporta arquivos CSV e Excel
