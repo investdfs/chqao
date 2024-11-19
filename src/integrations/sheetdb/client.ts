@@ -21,3 +21,30 @@ export const fetchSheetData = async () => {
     throw error;
   }
 };
+
+export const insertSheetData = async (data: any) => {
+  try {
+    console.log('Inserindo dados no SheetDB:', data);
+    const response = await fetch(SHEETDB_API, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${SHEETDB_AUTH}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: [data]
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to insert sheet data');
+    }
+
+    const result = await response.json();
+    console.log('Dados inseridos com sucesso:', result);
+    return result;
+  } catch (error) {
+    console.error('Error inserting sheet data:', error);
+    throw error;
+  }
+};
