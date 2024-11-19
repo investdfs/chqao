@@ -3,22 +3,20 @@ import { StatisticsCards } from "@/components/admin/StatisticsCards";
 import { SubjectManager } from "@/components/admin/SubjectManager";
 import { StudentManager } from "@/components/admin/StudentManager";
 import { AdminManager } from "@/components/admin/AdminManager";
+import { SyncDatabaseButton } from "@/components/admin/SyncDatabaseButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Download, RefreshCw } from "lucide-react";
+import { Eye, Download } from "lucide-react";
 import { downloadExcelTemplate } from "@/utils/excelUtils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { insertSheetData } from "@/integrations/sheetdb/client";
 
 const AdminDashboard = () => {
   const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   const [onlineUsers, setOnlineUsers] = useState(0);
-  const { toast } = useToast();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -37,40 +35,6 @@ const AdminDashboard = () => {
   const students = sheetsData?.users.filter(user => user.type === 'student') || [];
   const questions = sheetsData?.questions || [];
 
-  const handleSyncDatabase = async () => {
-    try {
-      // Executa o refetch existente
-      await refetch();
-
-      // Adiciona a matéria História
-      await insertSheetData({
-        id: "3",
-        subject: "História",
-        topic: "",
-        text: "",
-        optionA: "",
-        optionB: "",
-        optionC: "",
-        optionD: "",
-        optionE: "",
-        correctAnswer: "",
-        explanation: ""
-      });
-
-      toast({
-        title: "Sincronização concluída",
-        description: "O banco de dados foi atualizado e a matéria História foi adicionada com sucesso.",
-      });
-    } catch (error) {
-      console.error('Erro ao sincronizar banco de dados:', error);
-      toast({
-        title: "Erro na sincronização",
-        description: "Ocorreu um erro ao sincronizar o banco de dados.",
-        variant: "destructive"
-      });
-    }
-  };
-
   if (isLoading) {
     return <div>Carregando...</div>;
   }
@@ -80,13 +44,7 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <DashboardHeader />
-          <Button 
-            onClick={handleSyncDatabase}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Sincronizar Banco de Dados
-          </Button>
+          <SyncDatabaseButton onRefetch={refetch} />
         </div>
         
         <StatisticsCards
