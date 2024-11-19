@@ -13,6 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { insertSheetData } from "@/integrations/sheetdb/client";
 
 const AdminDashboard = () => {
   const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
@@ -38,10 +39,27 @@ const AdminDashboard = () => {
 
   const handleSyncDatabase = async () => {
     try {
+      // Executa o refetch existente
       await refetch();
+
+      // Adiciona a matéria História
+      await insertSheetData({
+        id: "3",
+        subject: "História",
+        topic: "",
+        text: "",
+        optionA: "",
+        optionB: "",
+        optionC: "",
+        optionD: "",
+        optionE: "",
+        correctAnswer: "",
+        explanation: ""
+      });
+
       toast({
         title: "Sincronização concluída",
-        description: "O banco de dados foi atualizado com sucesso.",
+        description: "O banco de dados foi atualizado e a matéria História foi adicionada com sucesso.",
       });
     } catch (error) {
       console.error('Erro ao sincronizar banco de dados:', error);
