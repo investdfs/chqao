@@ -5,24 +5,29 @@ export const downloadExcelTemplate = () => {
   console.log('Iniciando download do template Excel');
   
   try {
-    const headers = ["Matéria", "Tópico", "Questão", "Opção A", "Opção B", "Opção C", "Opção D", "Opção E", "Resposta Correta", "Explicação", "Dificuldade"];
-    
-    const data = [
-      ["Matemática", "Álgebra", "Se 2x + 3 = 11, qual é o valor de x?", "2", "3", "4", "5", "6", "C", "Para resolver, subtraímos 3 dos dois lados: 2x = 8. Depois dividimos por 2: x = 4", "Fácil"],
-      ["Português", "Gramática", "Qual é a classe gramatical da palavra 'rapidamente'?", "Substantivo", "Adjetivo", "Advérbio", "Preposição", "Conjunção", "C", "Rapidamente é um advérbio pois modifica um verbo, indicando modo", "Médio"],
-      ["História", "Brasil Colônia", "Em que ano o Brasil foi descoberto?", "1498", "1500", "1502", "1504", "1496", "B", "O Brasil foi descoberto oficialmente em 22 de abril de 1500 por Pedro Álvares Cabral", "Fácil"],
-      ["Geografia", "Clima", "Qual é o clima predominante no Brasil?", "Tropical", "Temperado", "Polar", "Mediterrâneo", "Desértico", "A", "O clima tropical é predominante no Brasil, caracterizado por temperaturas elevadas e duas estações bem definidas", "Médio"],
-      ["Física", "Mecânica", "Qual é a unidade de medida de força no SI?", "Watt", "Joule", "Pascal", "Newton", "Metro", "D", "O Newton (N) é a unidade de força no Sistema Internacional de Unidades", "Médio"],
-      ["Química", "Tabela Periódica", "Qual é o símbolo do elemento Ouro?", "Ag", "Fe", "Au", "Cu", "Pt", "C", "Au é o símbolo do Ouro, derivado do latim 'Aurum'", "Fácil"],
-      ["Biologia", "Genética", "Qual é a molécula responsável pelo armazenamento da informação genética?", "RNA", "Proteína", "DNA", "Lipídio", "Carboidrato", "C", "O DNA (Ácido Desoxirribonucleico) é a molécula que armazena o código genético", "Médio"],
-      ["Literatura", "Modernismo", "Quem escreveu 'Macunaíma'?", "Carlos Drummond", "Mário de Andrade", "Manuel Bandeira", "Cecília Meireles", "Jorge Amado", "B", "Macunaíma foi escrito por Mário de Andrade em 1928, sendo uma das principais obras do modernismo brasileiro", "Difícil"],
-      ["Inglês", "Verbos", "What is the past tense of 'go'?", "Goed", "Gone", "Went", "Going", "Goes", "C", "O passado simples do verbo 'go' é 'went'", "Fácil"],
-      ["Filosofia", "Ética", "Quem é considerado o pai da filosofia ocidental?", "Platão", "Aristóteles", "Sócrates", "Pitágoras", "Heráclito", "C", "Sócrates é considerado o pai da filosofia ocidental por seu método de questionamento e busca pela verdade", "Médio"]
+    const headers = [
+      "Matéria", "Tópico", "Questão", "Opção A", "Opção B", "Opção C", 
+      "Opção D", "Opção E", "Resposta Correta", "Explicação", "Dificuldade"
     ];
 
-    // Criar uma nova planilha
+    // Criar exemplos para cada matéria
+    const templateData = {
+      'Matemática': [
+        ["Matemática", "Álgebra", "Se 2x + 3 = 11, qual é o valor de x?", "2", "3", "4", "5", "6", "C", "Para resolver, subtraímos 3 dos dois lados: 2x = 8. Depois dividimos por 2: x = 4", "Fácil"],
+        ["Matemática", "Geometria", "Qual é a área de um quadrado de lado 5cm?", "15cm²", "20cm²", "25cm²", "30cm²", "35cm²", "C", "A área do quadrado é lado², então 5² = 25cm²", "Fácil"]
+      ],
+      'Português': [
+        ["Português", "Gramática", "Qual é a classe gramatical da palavra 'rapidamente'?", "Substantivo", "Adjetivo", "Advérbio", "Preposição", "Conjunção", "C", "Rapidamente é um advérbio pois modifica um verbo, indicando modo", "Médio"],
+        ["Português", "Literatura", "Quem escreveu 'Vidas Secas'?", "Jorge Amado", "Graciliano Ramos", "José de Alencar", "Machado de Assis", "Guimarães Rosa", "B", "Vidas Secas foi escrito por Graciliano Ramos em 1938", "Médio"]
+      ],
+      'História': [
+        ["História", "Brasil Colônia", "Em que ano o Brasil foi descoberto?", "1498", "1500", "1502", "1504", "1496", "B", "O Brasil foi descoberto oficialmente em 22 de abril de 1500 por Pedro Álvares Cabral", "Fácil"],
+        ["História", "Brasil República", "Quem foi o primeiro presidente do Brasil?", "D. Pedro II", "Deodoro da Fonseca", "Floriano Peixoto", "Prudente de Morais", "Campos Sales", "B", "Deodoro da Fonseca foi o primeiro presidente do Brasil, após a Proclamação da República", "Médio"]
+      ]
+    };
+
+    // Criar workbook
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
 
     // Configurar larguras das colunas
     const colWidths = [
@@ -38,16 +43,56 @@ export const downloadExcelTemplate = () => {
       { wch: 50 },  // Explicação
       { wch: 10 }   // Dificuldade
     ];
-    ws['!cols'] = colWidths;
 
-    // Adicionar a planilha ao workbook
-    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    // Criar uma aba para cada matéria
+    Object.entries(templateData).forEach(([subject, examples]) => {
+      // Criar worksheet
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...examples]);
+
+      // Aplicar larguras das colunas
+      ws['!cols'] = colWidths;
+
+      // Estilização
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:K2');
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const address = XLSX.utils.encode_col(C) + '1';
+        if (!ws[address]) continue;
+        ws[address].s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "1A4D2E" } },
+          alignment: { horizontal: 'center', vertical: 'center' }
+        };
+      }
+
+      // Adicionar a worksheet ao workbook
+      XLSX.utils.book_append_sheet(wb, ws, subject);
+    });
+
+    // Adicionar uma aba de instruções
+    const instructions = [
+      ["Instruções para Preenchimento"],
+      [""],
+      ["1. Cada aba contém exemplos de questões para uma matéria específica"],
+      ["2. Mantenha o formato exato das colunas ao adicionar suas questões"],
+      ["3. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
+      ["4. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
+      ["5. Não deixe campos em branco"],
+      ["6. Você pode adicionar quantas linhas quiser em cada aba"],
+      ["7. Não modifique o cabeçalho das colunas"]
+    ];
+
+    const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
+    wsInstructions['!cols'] = [{ wch: 80 }];
+    wsInstructions['A1'].s = {
+      font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "1A4D2E" } },
+      alignment: { horizontal: 'center' }
+    };
+
+    XLSX.utils.book_append_sheet(wb, wsInstructions, "Instruções");
 
     console.log('Preparando para download do arquivo');
-    
-    // Salvar o arquivo no formato .xls em vez de .xlsx
-    XLSX.writeFile(wb, "modelo_questoes.xls", { bookType: "xls" });
-    
+    XLSX.writeFile(wb, "modelo_questoes.xlsx");
     console.log('Download do template concluído com sucesso');
   } catch (error) {
     console.error('Erro ao gerar template Excel:', error);
