@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { syncNewData } from "@/utils/syncUtils";
+import { RefetchOptions, QueryObserverResult } from "@tanstack/react-query";
 
 interface SyncDatabaseButtonProps {
-  onRefetch: () => Promise<void>;
+  onRefetch: (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<any, Error>>;
 }
 
 export const SyncDatabaseButton = ({ onRefetch }: SyncDatabaseButtonProps) => {
