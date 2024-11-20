@@ -1,30 +1,89 @@
 import * as XLSX from 'xlsx';
-import { columnWidths, headers } from './excel/columnConfig';
 import { templateSubjects, getTemplateData } from './excel/templateData';
-import { processExcelFile } from './excel/processExcel';
 
-export const downloadExcelTemplate = () => {
+export const downloadExcelTemplate = async () => {
   console.log('Iniciando download do template Excel');
   
   try {
-    const templateData = getTemplateData();
     const wb = XLSX.utils.book_new();
+    const templateData = getTemplateData();
 
     // Criar uma aba para cada matéria
-    Object.entries(templateData).forEach(([subject, examples]) => {
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...examples]);
-      ws['!cols'] = columnWidths;
+    templateSubjects.forEach(subject => {
+      console.log(`Criando aba para: ${subject}`);
+      
+      const headers = [
+        "Tema",
+        "Assunto",
+        "Questão",
+        "URL da Imagem",
+        "Opção A",
+        "Opção B",
+        "Opção C",
+        "Opção D",
+        "Opção E",
+        "Resposta Correta",
+        "Explicação",
+        "Dificuldade",
+        "Questão de Concurso Anterior?",
+        "Ano do Concurso",
+        "Nome do Concurso"
+      ];
 
-      // Estilização do cabeçalho
-      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:Q2');
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        const address = XLSX.utils.encode_col(C) + '1';
-        if (!ws[address]) continue;
-        ws[address].s = {
-          font: { bold: true, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "1A4D2E" } },
-          alignment: { horizontal: 'center', vertical: 'center' }
-        };
+      // Criar exemplo de linha para cada matéria
+      const exampleRow = [
+        "Exemplo Tema",
+        "Exemplo Assunto",
+        "Texto da questão exemplo",
+        "",
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C",
+        "Alternativa D",
+        "Alternativa E",
+        "A",
+        "Explicação da resposta",
+        "Médio",
+        "Não",
+        "",
+        ""
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+
+      // Configurar largura das colunas
+      const colWidths = [
+        { wch: 25 },  // Tema
+        { wch: 25 },  // Assunto
+        { wch: 50 },  // Questão
+        { wch: 30 },  // URL da Imagem
+        { wch: 20 },  // Opção A
+        { wch: 20 },  // Opção B
+        { wch: 20 },  // Opção C
+        { wch: 20 },  // Opção D
+        { wch: 20 },  // Opção E
+        { wch: 15 },  // Resposta Correta
+        { wch: 50 },  // Explicação
+        { wch: 15 },  // Dificuldade
+        { wch: 15 },  // Questão de Concurso
+        { wch: 15 },  // Ano
+        { wch: 25 }   // Nome do Concurso
+      ];
+
+      ws['!cols'] = colWidths;
+
+      // Estilizar cabeçalho
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "1A4D2E" } },
+        alignment: { horizontal: 'center', vertical: 'center' }
+      };
+
+      // Aplicar estilo ao cabeçalho
+      for (let i = 0; i < headers.length; i++) {
+        const cellRef = XLSX.utils.encode_cell({ r: 0, c: i });
+        if (!ws[cellRef]) continue;
+        ws[cellRef].s = headerStyle;
       }
 
       XLSX.utils.book_append_sheet(wb, ws, subject);
@@ -55,6 +114,7 @@ export const downloadExcelTemplate = () => {
 
     XLSX.utils.book_append_sheet(wb, wsInstructions, "Instruções");
 
+    // Fazer o download
     XLSX.writeFile(wb, "modelo_questoes.xlsx");
     console.log('Download do template concluído com sucesso');
   } catch (error) {
@@ -62,5 +122,3 @@ export const downloadExcelTemplate = () => {
     throw error;
   }
 };
-
-export { processExcelFile };
