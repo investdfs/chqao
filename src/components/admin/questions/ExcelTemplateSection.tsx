@@ -1,8 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { downloadExcelTemplate } from "@/utils/excelUtils";
+import { useToast } from "@/components/ui/use-toast";
 
 export const ExcelTemplateSection = () => {
+  const { toast } = useToast();
+
+  const handleDownload = async () => {
+    try {
+      await downloadExcelTemplate();
+      toast({
+        title: "Download iniciado",
+        description: "O modelo de planilha está sendo baixado.",
+      });
+    } catch (error) {
+      console.error('Erro ao baixar template:', error);
+      toast({
+        title: "Erro no download",
+        description: "Não foi possível baixar o modelo de planilha.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-blue-50 p-4 rounded-lg space-y-2">
@@ -17,7 +37,10 @@ export const ExcelTemplateSection = () => {
         </ol>
       </div>
 
-      <Button className="flex items-center gap-2" onClick={downloadExcelTemplate}>
+      <Button 
+        className="flex items-center gap-2" 
+        onClick={handleDownload}
+      >
         <Download className="h-4 w-4" />
         Baixar Modelo de Planilha
       </Button>
