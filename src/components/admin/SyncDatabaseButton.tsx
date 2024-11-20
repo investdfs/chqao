@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { syncNewData } from "@/utils/syncUtils";
 import { RefetchOptions, QueryObserverResult } from "@tanstack/react-query";
 
 interface SyncDatabaseButtonProps {
@@ -13,24 +12,18 @@ export const SyncDatabaseButton = ({ onRefetch }: SyncDatabaseButtonProps) => {
 
   const handleSyncDatabase = async () => {
     try {
-      console.log('Iniciando processo de sincronização...');
-      
-      // Executa o refetch existente
+      console.log('Iniciando atualização dos dados...');
       await onRefetch();
-      console.log('Refetch concluído');
-
-      // Sincroniza novos dados
-      await syncNewData();
-
+      
       toast({
-        title: "Sincronização concluída",
-        description: "O banco de dados foi atualizado com os novos dados com sucesso.",
+        title: "Dados atualizados",
+        description: "Os dados foram atualizados com sucesso.",
       });
     } catch (error) {
-      console.error('Erro ao sincronizar banco de dados:', error);
+      console.error('Erro ao atualizar dados:', error);
       toast({
-        title: "Erro na sincronização",
-        description: "Ocorreu um erro ao sincronizar o banco de dados.",
+        title: "Erro na atualização",
+        description: "Ocorreu um erro ao atualizar os dados.",
         variant: "destructive"
       });
     }
@@ -42,7 +35,7 @@ export const SyncDatabaseButton = ({ onRefetch }: SyncDatabaseButtonProps) => {
       className="flex items-center gap-2"
     >
       <RefreshCw className="h-4 w-4" />
-      Sincronizar Banco de Dados
+      Atualizar Dados
     </Button>
   );
 };

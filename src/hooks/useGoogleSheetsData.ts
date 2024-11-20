@@ -14,29 +14,29 @@ export const useGoogleSheetsData = () => {
   return useQuery({
     queryKey: ['users'],
     queryFn: async () => {
-      console.log('Fetching users from Supabase...');
+      console.log('Buscando usuários do Supabase...');
       
-      // Fetch admins
+      // Busca administradores
       const { data: admins, error: adminsError } = await supabase
         .from('admins')
         .select('*');
 
       if (adminsError) {
-        console.error('Error fetching admins:', adminsError);
+        console.error('Erro ao buscar administradores:', adminsError);
         throw adminsError;
       }
 
-      // Fetch students
+      // Busca estudantes
       const { data: students, error: studentsError } = await supabase
         .from('students')
         .select('*');
 
       if (studentsError) {
-        console.error('Error fetching students:', studentsError);
+        console.error('Erro ao buscar estudantes:', studentsError);
         throw studentsError;
       }
 
-      // Transform data to match expected format
+      // Transforma os dados para manter o formato esperado
       const users = [
         ...admins.map(admin => ({
           ...admin,
@@ -48,7 +48,7 @@ export const useGoogleSheetsData = () => {
         }))
       ];
 
-      console.log('Users fetched successfully:', users);
+      console.log('Usuários carregados com sucesso:', users);
       return { users };
     }
   });
