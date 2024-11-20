@@ -53,8 +53,9 @@ export type Database = {
           option_d: string
           option_e: string
           subject: string
-          subtopic: string | null
+          subject_matter: string | null
           text: string
+          theme: string | null
           topic: string | null
         }
         Insert: {
@@ -73,8 +74,9 @@ export type Database = {
           option_d: string
           option_e: string
           subject: string
-          subtopic?: string | null
+          subject_matter?: string | null
           text: string
+          theme?: string | null
           topic?: string | null
         }
         Update: {
@@ -93,8 +95,9 @@ export type Database = {
           option_d?: string
           option_e?: string
           subject?: string
-          subtopic?: string | null
+          subject_matter?: string | null
           text?: string
+          theme?: string | null
           topic?: string | null
         }
         Relationships: []

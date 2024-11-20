@@ -4,11 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 interface QuestionFiltersProps {
+  themes: string[];
   subjects: string[];
   topics: string[];
+  selectedTheme: string;
   selectedSubject: string;
   selectedTopic: string;
   searchTerm: string;
+  onThemeChange: (value: string) => void;
   onSubjectChange: (value: string) => void;
   onTopicChange: (value: string) => void;
   onSearchChange: (value: string) => void;
@@ -16,11 +19,14 @@ interface QuestionFiltersProps {
 }
 
 export const QuestionFilters = ({
+  themes,
   subjects,
   topics,
+  selectedTheme,
   selectedSubject,
   selectedTopic,
   searchTerm,
+  onThemeChange,
   onSubjectChange,
   onTopicChange,
   onSearchChange,
@@ -29,6 +35,20 @@ export const QuestionFilters = ({
   return (
     <div className="space-y-4 mb-4">
       <div className="flex flex-col sm:flex-row gap-4">
+        <Select value={selectedTheme} onValueChange={onThemeChange}>
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectValue placeholder="Filtrar por tema" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os temas</SelectItem>
+            {themes.map((theme) => (
+              <SelectItem key={theme} value={theme}>
+                {theme}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Select value={selectedSubject} onValueChange={onSubjectChange}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filtrar por matéria" />
@@ -45,10 +65,10 @@ export const QuestionFilters = ({
 
         <Select value={selectedTopic} onValueChange={onTopicChange}>
           <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Filtrar por tópico" />
+            <SelectValue placeholder="Filtrar por assunto" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os tópicos</SelectItem>
+            <SelectItem value="all">Todos os assuntos</SelectItem>
             {topics.map((topic) => (
               <SelectItem key={topic} value={topic}>
                 {topic}

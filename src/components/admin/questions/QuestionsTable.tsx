@@ -2,6 +2,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 interface Question {
   id: string;
+  theme: string;
   subject: string;
   topic: string;
   text: string;
@@ -17,8 +18,9 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Tema</TableHead>
           <TableHead>Matéria</TableHead>
-          <TableHead>Tópico</TableHead>
+          <TableHead>Assunto</TableHead>
           <TableHead>Questão</TableHead>
           <TableHead>Resposta</TableHead>
         </TableRow>
@@ -26,6 +28,7 @@ export const QuestionsTable = ({ questions }: QuestionsTableProps) => {
       <TableBody>
         {questions.map((question) => (
           <TableRow key={question.id}>
+            <TableCell>{question.theme}</TableCell>
             <TableCell>{question.subject}</TableCell>
             <TableCell>{question.topic}</TableCell>
             <TableCell>{question.text}</TableCell>

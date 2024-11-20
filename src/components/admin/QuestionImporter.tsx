@@ -13,26 +13,30 @@ import { supabase } from "@/integrations/supabase/client";
 export const QuestionImporter = () => {
   const [questions, setQuestions] = useState<any[]>([]);
   const [showQuestions, setShowQuestions] = useState(false);
+  const [themes, setThemes] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
+  const [selectedTheme, setSelectedTheme] = useState<string>("all");
   const [selectedSubject, setSelectedSubject] = useState<string>("all");
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchSubjectsAndTopics = async () => {
-    console.log("Buscando matérias e tópicos únicos...");
+  const fetchThemesSubjectsAndTopics = async () => {
+    console.log("Buscando temas, matérias e assuntos únicos...");
     const { data: questionsData, error } = await supabase
       .from("questions")
-      .select("subject, topic");
+      .select("theme, subject, topic");
 
     if (error) {
-      console.error("Erro ao buscar matérias e tópicos:", error);
+      console.error("Erro ao buscar temas, matérias e assuntos:", error);
       return;
     }
 
+    const uniqueThemes = [...new Set(questionsData.map((q) => q.theme).filter(Boolean))];
     const uniqueSubjects = [...new Set(questionsData.map((q) => q.subject))];
     const uniqueTopics = [...new Set(questionsData.map((q) => q.topic).filter(Boolean))];
 
+    setThemes(uniqueThemes);
     setSubjects(uniqueSubjects);
     setTopics(uniqueTopics);
   };
@@ -44,6 +48,9 @@ export const QuestionImporter = () => {
       .select("*")
       .order("created_at", { ascending: false });
 
+    if (selectedTheme !== "all") {
+      query = query.eq("theme", selectedTheme);
+    }
     if (selectedSubject !== "all") {
       query = query.eq("subject", selectedSubject);
     }
@@ -80,7 +87,7 @@ export const QuestionImporter = () => {
               onClick={() => {
                 setShowQuestions(true);
                 fetchQuestions();
-                fetchSubjectsAndTopics();
+                fetchThemesSubjectsAndTopics();
               }}
             >
               <Eye className="h-4 w-4" />
@@ -93,11 +100,14 @@ export const QuestionImporter = () => {
             </DialogHeader>
 
             <QuestionFilters
+              themes={themes}
               subjects={subjects}
               topics={topics}
+              selectedTheme={selectedTheme}
               selectedSubject={selectedSubject}
               selectedTopic={selectedTopic}
               searchTerm={searchTerm}
+              onThemeChange={setSelectedTheme}
               onSubjectChange={setSelectedSubject}
               onTopicChange={setSelectedTopic}
               onSearchChange={setSearchTerm}

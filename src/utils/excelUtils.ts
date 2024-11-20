@@ -6,37 +6,32 @@ export const downloadExcelTemplate = () => {
   
   try {
     const headers = [
-      "Matéria", "Tópico", "Subtópico", "Questão", "URL da Imagem",
+      "Tema", "Matéria", "Assunto", "Detalhamento", "Questão", "URL da Imagem",
       "Opção A", "Opção B", "Opção C", "Opção D", "Opção E",
       "Resposta Correta", "Explicação", "Dificuldade",
       "Questão de Concurso Anterior?", "Ano do Concurso", "Nome do Concurso"
     ];
 
-    // Criar exemplos para cada matéria
+    // Criar exemplos para cada tema
     const templateData = {
-      'Matemática': [
+      'Exemplo': [
         [
-          "Matemática", "Álgebra", "Equações", 
-          "Se 2x + 3 = 11, qual é o valor de x?", "",
-          "2", "3", "4", "5", "6", 
-          "C", "Para resolver, subtraímos 3 dos dois lados: 2x = 8. Depois dividimos por 2: x = 4", 
-          "Fácil", "Sim", "2022", "ENEM"
+          "Direito Constitucional", "Constituição", "Princípios Fundamentais", "Fundamentos da República",
+          "Qual dos seguintes NÃO é um fundamento da República Federativa do Brasil?", "",
+          "Soberania", "Cidadania", "Centralização política", "Dignidade da pessoa humana", "Valores sociais do trabalho",
+          "C", "A centralização política não é um dos fundamentos da República. Os fundamentos estão no art. 1º da CF/88.", 
+          "Médio", "Não", "", ""
         ],
         [
-          "Matemática", "Geometria", "Áreas", 
-          "Qual é a área de um quadrado de lado 5cm?", "https://exemplo.com/imagem.jpg",
-          "15cm²", "20cm²", "25cm²", "30cm²", "35cm²", 
-          "C", "A área do quadrado é lado², então 5² = 25cm²", 
-          "Fácil", "Não", "", ""
-        ]
-      ],
-      'Português': [
-        [
-          "Português", "Gramática", "Advérbios",
-          "Qual é a classe gramatical da palavra 'rapidamente'?", "",
-          "Substantivo", "Adjetivo", "Advérbio", "Preposição", "Conjunção",
-          "C", "Rapidamente é um advérbio pois modifica um verbo, indicando modo",
-          "Médio", "Não", "", ""
+          "Direito Administrativo", "Administração Pública", "Princípios", "Princípio da Legalidade",
+          "Sobre o princípio da legalidade, é correto afirmar que:", "",
+          "A administração pode fazer tudo que a lei não proíbe", 
+          "A administração só pode fazer o que a lei permite",
+          "A administração pode fazer tudo que não prejudique terceiros",
+          "A administração tem liberdade total de atuação",
+          "Nenhuma das anteriores",
+          "B", "O princípio da legalidade determina que a administração pública só pode fazer o que a lei expressamente autoriza.",
+          "Fácil", "Sim", "2022", "Concurso TJ-SP"
         ]
       ]
     };
@@ -46,9 +41,10 @@ export const downloadExcelTemplate = () => {
 
     // Configurar larguras das colunas
     const colWidths = [
-      { wch: 15 },  // Matéria
-      { wch: 15 },  // Tópico
-      { wch: 15 },  // Subtópico
+      { wch: 25 },  // Tema
+      { wch: 20 },  // Matéria
+      { wch: 20 },  // Assunto
+      { wch: 20 },  // Detalhamento
       { wch: 50 },  // Questão
       { wch: 30 },  // URL da Imagem
       { wch: 20 },  // Opção A
@@ -64,13 +60,13 @@ export const downloadExcelTemplate = () => {
       { wch: 20 }   // Nome do Concurso
     ];
 
-    // Criar uma aba para cada matéria
-    Object.entries(templateData).forEach(([subject, examples]) => {
+    // Criar uma aba para cada tema
+    Object.entries(templateData).forEach(([sheetName, examples]) => {
       const ws = XLSX.utils.aoa_to_sheet([headers, ...examples]);
       ws['!cols'] = colWidths;
 
       // Estilização do cabeçalho
-      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:P2');
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:Q2');
       for (let C = range.s.c; C <= range.e.c; ++C) {
         const address = XLSX.utils.encode_col(C) + '1';
         if (!ws[address]) continue;
@@ -81,21 +77,22 @@ export const downloadExcelTemplate = () => {
         };
       }
 
-      XLSX.utils.book_append_sheet(wb, ws, subject);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
     });
 
     // Adicionar aba de instruções
     const instructions = [
       ["Instruções para Preenchimento"],
       [""],
-      ["1. Cada aba contém exemplos de questões para uma matéria específica"],
-      ["2. Mantenha o formato exato das colunas ao adicionar suas questões"],
-      ["3. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
-      ["4. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
-      ["5. O campo 'URL da Imagem' é opcional - deixe em branco se não houver imagem"],
-      ["6. Para questões de concursos anteriores, marque 'Sim' e preencha o ano e nome"],
-      ["7. Você pode adicionar quantas linhas quiser em cada aba"],
-      ["8. Não modifique o cabeçalho das colunas"]
+      ["1. Organize as questões seguindo a hierarquia: Tema > Matéria > Assunto"],
+      ["2. O campo 'Detalhamento' é opcional e serve para especificar melhor o assunto"],
+      ["3. Mantenha o formato exato das colunas ao adicionar suas questões"],
+      ["4. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
+      ["5. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
+      ["6. O campo 'URL da Imagem' é opcional - deixe em branco se não houver imagem"],
+      ["7. Para questões de concursos anteriores, marque 'Sim' e preencha o ano e nome"],
+      ["8. Você pode adicionar quantas linhas quiser"],
+      ["9. Não modifique o cabeçalho das colunas"]
     ];
 
     const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
@@ -132,9 +129,10 @@ export const processExcelFile = async (file: File): Promise<any[]> => {
 
         // Mapear os dados para o formato do banco
         const questions = jsonData.map((row: any) => ({
+          theme: row['Tema'],
           subject: row['Matéria'],
-          topic: row['Tópico'],
-          subtopic: row['Subtópico'],
+          topic: row['Assunto'],
+          subject_matter: row['Detalhamento'] || null,
           text: row['Questão'],
           image_url: row['URL da Imagem'] || null,
           option_a: row['Opção A'],
