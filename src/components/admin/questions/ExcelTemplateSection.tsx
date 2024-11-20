@@ -7,12 +7,13 @@ export const ExcelTemplateSection = () => {
   const { toast } = useToast();
 
   const handleDownload = () => {
-    console.log("Iniciando download do template...");
     try {
-      // Criar um novo workbook
+      console.log("Iniciando download do template...");
+      
+      // Create workbook
       const wb = XLSX.utils.book_new();
 
-      // Lista de matérias
+      // Define subjects
       const subjects = [
         'Língua Portuguesa',
         'Geografia do Brasil',
@@ -25,7 +26,7 @@ export const ExcelTemplateSection = () => {
         'Técnicas e habilidades de leitura e escrita musical'
       ];
 
-      // Cabeçalhos para cada aba
+      // Define headers
       const headers = [
         "Tema",
         "Assunto",
@@ -44,7 +45,7 @@ export const ExcelTemplateSection = () => {
         "Nome do Concurso"
       ];
 
-      // Exemplo de linha para cada matéria
+      // Example row data
       const exampleRow = [
         "Exemplo Tema",
         "Exemplo Assunto",
@@ -63,13 +64,13 @@ export const ExcelTemplateSection = () => {
         ""
       ];
 
-      // Criar uma aba para cada matéria
+      // Create sheets for each subject
       subjects.forEach(subject => {
         console.log(`Criando aba para: ${subject}`);
         const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-
-        // Configurar largura das colunas
-        const colWidths = [
+        
+        // Set column widths
+        ws['!cols'] = [
           { wch: 25 },  // Tema
           { wch: 25 },  // Assunto
           { wch: 50 },  // Questão
@@ -87,13 +88,11 @@ export const ExcelTemplateSection = () => {
           { wch: 25 }   // Nome do Concurso
         ];
 
-        ws['!cols'] = colWidths;
-
-        // Adicionar a aba ao workbook
+        // Add sheet to workbook
         XLSX.utils.book_append_sheet(wb, ws, subject);
       });
 
-      // Adicionar aba de instruções
+      // Add instructions sheet
       const instructions = [
         ["Instruções para Preenchimento"],
         [""],
@@ -112,7 +111,7 @@ export const ExcelTemplateSection = () => {
       wsInstructions['!cols'] = [{ wch: 80 }];
       XLSX.utils.book_append_sheet(wb, wsInstructions, "Instruções");
 
-      // Fazer o download
+      // Download file
       XLSX.writeFile(wb, "modelo_questoes.xlsx");
       
       console.log("Download do template concluído com sucesso");
@@ -145,7 +144,7 @@ export const ExcelTemplateSection = () => {
       </div>
 
       <Button 
-        className="flex items-center gap-2" 
+        className="flex items-center gap-2 w-full sm:w-auto" 
         onClick={handleDownload}
       >
         <Download className="h-4 w-4" />
