@@ -6,7 +6,7 @@ export const downloadExcelTemplate = () => {
   
   try {
     const headers = [
-      "Tema", "Matéria", "Assunto", "Detalhamento", "Questão", "URL da Imagem",
+      "Tema", "Matéria", "Assunto", "Questão", "URL da Imagem",
       "Opção A", "Opção B", "Opção C", "Opção D", "Opção E",
       "Resposta Correta", "Explicação", "Dificuldade",
       "Questão de Concurso Anterior?", "Ano do Concurso", "Nome do Concurso"
@@ -16,22 +16,24 @@ export const downloadExcelTemplate = () => {
     const templateData = {
       'Exemplo': [
         [
-          "Direito Constitucional", "Constituição", "Princípios Fundamentais", "Fundamentos da República",
-          "Qual dos seguintes NÃO é um fundamento da República Federativa do Brasil?", "",
-          "Soberania", "Cidadania", "Centralização política", "Dignidade da pessoa humana", "Valores sociais do trabalho",
-          "C", "A centralização política não é um dos fundamentos da República. Os fundamentos estão no art. 1º da CF/88.", 
+          "Conhecimentos Gerais", "Língua Portuguesa", "Interpretação e compreensão de textos",
+          "Qual a ideia principal do texto apresentado?", "",
+          "Crítica social", "Análise histórica", "Reflexão filosófica", 
+          "Descrição científica", "Narrativa literária",
+          "A", "A questão avalia a capacidade de identificar o tema central do texto.", 
           "Médio", "Não", "", ""
         ],
         [
-          "Direito Administrativo", "Administração Pública", "Princípios", "Princípio da Legalidade",
-          "Sobre o princípio da legalidade, é correto afirmar que:", "",
-          "A administração pode fazer tudo que a lei não proíbe", 
-          "A administração só pode fazer o que a lei permite",
-          "A administração pode fazer tudo que não prejudique terceiros",
-          "A administração tem liberdade total de atuação",
-          "Nenhuma das anteriores",
-          "B", "O princípio da legalidade determina que a administração pública só pode fazer o que a lei expressamente autoriza.",
-          "Fácil", "Sim", "2022", "Concurso TJ-SP"
+          "Conhecimentos Profissionais (CHQAO e CHQAOMus)", "E-1 - Estatuto dos Militares", 
+          "Princípios fundamentais: hierarquia e disciplina",
+          "Sobre os princípios fundamentais da hierarquia militar, é correto afirmar que:", "",
+          "É a base da organização militar", 
+          "É opcional em tempos de paz",
+          "Aplica-se apenas aos oficiais",
+          "Pode ser flexibilizada conforme a situação",
+          "Não se aplica em missões especiais",
+          "A", "A hierarquia é um dos pilares fundamentais da organização militar.",
+          "Fácil", "Não", "", ""
         ]
       ]
     };
@@ -44,7 +46,6 @@ export const downloadExcelTemplate = () => {
       { wch: 25 },  // Tema
       { wch: 20 },  // Matéria
       { wch: 20 },  // Assunto
-      { wch: 20 },  // Detalhamento
       { wch: 50 },  // Questão
       { wch: 30 },  // URL da Imagem
       { wch: 20 },  // Opção A
@@ -85,14 +86,13 @@ export const downloadExcelTemplate = () => {
       ["Instruções para Preenchimento"],
       [""],
       ["1. Organize as questões seguindo a hierarquia: Tema > Matéria > Assunto"],
-      ["2. O campo 'Detalhamento' é opcional e serve para especificar melhor o assunto"],
-      ["3. Mantenha o formato exato das colunas ao adicionar suas questões"],
-      ["4. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
-      ["5. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
-      ["6. O campo 'URL da Imagem' é opcional - deixe em branco se não houver imagem"],
-      ["7. Para questões de concursos anteriores, marque 'Sim' e preencha o ano e nome"],
-      ["8. Você pode adicionar quantas linhas quiser"],
-      ["9. Não modifique o cabeçalho das colunas"]
+      ["2. Mantenha o formato exato das colunas ao adicionar suas questões"],
+      ["3. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
+      ["4. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
+      ["5. O campo 'URL da Imagem' é opcional - deixe em branco se não houver imagem"],
+      ["6. Para questões de concursos anteriores, marque 'Sim' e preencha o ano e nome"],
+      ["7. Você pode adicionar quantas linhas quiser"],
+      ["8. Não modifique o cabeçalho das colunas"]
     ];
 
     const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
@@ -132,7 +132,6 @@ export const processExcelFile = async (file: File): Promise<any[]> => {
           theme: row['Tema'],
           subject: row['Matéria'],
           topic: row['Assunto'],
-          subject_matter: row['Detalhamento'] || null,
           text: row['Questão'],
           image_url: row['URL da Imagem'] || null,
           option_a: row['Opção A'],

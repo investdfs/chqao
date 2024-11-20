@@ -129,6 +129,30 @@ export type Database = {
         }
         Relationships: []
       }
+      subject_structure: {
+        Row: {
+          created_at: string | null
+          id: string
+          subject: string
+          theme: string
+          topic: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          subject: string
+          theme: string
+          topic: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          subject?: string
+          theme?: string
+          topic?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
