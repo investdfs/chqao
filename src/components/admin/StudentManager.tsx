@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Eye, Plus } from "lucide-react";
 import { StudentList } from "./StudentList";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
+import { supabase } from "@/integrations/supabase/client";
 
 export const StudentManager = () => {
   const { toast } = useToast();
@@ -27,7 +28,14 @@ export const StudentManager = () => {
 
       const newStatus = student.status === "active" ? "blocked" : "active";
       
-      // Update will be handled by SheetDB
+      console.log('Updating student status:', { studentId, newStatus });
+      const { error } = await supabase
+        .from('students')
+        .update({ status: newStatus })
+        .eq('id', studentId);
+
+      if (error) throw error;
+      
       toast({
         title: "Status atualizado",
         description: "O status do aluno foi atualizado com sucesso.",
@@ -46,7 +54,14 @@ export const StudentManager = () => {
 
   const handleUpdateStudent = async (studentId: string, data: any) => {
     try {
-      // Update will be handled by SheetDB
+      console.log('Updating student:', { studentId, data });
+      const { error } = await supabase
+        .from('students')
+        .update(data)
+        .eq('id', studentId);
+
+      if (error) throw error;
+
       toast({
         title: "Aluno atualizado",
         description: "Os dados do aluno foram atualizados com sucesso.",
@@ -65,7 +80,13 @@ export const StudentManager = () => {
 
   const handleAddStudent = async () => {
     try {
-      // Add will be handled by SheetDB
+      console.log('Adding new student:', newStudent);
+      const { error } = await supabase
+        .from('students')
+        .insert([newStudent]);
+
+      if (error) throw error;
+
       toast({
         title: "Aluno adicionado",
         description: "O novo aluno foi cadastrado com sucesso.",

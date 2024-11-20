@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchSheetData } from '@/integrations/sheetdb/client';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface User {
   id: string;
@@ -8,37 +8,48 @@ export interface User {
   password: string;
   status: 'active' | 'blocked';
   type: 'admin' | 'student';
-  created_at: string;
-}
-
-export interface Question {
-  id: string;
-  subject: string;
-  topic: string;
-  text: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  optionE: string;
-  correctAnswer: string;
-  explanation: string;
 }
 
 export const useGoogleSheetsData = () => {
   return useQuery({
-    queryKey: ['sheetsData'],
+    queryKey: ['users'],
     queryFn: async () => {
-      const data = await fetchSheetData();
+      console.log('Fetching users from Supabase...');
       
-      // Separar os dados em usuários e questões
-      const users = data.filter((row: any) => row.type === 'admin' || row.type === 'student') as User[];
-      const questions = data.filter((row: any) => !row.type) as Question[];
-      
-      return {
-        users,
-        questions
-      };
-    },
+      // Fetch admins
+      const { data: admins, error: adminsError } = await supabase
+        .from('admins')
+        .select('*');
+
+      if (adminsError) {
+        console.error('Error fetching admins:', adminsError);
+        throw adminsError;
+      }
+
+      // Fetch students
+      const { data: students, error: studentsError } = await supabase
+        .from('students')
+        .select('*');
+
+      if (studentsError) {
+        console.error('Error fetching students:', studentsError);
+        throw studentsError;
+      }
+
+      // Transform data to match expected format
+      const users = [
+        ...admins.map(admin => ({
+          ...admin,
+          type: 'admin' as const
+        })),
+        ...students.map(student => ({
+          ...student,
+          type: 'student' as const
+        }))
+      ];
+
+      console.log('Users fetched successfully:', users);
+      return { users };
+    }
   });
 };

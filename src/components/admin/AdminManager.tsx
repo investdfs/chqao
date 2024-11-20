@@ -6,6 +6,7 @@ import { Eye } from "lucide-react";
 import { AdminList } from "./AdminList";
 import { AddAdminDialog } from "./AddAdminDialog";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
+import { supabase } from "@/integrations/supabase/client";
 
 export const AdminManager = () => {
   const { toast } = useToast();
@@ -21,7 +22,14 @@ export const AdminManager = () => {
 
       const newStatus = admin.status === 'active' ? 'blocked' : 'active';
       
-      // Update will be handled by SheetDB
+      console.log('Updating admin status:', { adminId, newStatus });
+      const { error } = await supabase
+        .from('admins')
+        .update({ status: newStatus })
+        .eq('id', adminId);
+
+      if (error) throw error;
+      
       toast({
         title: "Status atualizado",
         description: "O status do administrador foi atualizado com sucesso.",
@@ -40,7 +48,18 @@ export const AdminManager = () => {
 
   const handleAddAdmin = async (email: string, name: string) => {
     try {
-      // Add will be handled by SheetDB
+      console.log('Adding new admin:', { email, name });
+      const { error } = await supabase
+        .from('admins')
+        .insert([{ 
+          email, 
+          name,
+          password: Math.random().toString(36).slice(-8), // Generate random password
+          status: 'active'
+        }]);
+
+      if (error) throw error;
+
       toast({
         title: "Administrador adicionado",
         description: "O novo administrador foi cadastrado com sucesso.",
