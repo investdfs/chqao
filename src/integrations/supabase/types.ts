@@ -41,14 +41,19 @@ export type Database = {
           correct_answer: string
           created_at: string
           difficulty: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_name: string | null
+          exam_year: number | null
           explanation: string | null
           id: string
+          image_url: string | null
+          is_from_previous_exam: boolean | null
           option_a: string
           option_b: string
           option_c: string
           option_d: string
           option_e: string
           subject: string
+          subtopic: string | null
           text: string
           topic: string | null
         }
@@ -56,14 +61,19 @@ export type Database = {
           correct_answer: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_name?: string | null
+          exam_year?: number | null
           explanation?: string | null
           id?: string
+          image_url?: string | null
+          is_from_previous_exam?: boolean | null
           option_a: string
           option_b: string
           option_c: string
           option_d: string
           option_e: string
           subject: string
+          subtopic?: string | null
           text: string
           topic?: string | null
         }
@@ -71,14 +81,19 @@ export type Database = {
           correct_answer?: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_name?: string | null
+          exam_year?: number | null
           explanation?: string | null
           id?: string
+          image_url?: string | null
+          is_from_previous_exam?: boolean | null
           option_a?: string
           option_b?: string
           option_c?: string
           option_d?: string
           option_e?: string
           subject?: string
+          subtopic?: string | null
           text?: string
           topic?: string | null
         }
