@@ -8,7 +8,7 @@ export const ExcelTemplateSection = () => {
 
   const handleDownload = () => {
     try {
-      console.log("Iniciando download do template...");
+      console.log("Iniciando geração do template Excel...");
       
       // Create workbook
       const wb = XLSX.utils.book_new();
@@ -66,30 +66,35 @@ export const ExcelTemplateSection = () => {
 
       // Create sheets for each subject
       subjects.forEach(subject => {
-        console.log(`Criando aba para: ${subject}`);
-        const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-        
-        // Set column widths
-        ws['!cols'] = [
-          { wch: 25 },  // Tema
-          { wch: 25 },  // Assunto
-          { wch: 50 },  // Questão
-          { wch: 30 },  // URL da Imagem
-          { wch: 20 },  // Opção A
-          { wch: 20 },  // Opção B
-          { wch: 20 },  // Opção C
-          { wch: 20 },  // Opção D
-          { wch: 20 },  // Opção E
-          { wch: 15 },  // Resposta Correta
-          { wch: 50 },  // Explicação
-          { wch: 15 },  // Dificuldade
-          { wch: 15 },  // Questão de Concurso
-          { wch: 15 },  // Ano
-          { wch: 25 }   // Nome do Concurso
-        ];
+        try {
+          console.log(`Criando aba para matéria: ${subject}`);
+          const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+          
+          // Set column widths
+          const colWidths = [
+            { wch: 25 },  // Tema
+            { wch: 25 },  // Assunto
+            { wch: 50 },  // Questão
+            { wch: 30 },  // URL da Imagem
+            { wch: 20 },  // Opção A
+            { wch: 20 },  // Opção B
+            { wch: 20 },  // Opção C
+            { wch: 20 },  // Opção D
+            { wch: 20 },  // Opção E
+            { wch: 15 },  // Resposta Correta
+            { wch: 50 },  // Explicação
+            { wch: 15 },  // Dificuldade
+            { wch: 15 },  // Questão de Concurso
+            { wch: 15 },  // Ano
+            { wch: 25 }   // Nome do Concurso
+          ];
 
-        // Add sheet to workbook
-        XLSX.utils.book_append_sheet(wb, ws, subject);
+          ws['!cols'] = colWidths;
+          XLSX.utils.book_append_sheet(wb, ws, subject);
+        } catch (sheetError) {
+          console.error(`Erro ao criar aba ${subject}:`, sheetError);
+          throw sheetError;
+        }
       });
 
       // Add instructions sheet
@@ -112,6 +117,7 @@ export const ExcelTemplateSection = () => {
       XLSX.utils.book_append_sheet(wb, wsInstructions, "Instruções");
 
       // Download file
+      console.log("Gerando arquivo para download...");
       XLSX.writeFile(wb, "modelo_questoes.xlsx");
       
       console.log("Download do template concluído com sucesso");
@@ -123,7 +129,7 @@ export const ExcelTemplateSection = () => {
       console.error('Erro ao gerar template:', error);
       toast({
         title: "Erro no download",
-        description: "Não foi possível baixar o modelo de planilha.",
+        description: "Não foi possível baixar o modelo de planilha. Tente novamente.",
         variant: "destructive",
       });
     }

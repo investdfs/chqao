@@ -10,21 +10,38 @@ export const templateSubjects = [
   'Técnicas e habilidades de leitura e escrita musical'
 ];
 
-export const getTemplateData = () => {
-  const templateData: Record<string, any[]> = {};
-  
-  templateSubjects.forEach(subject => {
-    templateData[subject] = [
-      [
-        "Tema", "Assunto",
-        "Questão", "",
-        "Opção A", "Opção B", "Opção C", 
-        "Opção D", "Opção E",
-        "A", "Explicação exemplo para a questão.", 
-        "Médio", "Não", "", ""
-      ]
-    ];
-  });
+export const getTemplateHeaders = () => [
+  "Tema",
+  "Assunto",
+  "Questão",
+  "URL da Imagem",
+  "Opção A",
+  "Opção B",
+  "Opção C",
+  "Opção D",
+  "Opção E",
+  "Resposta Correta",
+  "Explicação",
+  "Dificuldade",
+  "Questão de Concurso Anterior?",
+  "Ano do Concurso",
+  "Nome do Concurso"
+];
 
-  return templateData;
-};
+export const getExampleRow = () => [
+  "Exemplo Tema",
+  "Exemplo Assunto",
+  "Texto da questão exemplo",
+  "",
+  "Alternativa A",
+  "Alternativa B",
+  "Alternativa C",
+  "Alternativa D",
+  "Alternativa E",
+  "A",
+  "Explicação exemplo para a questão.",
+  "Médio",
+  "Não",
+  "",
+  ""
+];
