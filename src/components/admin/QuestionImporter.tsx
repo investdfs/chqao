@@ -5,9 +5,9 @@ import { DownloadQuestions } from "./questions/DownloadQuestions";
 import { UpdateHistory } from "./questions/UpdateHistory";
 import { QuestionFilters } from "./questions/QuestionFilters";
 import { QuestionsTable } from "./questions/QuestionsTable";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 import { supabase, checkSupabaseConnection } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -21,6 +21,7 @@ export const QuestionImporter = () => {
   const [selectedSubject, setSelectedSubject] = useState<string>("all");
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showResetDialog, setShowResetDialog] = useState(false);
   const { toast } = useToast();
 
   const fetchThemesSubjectsAndTopics = async () => {
@@ -122,11 +123,38 @@ export const QuestionImporter = () => {
     }
   };
 
+  const handleResetDatabase = async () => {
+    try {
+      console.log("Iniciando reset do banco de questões...");
+      const { error } = await supabase
+        .from("questions")
+        .delete()
+        .neq("id", "placeholder"); // Delete all records
+
+      if (error) throw error;
+
+      toast({
+        title: "Banco resetado",
+        description: "Todas as questões foram removidas com sucesso.",
+      });
+
+      setQuestions([]);
+      setShowResetDialog(false);
+    } catch (error) {
+      console.error("Erro ao resetar banco:", error);
+      toast({
+        title: "Erro ao resetar",
+        description: "Não foi possível resetar o banco de questões.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <ExcelTemplateSection />
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex flex-wrap justify-center gap-4">
         <DownloadQuestions />
         <UpdateHistory />
 
@@ -166,6 +194,31 @@ export const QuestionImporter = () => {
             />
 
             <QuestionsTable questions={questions} />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+          <DialogTrigger asChild>
+            <Button variant="destructive" className="flex items-center gap-2">
+              <Trash2 className="h-4 w-4" />
+              Resetar Banco
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirmar Reset</DialogTitle>
+              <DialogDescription>
+                Tem certeza que deseja apagar todas as questões do banco de dados? Esta ação não pode ser desfeita.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowResetDialog(false)}>
+                Cancelar
+              </Button>
+              <Button variant="destructive" onClick={handleResetDatabase}>
+                Confirmar Reset
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

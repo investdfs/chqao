@@ -9,9 +9,10 @@ export const ExcelTemplateSection = () => {
         <h3 className="font-medium">Instruções para importação:</h3>
         <ol className="list-decimal list-inside space-y-1 text-sm">
           <li>Baixe o modelo de planilha clicando no botão abaixo</li>
+          <li>Cada aba representa uma matéria diferente</li>
           <li>Preencha as questões seguindo o formato do modelo</li>
           <li>Não modifique as colunas ou sua ordem</li>
-          <li>Salve o arquivo em formato .xlsx ou .csv</li>
+          <li>Salve o arquivo em formato .xlsx</li>
           <li>Faça upload do arquivo preenchido</li>
         </ol>
       </div>
