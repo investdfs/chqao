@@ -1,30 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import * as XLSX from 'xlsx';
+
+// Define subjects directly here for simplicity
+const subjects = [
+  'Língua Portuguesa',
+  'Geografia do Brasil',
+  'História do Brasil',
+  'E-1 - Estatuto dos Militares',
+  'Licitações e Contratos',
+  'R-3 - Regulamento de Administração do Exército (RAE)',
+  'Direito Militar e Sindicância',
+  'Conhecimentos Musicais Gerais',
+  'Técnicas e habilidades de leitura e escrita musical'
+];
+
+// Import XLSX only when needed
+const loadXLSX = async () => {
+  const XLSX = await import('xlsx');
+  return XLSX;
+};
 
 export const ExcelTemplateSection = () => {
   const { toast } = useToast();
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     try {
       console.log("Iniciando geração do template Excel...");
       
+      // Load XLSX dynamically
+      const XLSX = await loadXLSX();
+      
       // Create workbook
       const wb = XLSX.utils.book_new();
-
-      // Define subjects
-      const subjects = [
-        'Língua Portuguesa',
-        'Geografia do Brasil',
-        'História do Brasil',
-        'E-1 - Estatuto dos Militares',
-        'Licitações e Contratos',
-        'R-3 - Regulamento de Administração do Exército (RAE)',
-        'Direito Militar e Sindicância',
-        'Conhecimentos Musicais Gerais',
-        'Técnicas e habilidades de leitura e escrita musical'
-      ];
 
       // Define headers
       const headers = [
@@ -65,7 +73,7 @@ export const ExcelTemplateSection = () => {
       ];
 
       // Create sheets for each subject
-      subjects.forEach(subject => {
+      for (const subject of subjects) {
         try {
           console.log(`Criando aba para matéria: ${subject}`);
           const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
@@ -95,7 +103,7 @@ export const ExcelTemplateSection = () => {
           console.error(`Erro ao criar aba ${subject}:`, sheetError);
           throw sheetError;
         }
-      });
+      }
 
       // Add instructions sheet
       const instructions = [
