@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import * as XLSX from 'xlsx';
 
 // Define subjects directly here for simplicity
 const subjects = [
@@ -15,21 +16,12 @@ const subjects = [
   'Técnicas e habilidades de leitura e escrita musical'
 ];
 
-// Import XLSX only when needed
-const loadXLSX = async () => {
-  const XLSX = await import('xlsx');
-  return XLSX;
-};
-
 export const ExcelTemplateSection = () => {
   const { toast } = useToast();
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     try {
       console.log("Iniciando geração do template Excel...");
-      
-      // Load XLSX dynamically
-      const XLSX = await loadXLSX();
       
       // Create workbook
       const wb = XLSX.utils.book_new();
@@ -74,35 +66,30 @@ export const ExcelTemplateSection = () => {
 
       // Create sheets for each subject
       for (const subject of subjects) {
-        try {
-          console.log(`Criando aba para matéria: ${subject}`);
-          const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-          
-          // Set column widths
-          const colWidths = [
-            { wch: 25 },  // Tema
-            { wch: 25 },  // Assunto
-            { wch: 50 },  // Questão
-            { wch: 30 },  // URL da Imagem
-            { wch: 20 },  // Opção A
-            { wch: 20 },  // Opção B
-            { wch: 20 },  // Opção C
-            { wch: 20 },  // Opção D
-            { wch: 20 },  // Opção E
-            { wch: 15 },  // Resposta Correta
-            { wch: 50 },  // Explicação
-            { wch: 15 },  // Dificuldade
-            { wch: 15 },  // Questão de Concurso
-            { wch: 15 },  // Ano
-            { wch: 25 }   // Nome do Concurso
-          ];
+        console.log(`Criando aba para matéria: ${subject}`);
+        const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+        
+        // Set column widths
+        const colWidths = [
+          { wch: 25 },  // Tema
+          { wch: 25 },  // Assunto
+          { wch: 50 },  // Questão
+          { wch: 30 },  // URL da Imagem
+          { wch: 20 },  // Opção A
+          { wch: 20 },  // Opção B
+          { wch: 20 },  // Opção C
+          { wch: 20 },  // Opção D
+          { wch: 20 },  // Opção E
+          { wch: 15 },  // Resposta Correta
+          { wch: 50 },  // Explicação
+          { wch: 15 },  // Dificuldade
+          { wch: 15 },  // Questão de Concurso
+          { wch: 15 },  // Ano
+          { wch: 25 }   // Nome do Concurso
+        ];
 
-          ws['!cols'] = colWidths;
-          XLSX.utils.book_append_sheet(wb, ws, subject);
-        } catch (sheetError) {
-          console.error(`Erro ao criar aba ${subject}:`, sheetError);
-          throw sheetError;
-        }
+        ws['!cols'] = colWidths;
+        XLSX.utils.book_append_sheet(wb, ws, subject);
       }
 
       // Add instructions sheet
