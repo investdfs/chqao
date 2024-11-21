@@ -3,19 +3,6 @@ import { Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
 
-// Define subjects directly here for simplicity
-const subjects = [
-  'Língua Portuguesa',
-  'Geografia do Brasil',
-  'História do Brasil',
-  'E-1 - Estatuto dos Militares',
-  'Licitações e Contratos',
-  'R-3 - Regulamento de Administração do Exército (RAE)',
-  'Direito Militar e Sindicância',
-  'Conhecimentos Musicais Gerais',
-  'Técnicas e habilidades de leitura e escrita musical'
-];
-
 export const ExcelTemplateSection = () => {
   const { toast } = useToast();
 
@@ -28,6 +15,7 @@ export const ExcelTemplateSection = () => {
 
       // Define headers
       const headers = [
+        "Matéria",
         "Tema",
         "Assunto",
         "Questão",
@@ -45,75 +33,77 @@ export const ExcelTemplateSection = () => {
         "Nome do Concurso"
       ];
 
-      // Example row data
-      const exampleRow = [
-        "Exemplo Tema",
-        "Exemplo Assunto",
-        "Texto da questão exemplo",
-        "",
-        "Alternativa A",
-        "Alternativa B",
-        "Alternativa C",
-        "Alternativa D",
-        "Alternativa E",
-        "A",
-        "Explicação da resposta",
-        "Médio",
-        "Não",
-        "",
-        ""
+      // Example rows
+      const exampleRows = [
+        [
+          "Língua Portuguesa",
+          "Interpretação de Texto",
+          "Figuras de Linguagem",
+          "Exemplo de questão de português...",
+          "",
+          "Alternativa A",
+          "Alternativa B",
+          "Alternativa C",
+          "Alternativa D",
+          "Alternativa E",
+          "A",
+          "Explicação da resposta correta",
+          "Médio",
+          "Não",
+          "",
+          ""
+        ],
+        [
+          "História do Brasil",
+          "Brasil Colônia",
+          "Período Colonial",
+          "Exemplo de questão de história...",
+          "",
+          "Alternativa A",
+          "Alternativa B",
+          "Alternativa C",
+          "Alternativa D",
+          "Alternativa E",
+          "B",
+          "Explicação da resposta correta",
+          "Fácil",
+          "Sim",
+          "2023",
+          "Concurso X"
+        ]
       ];
 
-      // Create sheets for each subject
-      for (const subject of subjects) {
-        console.log(`Criando aba para matéria: ${subject}`);
-        const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-        
-        // Set column widths
-        const colWidths = [
-          { wch: 25 },  // Tema
-          { wch: 25 },  // Assunto
-          { wch: 50 },  // Questão
-          { wch: 30 },  // URL da Imagem
-          { wch: 20 },  // Opção A
-          { wch: 20 },  // Opção B
-          { wch: 20 },  // Opção C
-          { wch: 20 },  // Opção D
-          { wch: 20 },  // Opção E
-          { wch: 15 },  // Resposta Correta
-          { wch: 50 },  // Explicação
-          { wch: 15 },  // Dificuldade
-          { wch: 15 },  // Questão de Concurso
-          { wch: 15 },  // Ano
-          { wch: 25 }   // Nome do Concurso
-        ];
-
-        ws['!cols'] = colWidths;
-        XLSX.utils.book_append_sheet(wb, ws, subject);
-      }
-
-      // Add instructions sheet
-      const instructions = [
-        ["Instruções para Preenchimento"],
-        [""],
-        ["1. Cada aba representa uma matéria diferente"],
-        ["2. Organize as questões por Tema e Assunto dentro de cada matéria"],
-        ["3. Mantenha o formato exato das colunas ao adicionar suas questões"],
-        ["4. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
-        ["5. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
-        ["6. O campo 'URL da Imagem' é opcional - deixe em branco se não houver imagem"],
-        ["7. Para questões de concursos anteriores, marque 'Sim' e preencha o ano e nome"],
-        ["8. Você pode adicionar quantas linhas quiser em cada aba"],
-        ["9. Não modifique o cabeçalho das colunas"]
+      // Create worksheet with headers and example rows
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...exampleRows]);
+      
+      // Set column widths
+      const colWidths = [
+        { wch: 30 },  // Matéria
+        { wch: 25 },  // Tema
+        { wch: 25 },  // Assunto
+        { wch: 50 },  // Questão
+        { wch: 30 },  // URL da Imagem
+        { wch: 20 },  // Opção A
+        { wch: 20 },  // Opção B
+        { wch: 20 },  // Opção C
+        { wch: 20 },  // Opção D
+        { wch: 20 },  // Opção E
+        { wch: 15 },  // Resposta Correta
+        { wch: 50 },  // Explicação
+        { wch: 15 },  // Dificuldade
+        { wch: 15 },  // Questão de Concurso
+        { wch: 15 },  // Ano
+        { wch: 25 }   // Nome do Concurso
       ];
 
-      const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
-      wsInstructions['!cols'] = [{ wch: 80 }];
-      XLSX.utils.book_append_sheet(wb, wsInstructions, "Instruções");
+      ws['!cols'] = colWidths;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Questões");
 
       // Download file
       console.log("Gerando arquivo para download...");
-      XLSX.writeFile(wb, "modelo_questoes.xlsx");
+      XLSX.writeFile(wb, "modelo_questoes.xls");
       
       console.log("Download do template concluído com sucesso");
       toast({
@@ -136,11 +126,10 @@ export const ExcelTemplateSection = () => {
         <h3 className="font-medium">Instruções para importação:</h3>
         <ol className="list-decimal list-inside space-y-1 text-sm">
           <li>Baixe o modelo de planilha clicando no botão abaixo</li>
-          <li>Cada aba representa uma matéria diferente</li>
           <li>Preencha as questões seguindo o formato do modelo</li>
+          <li>Certifique-se de preencher a matéria corretamente para cada questão</li>
           <li>Não modifique as colunas ou sua ordem</li>
-          <li>Salve o arquivo em formato .xlsx</li>
-          <li>Faça upload do arquivo preenchido</li>
+          <li>Salve o arquivo e faça upload</li>
         </ol>
       </div>
 

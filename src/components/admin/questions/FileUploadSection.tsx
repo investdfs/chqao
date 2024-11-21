@@ -14,54 +14,48 @@ export const FileUploadSection = () => {
     try {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      
+      console.log(`Processando ${jsonData.length} questões...`);
       const insertedQuestions = [];
 
-      for (const sheetName of workbook.SheetNames) {
-        if (sheetName === 'Instruções') continue;
+      for (const row of jsonData) {
+        if (!row['Matéria'] || !row['Questão']) continue; // Skip empty rows
+
+        const question = {
+          subject: row['Matéria'],
+          theme: row['Tema'],
+          topic: row['Assunto'],
+          text: row['Questão'],
+          image_url: row['URL da Imagem'] || null,
+          option_a: row['Opção A'],
+          option_b: row['Opção B'],
+          option_c: row['Opção C'],
+          option_d: row['Opção D'],
+          option_e: row['Opção E'],
+          correct_answer: row['Resposta Correta'],
+          explanation: row['Explicação'] || null,
+          difficulty: row['Dificuldade'] || 'Médio',
+          is_from_previous_exam: row['Questão de Concurso Anterior?'] === 'Sim',
+          exam_year: row['Ano do Concurso'] ? parseInt(row['Ano do Concurso']) : null,
+          exam_name: row['Nome do Concurso'] || null
+        };
+
+        console.log(`Inserindo questão: ${question.text.substring(0, 50)}...`);
         
-        console.log(`Processando aba: ${sheetName}`);
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
-        // Skip header row
-        for (let i = 1; i < jsonData.length; i++) {
-          const row: any = jsonData[i];
-          if (!row[0]) continue; // Skip empty rows
+        const { data, error } = await supabase
+          .from('questions')
+          .insert([question])
+          .select();
 
-          const question = {
-            theme: row[0],
-            subject_matter: row[1],
-            text: row[2],
-            image_url: row[3] || null,
-            option_a: row[4],
-            option_b: row[5],
-            option_c: row[6],
-            option_d: row[7],
-            option_e: row[8],
-            correct_answer: row[9],
-            explanation: row[10] || null,
-            difficulty: row[11] || 'Médio',
-            is_from_previous_exam: row[12] === 'Sim',
-            exam_year: row[13] ? parseInt(row[13]) : null,
-            exam_name: row[14] || null,
-            subject: sheetName
-          };
+        if (error) {
+          console.error('Erro ao inserir questão:', error);
+          throw error;
+        }
 
-          console.log(`Inserindo questão: ${question.text.substring(0, 50)}...`);
-          
-          const { data, error } = await supabase
-            .from('questions')
-            .insert([question])
-            .select();
-
-          if (error) {
-            console.error('Erro ao inserir questão:', error);
-            throw error;
-          }
-
-          if (data) {
-            insertedQuestions.push(data[0]);
-          }
+        if (data) {
+          insertedQuestions.push(data[0]);
         }
       }
 
@@ -111,7 +105,7 @@ export const FileUploadSection = () => {
     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
       <input
         type="file"
-        accept=".csv,.xlsx"
+        accept=".xls,.xlsx"
         className="hidden"
         id="file-upload"
         onChange={handleFileUpload}
@@ -133,7 +127,7 @@ export const FileUploadSection = () => {
             <span className="text-sm text-gray-600">
               Clique para fazer upload ou arraste um arquivo
             </span>
-            <span className="text-xs text-gray-400">Suporta arquivos CSV e Excel</span>
+            <span className="text-xs text-gray-400">Suporta arquivos Excel (.xls, .xlsx)</span>
           </>
         )}
       </label>
