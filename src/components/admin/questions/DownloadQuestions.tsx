@@ -9,51 +9,47 @@ export const DownloadQuestions = () => {
   const { toast } = useToast();
 
   const handleDownload = async () => {
-    console.log("Iniciando download das questões por matéria...");
+    console.log("Iniciando download de todas as questões...");
     
     try {
-      // Buscar todas as questões
       const { data: questions, error } = await supabase
         .from("questions")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order('subject', { ascending: true });
 
       if (error) throw error;
 
-      // Agrupar questões por matéria
-      const questionsBySubject = questions.reduce((acc: any, question) => {
-        if (!acc[question.subject]) {
-          acc[question.subject] = [];
-        }
-        acc[question.subject].push({
-          "Matéria": question.subject,
-          "Tópico": question.topic,
-          "Questão": question.text,
-          "Opção A": question.option_a,
-          "Opção B": question.option_b,
-          "Opção C": question.option_c,
-          "Opção D": question.option_d,
-          "Opção E": question.option_e,
-          "Resposta Correta": question.correct_answer,
-          "Explicação": question.explanation,
-          "Dificuldade": question.difficulty,
-        });
-        return acc;
-      }, {});
+      // Mapear as questões para o formato da planilha
+      const questionsForExcel = questions.map(question => ({
+        "Matéria": question.subject,
+        "Tema": question.theme || '',
+        "Assunto": question.topic || '',
+        "Questão": question.text,
+        "URL da Imagem": question.image_url || '',
+        "Opção A": question.option_a,
+        "Opção B": question.option_b,
+        "Opção C": question.option_c,
+        "Opção D": question.option_d,
+        "Opção E": question.option_e,
+        "Resposta Correta": question.correct_answer,
+        "Explicação": question.explanation || '',
+        "Dificuldade": question.difficulty,
+        "Questão de Concurso": question.is_from_previous_exam ? 'Sim' : 'Não',
+        "Ano do Concurso": question.exam_year || '',
+        "Nome do Concurso": question.exam_name || ''
+      }));
 
-      // Criar workbook com uma aba para cada matéria
+      // Criar workbook com uma única aba
       const wb = XLSX.utils.book_new();
-      
-      Object.entries(questionsBySubject).forEach(([subject, subjectQuestions]) => {
-        const ws = XLSX.utils.json_to_sheet(subjectQuestions as any[]);
-        XLSX.utils.book_append_sheet(wb, ws, subject);
-      });
+      const ws = XLSX.utils.json_to_sheet(questionsForExcel);
 
       // Configurar larguras das colunas
       const colWidths = [
-        { wch: 15 },  // Matéria
-        { wch: 15 },  // Tópico
+        { wch: 30 },  // Matéria
+        { wch: 25 },  // Tema
+        { wch: 25 },  // Assunto
         { wch: 50 },  // Questão
+        { wch: 30 },  // URL da Imagem
         { wch: 20 },  // Opção A
         { wch: 20 },  // Opção B
         { wch: 20 },  // Opção C
@@ -61,17 +57,19 @@ export const DownloadQuestions = () => {
         { wch: 20 },  // Opção E
         { wch: 15 },  // Resposta Correta
         { wch: 50 },  // Explicação
-        { wch: 10 }   // Dificuldade
+        { wch: 15 },  // Dificuldade
+        { wch: 15 },  // Questão de Concurso
+        { wch: 15 },  // Ano
+        { wch: 25 }   // Nome do Concurso
       ];
 
-      // Aplicar larguras a todas as abas
-      wb.SheetNames.forEach(sheetName => {
-        const ws = wb.Sheets[sheetName];
-        ws['!cols'] = colWidths;
-      });
+      ws['!cols'] = colWidths;
+
+      // Adicionar a planilha ao workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Questões");
 
       // Download do arquivo
-      XLSX.writeFile(wb, "questoes_por_materia.xlsx");
+      XLSX.writeFile(wb, "questoes.xls");
 
       toast({
         title: "Download concluído",
@@ -94,7 +92,7 @@ export const DownloadQuestions = () => {
       onClick={handleDownload}
     >
       <Download className="h-4 w-4" />
-      Baixar Questões por Matéria
+      Baixar Questões
     </Button>
   );
 };

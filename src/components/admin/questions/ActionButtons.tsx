@@ -16,7 +16,7 @@ export const ActionButtons = ({ questionsCount, onShowQuestions, onShowResetDial
         onClick={() => window.location.href = '/download-template'}
       >
         <Download className="h-4 w-4" />
-        Baixar Questões por Matéria
+        Baixar Modelo de Planilha
       </Button>
 
       <Button
@@ -37,8 +37,7 @@ export const ActionButtons = ({ questionsCount, onShowQuestions, onShowResetDial
       </Button>
 
       <Button 
-        variant="destructive" 
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
         onClick={onShowResetDialog}
       >
         <Trash2 className="h-4 w-4" />
