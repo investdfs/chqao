@@ -2,113 +2,101 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
+import { templateSubjects, getTemplateHeaders, getSampleQuestions } from '@/utils/excel/templateData';
 
 export const ExcelTemplateSection = () => {
   const { toast } = useToast();
 
   const handleDownload = () => {
     try {
-      console.log("Iniciando geração do template Excel...");
+      console.log("Iniciando geração do template Excel com questões de exemplo...");
       
       // Create workbook
       const wb = XLSX.utils.book_new();
+      const headers = getTemplateHeaders();
+      const sampleQuestions = getSampleQuestions();
 
-      // Define headers
-      const headers = [
-        "Matéria",
-        "Tema",
-        "Assunto",
-        "Questão",
-        "URL da Imagem",
-        "Opção A",
-        "Opção B",
-        "Opção C",
-        "Opção D",
-        "Opção E",
-        "Resposta Correta",
-        "Explicação",
-        "Dificuldade",
-        "Questão de Concurso Anterior?",
-        "Ano do Concurso",
-        "Nome do Concurso"
+      // Create worksheet for each subject
+      templateSubjects.forEach(subject => {
+        console.log(`Criando aba para: ${subject}`);
+        
+        // Convert sample questions to rows
+        const rows = sampleQuestions.map(q => [
+          q.tema,
+          q.assunto,
+          q.questao,
+          q.imagem,
+          q.opcaoA,
+          q.opcaoB,
+          q.opcaoC,
+          q.opcaoD,
+          q.opcaoE,
+          q.resposta,
+          q.explicacao,
+          q.dificuldade,
+          q.concursoAnterior,
+          q.ano,
+          q.nome
+        ]);
+
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+        // Set column widths
+        const colWidths = [
+          { wch: 25 },  // Tema
+          { wch: 25 },  // Assunto
+          { wch: 50 },  // Questão
+          { wch: 30 },  // URL da Imagem
+          { wch: 20 },  // Opção A
+          { wch: 20 },  // Opção B
+          { wch: 20 },  // Opção C
+          { wch: 20 },  // Opção D
+          { wch: 20 },  // Opção E
+          { wch: 15 },  // Resposta Correta
+          { wch: 50 },  // Explicação
+          { wch: 15 },  // Dificuldade
+          { wch: 15 },  // Questão de Concurso
+          { wch: 15 },  // Ano
+          { wch: 25 }   // Nome do Concurso
+        ];
+
+        ws['!cols'] = colWidths;
+        XLSX.utils.book_append_sheet(wb, ws, subject);
+      });
+
+      // Add instructions sheet
+      const instructions = [
+        ["Instruções para Preenchimento do Banco de Questões CHQAo"],
+        [""],
+        ["1. Cada aba representa uma matéria diferente do concurso"],
+        ["2. Organize as questões por Tema e Assunto dentro de cada matéria"],
+        ["3. Mantenha o formato exato das colunas ao adicionar suas questões"],
+        ["4. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
+        ["5. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
+        ["6. O campo 'URL da Imagem' é opcional - deixe em branco se não houver imagem"],
+        ["7. Para questões de concursos anteriores, marque 'Sim' e preencha o ano e nome"],
+        ["8. Você pode adicionar quantas linhas quiser em cada aba"],
+        ["9. Não modifique o cabeçalho das colunas"],
+        [""],
+        ["Observações Importantes:"],
+        ["- Mantenha a linguagem formal militar"],
+        ["- Verifique a precisão técnica das questões"],
+        ["- Inclua explicações detalhadas para cada resposta"],
+        ["- Classifique corretamente a dificuldade das questões"]
       ];
 
-      // Example rows
-      const exampleRows = [
-        [
-          "Língua Portuguesa",
-          "Interpretação de Texto",
-          "Figuras de Linguagem",
-          "Exemplo de questão de português...",
-          "",
-          "Alternativa A",
-          "Alternativa B",
-          "Alternativa C",
-          "Alternativa D",
-          "Alternativa E",
-          "A",
-          "Explicação da resposta correta",
-          "Médio",
-          "Não",
-          "",
-          ""
-        ],
-        [
-          "História do Brasil",
-          "Brasil Colônia",
-          "Período Colonial",
-          "Exemplo de questão de história...",
-          "",
-          "Alternativa A",
-          "Alternativa B",
-          "Alternativa C",
-          "Alternativa D",
-          "Alternativa E",
-          "B",
-          "Explicação da resposta correta",
-          "Fácil",
-          "Sim",
-          "2023",
-          "Concurso X"
-        ]
-      ];
-
-      // Create worksheet with headers and example rows
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...exampleRows]);
-      
-      // Set column widths
-      const colWidths = [
-        { wch: 30 },  // Matéria
-        { wch: 25 },  // Tema
-        { wch: 25 },  // Assunto
-        { wch: 50 },  // Questão
-        { wch: 30 },  // URL da Imagem
-        { wch: 20 },  // Opção A
-        { wch: 20 },  // Opção B
-        { wch: 20 },  // Opção C
-        { wch: 20 },  // Opção D
-        { wch: 20 },  // Opção E
-        { wch: 15 },  // Resposta Correta
-        { wch: 50 },  // Explicação
-        { wch: 15 },  // Dificuldade
-        { wch: 15 },  // Questão de Concurso
-        { wch: 15 },  // Ano
-        { wch: 25 }   // Nome do Concurso
-      ];
-
-      ws['!cols'] = colWidths;
-
-      // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(wb, ws, "Questões");
+      const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
+      wsInstructions['!cols'] = [{ wch: 80 }];
+      XLSX.utils.book_append_sheet(wb, wsInstructions, "Instruções");
 
       // Download file
       console.log("Gerando arquivo para download...");
-      XLSX.writeFile(wb, "modelo_questoes.xls");
+      XLSX.writeFile(wb, "modelo_questoes_chqao.xlsx");
       
       console.log("Download do template concluído com sucesso");
       toast({
         title: "Download iniciado",
-        description: "O modelo de planilha está sendo baixado.",
+        description: "O modelo de planilha com questões de exemplo está sendo baixado.",
       });
     } catch (error) {
       console.error('Erro ao gerar template:', error);
@@ -138,7 +126,7 @@ export const ExcelTemplateSection = () => {
         onClick={handleDownload}
       >
         <Download className="h-4 w-4" />
-        Baixar Modelo de Planilha
+        Baixar Modelo de Planilha com Exemplos
       </Button>
     </div>
   );
