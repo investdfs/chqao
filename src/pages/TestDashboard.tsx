@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { PdfUploadCard } from '@/components/test/PdfUploadCard';
 import { GenerationsList } from '@/components/test/GenerationsList';
 import { QuestionsStats } from '@/components/test/QuestionsStats';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const TestDashboard = () => {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -21,14 +23,36 @@ const TestDashboard = () => {
 
         {/* Main Content */}
         <div className="grid gap-6 md:grid-cols-2">
+          {/* Left Column */}
           <div className="space-y-6">
             <PdfUploadCard />
-            <QuestionsStats />
           </div>
-          <GenerationsList 
-            generations={[]} 
-            onViewQuestions={() => {}}
-          />
+          
+          {/* Right Column */}
+          <div className="space-y-6">
+            <QuestionsStats />
+            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full flex items-center justify-between p-4 hover:bg-gray-100 rounded-lg">
+                  <span className="text-lg font-semibold">Histórico de Gerações</span>
+                  <svg
+                    className={`h-6 w-6 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <GenerationsList 
+                  generations={[]} 
+                  onViewQuestions={() => {}}
+                />
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
         </div>
       </div>
     </div>
