@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PdfUploadCard } from '@/components/test/PdfUploadCard';
 import { GenerationsList } from '@/components/test/GenerationsList';
+import { Json } from '@/integrations/supabase/types';
 
 interface GeneratedQuestion {
   text: string;
@@ -52,7 +53,19 @@ const TestDashboard = () => {
       return;
     }
 
-    setGenerations(data);
+    // Transform the data to match the Generation interface
+    const transformedData: Generation[] = data.map(item => ({
+      id: item.id,
+      content: item.content,
+      status: item.status,
+      created_at: item.created_at,
+      generated_questions: item.generated_questions as GeneratedQuestion[] | null,
+      error_message: item.error_message,
+      metadata: item.metadata as { originalName: string; fileSize: number }
+    }));
+
+    console.log('Transformed generations data:', transformedData);
+    setGenerations(transformedData);
   };
 
   return (
