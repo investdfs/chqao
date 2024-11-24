@@ -1,96 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { PdfUploadCard } from '@/components/test/PdfUploadCard';
 import { GenerationsList } from '@/components/test/GenerationsList';
-import { Json } from '@/integrations/supabase/types';
-
-interface GeneratedQuestion {
-  text: string;
-  option_a: string;
-  option_b: string;
-  option_c: string;
-  option_d: string;
-  option_e: string;
-  correct_answer: string;
-  explanation: string;
-  difficulty: 'Fácil' | 'Médio' | 'Difícil';
-  theme: string;
-}
-
-interface Generation {
-  id: string;
-  content: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  created_at: string;
-  generated_questions: GeneratedQuestion[] | null;
-  error_message: string | null;
-  metadata: {
-    originalName: string;
-    fileSize: number;
-  };
-}
+import { QuestionsStats } from '@/components/test/QuestionsStats';
 
 const TestDashboard = () => {
   const navigate = useNavigate();
-  const [generations, setGenerations] = useState<Generation[]>([]);
-  const [selectedGeneration, setSelectedGeneration] = useState<Generation | null>(null);
-
-  useEffect(() => {
-    loadGenerations();
-  }, []);
-
-  const loadGenerations = async () => {
-    const { data, error } = await supabase
-      .from('ai_question_generations')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Erro ao carregar gerações:', error);
-      return;
-    }
-
-    // Transform the data to match the Generation interface with proper type casting
-    const transformedData: Generation[] = data.map(item => {
-      // Safely cast generated_questions to GeneratedQuestion[] or null
-      let parsedQuestions: GeneratedQuestion[] | null = null;
-      if (item.generated_questions) {
-        try {
-          // Ensure the generated_questions is properly typed
-          parsedQuestions = (item.generated_questions as any[]).map(q => ({
-            text: q.text,
-            option_a: q.option_a,
-            option_b: q.option_b,
-            option_c: q.option_c,
-            option_d: q.option_d,
-            option_e: q.option_e,
-            correct_answer: q.correct_answer,
-            explanation: q.explanation,
-            difficulty: q.difficulty,
-            theme: q.theme
-          }));
-        } catch (e) {
-          console.error('Error parsing generated questions:', e);
-        }
-      }
-
-      return {
-        id: item.id,
-        content: item.content,
-        status: item.status,
-        created_at: item.created_at,
-        generated_questions: parsedQuestions,
-        error_message: item.error_message,
-        metadata: item.metadata as { originalName: string; fileSize: number }
-      };
-    });
-
-    console.log('Transformed generations data:', transformedData);
-    setGenerations(transformedData);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -104,55 +20,15 @@ const TestDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid gap-6">
-          <PdfUploadCard />
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-6">
+            <PdfUploadCard />
+            <QuestionsStats />
+          </div>
           <GenerationsList 
-            generations={generations}
-            onViewQuestions={(gen) => setSelectedGeneration(gen)}
+            generations={[]} 
+            onViewQuestions={() => {}}
           />
-
-          {/* Modal de Visualização */}
-          {selectedGeneration && selectedGeneration.generated_questions && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-              <Card className="w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Questões Geradas</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedGeneration(null)}
-                  >
-                    Fechar
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-8">
-                    {selectedGeneration.generated_questions.map((question, index) => (
-                      <div key={index} className="space-y-4">
-                        <h3 className="font-bold">Questão {index + 1}</h3>
-                        <p>{question.text}</p>
-                        <div className="space-y-2">
-                          <p>A) {question.option_a}</p>
-                          <p>B) {question.option_b}</p>
-                          <p>C) {question.option_c}</p>
-                          <p>D) {question.option_d}</p>
-                          <p>E) {question.option_e}</p>
-                        </div>
-                        <div className="mt-4">
-                          <p className="font-medium">Resposta: {question.correct_answer}</p>
-                          <p className="text-sm text-gray-600 mt-2">{question.explanation}</p>
-                          <div className="flex gap-4 mt-2 text-sm text-gray-500">
-                            <p>Dificuldade: {question.difficulty}</p>
-                            <p>Tema: {question.theme}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
         </div>
       </div>
     </div>
