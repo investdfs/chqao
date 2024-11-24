@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import QuestionPractice from "./pages/QuestionPractice";
+import TestDashboard from "./pages/TestDashboard";
 
 // Configuração do React Query
 const queryClient = new QueryClient({
@@ -36,6 +37,7 @@ const App: React.FC = () => {
             <Route path="/student-dashboard" element={<StudentDashboard />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/question-practice" element={<QuestionPractice />} />
+            <Route path="/test-dashboard" element={<TestDashboard />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

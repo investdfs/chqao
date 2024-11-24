@@ -54,6 +54,12 @@ const Index = () => {
                       >
                         Dashboard do Admin
                       </NavigationMenuLink>
+                      <NavigationMenuLink 
+                        className="cursor-pointer block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        onClick={() => navigate("/test-dashboard")}
+                      >
+                        Dashboard de Testes
+                      </NavigationMenuLink>
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>

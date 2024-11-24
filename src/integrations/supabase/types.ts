@@ -36,6 +36,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_question_generations: {
+        Row: {
+          completed_at: string | null
+          content: string
+          created_at: string
+          error_message: string | null
+          generated_questions: Json | null
+          id: string
+          metadata: Json | null
+          status: Database["public"]["Enums"]["ai_generation_status"] | null
+        }
+        Insert: {
+          completed_at?: string | null
+          content: string
+          created_at?: string
+          error_message?: string | null
+          generated_questions?: Json | null
+          id?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["ai_generation_status"] | null
+        }
+        Update: {
+          completed_at?: string | null
+          content?: string
+          created_at?: string
+          error_message?: string | null
+          generated_questions?: Json | null
+          id?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["ai_generation_status"] | null
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           correct_answer: string
@@ -162,6 +195,7 @@ export type Database = {
     }
     Enums: {
       admin_status: "active" | "blocked"
+      ai_generation_status: "pending" | "processing" | "completed" | "failed"
       question_difficulty: "Fácil" | "Médio" | "Difícil"
       student_status: "active" | "blocked"
     }
