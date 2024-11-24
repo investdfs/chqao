@@ -191,7 +191,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_questions_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          subject: string
+          theme: string
+          count: number
+        }[]
+      }
     }
     Enums: {
       admin_status: "active" | "blocked"
