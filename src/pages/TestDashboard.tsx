@@ -53,16 +53,40 @@ const TestDashboard = () => {
       return;
     }
 
-    // Transform the data to match the Generation interface
-    const transformedData: Generation[] = data.map(item => ({
-      id: item.id,
-      content: item.content,
-      status: item.status,
-      created_at: item.created_at,
-      generated_questions: item.generated_questions as GeneratedQuestion[] | null,
-      error_message: item.error_message,
-      metadata: item.metadata as { originalName: string; fileSize: number }
-    }));
+    // Transform the data to match the Generation interface with proper type casting
+    const transformedData: Generation[] = data.map(item => {
+      // Safely cast generated_questions to GeneratedQuestion[] or null
+      let parsedQuestions: GeneratedQuestion[] | null = null;
+      if (item.generated_questions) {
+        try {
+          // Ensure the generated_questions is properly typed
+          parsedQuestions = (item.generated_questions as any[]).map(q => ({
+            text: q.text,
+            option_a: q.option_a,
+            option_b: q.option_b,
+            option_c: q.option_c,
+            option_d: q.option_d,
+            option_e: q.option_e,
+            correct_answer: q.correct_answer,
+            explanation: q.explanation,
+            difficulty: q.difficulty,
+            theme: q.theme
+          }));
+        } catch (e) {
+          console.error('Error parsing generated questions:', e);
+        }
+      }
+
+      return {
+        id: item.id,
+        content: item.content,
+        status: item.status,
+        created_at: item.created_at,
+        generated_questions: parsedQuestions,
+        error_message: item.error_message,
+        metadata: item.metadata as { originalName: string; fileSize: number }
+      };
+    });
 
     console.log('Transformed generations data:', transformedData);
     setGenerations(transformedData);
