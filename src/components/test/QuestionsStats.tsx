@@ -14,9 +14,7 @@ export const QuestionsStats = () => {
     queryFn: async () => {
       console.log('Fetching questions statistics...');
       const { data, error } = await supabase
-        .from('questions')
-        .select('subject, theme, count(*)')
-        .group('subject, theme');
+        .rpc('get_questions_stats');
 
       if (error) {
         console.error('Error fetching questions stats:', error);
