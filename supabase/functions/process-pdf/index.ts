@@ -9,34 +9,47 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { generationId, filePath } = await req.json();
-    console.log(`Processando geração ${generationId} com arquivo: ${filePath}`);
+    console.log('Processing PDF request...');
+    const { generationId, filePath, questionCount, customInstructions } = await req.json();
+    console.log(`Processing generation ${generationId} with file: ${filePath}`);
+    console.log(`Question count: ${questionCount}, Custom instructions: ${customInstructions}`);
 
-    // Criar cliente Supabase
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase configuration');
+    }
 
-    // Atualizar status para processing
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Update status to processing
+    console.log('Updating status to processing...');
     await supabase
       .from('ai_question_generations')
       .update({ status: 'processing' })
       .eq('id', generationId);
 
-    // Baixar o PDF do Storage
+    // Download the PDF from Storage
+    console.log('Downloading PDF from storage...');
     const { data: fileData, error: downloadError } = await supabase.storage
       .from('pdf_uploads')
       .download(filePath);
 
-    if (downloadError) throw downloadError;
+    if (downloadError) {
+      console.error('Error downloading PDF:', downloadError);
+      throw downloadError;
+    }
 
-    // Extrair texto do PDF
+    // Extract text from PDF
+    console.log('Extracting text from PDF...');
     const pdfDoc = await PDFDocument.load(await fileData.arrayBuffer());
     const numPages = pdfDoc.getPages().length;
     let extractedText = '';
@@ -47,10 +60,11 @@ serve(async (req) => {
       extractedText += text + '\n';
     }
 
-    console.log('Texto extraído do PDF:', extractedText.substring(0, 200) + '...');
+    console.log('Text extracted, length:', extractedText.length);
 
-    // Gerar questões com OpenAI
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Generate questions with OpenAI
+    console.log('Calling OpenAI API...');
+    const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
@@ -62,7 +76,8 @@ serve(async (req) => {
           {
             role: 'system',
             content: `Você é um especialista em criar questões de múltipla escolha. 
-            Gere 5 questões baseadas no conteúdo fornecido.
+            Gere ${questionCount} questões baseadas no conteúdo fornecido.
+            ${customInstructions ? `Instruções adicionais: ${customInstructions}` : ''}
             Cada questão deve ter:
             - Texto da questão
             - 5 alternativas (A a E)
@@ -78,12 +93,19 @@ serve(async (req) => {
       }),
     });
 
-    const aiResponse = await response.json();
-    console.log('Resposta da IA recebida');
+    if (!openAiResponse.ok) {
+      const errorData = await openAiResponse.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const aiResponse = await openAiResponse.json();
+    console.log('OpenAI response received');
 
     const generatedQuestions = JSON.parse(aiResponse.choices[0].message.content);
 
-    // Atualizar registro com as questões geradas
+    // Update record with generated questions
+    console.log('Updating generation record with questions...');
     const { error: updateError } = await supabase
       .from('ai_question_generations')
       .update({
@@ -93,22 +115,27 @@ serve(async (req) => {
       })
       .eq('id', generationId);
 
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error('Error updating generation record:', updateError);
+      throw updateError;
+    }
 
+    console.log('Process completed successfully');
     return new Response(
       JSON.stringify({ success: true, questions: generatedQuestions }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Erro ao processar PDF:', error);
+    console.error('Error processing PDF:', error);
 
-    // Atualizar registro com erro
+    // Create Supabase client for error handling
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Update record with error
     await supabase
       .from('ai_question_generations')
       .update({
@@ -118,7 +145,7 @@ serve(async (req) => {
       .eq('id', generationId);
 
     return new Response(
-      JSON.stringify({ error: 'Erro ao processar PDF', details: error.message }),
+      JSON.stringify({ error: 'Error processing PDF', details: error.message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500
