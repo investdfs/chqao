@@ -196,6 +196,7 @@ export type Database = {
         Returns: {
           subject: string
           theme: string
+          topic: string
           count: number
         }[]
       }

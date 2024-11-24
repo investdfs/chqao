@@ -1,21 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionCount {
   subject: string;
-  theme: string | null;
+  theme: string;
+  topic: string;
   count: number;
 }
 
-interface SubjectStructure {
-  subject: string;
-  theme: string;
-}
-
 export const QuestionsStats = () => {
-  // Fetch question stats
-  const { data: questionStats, isLoading: isLoadingStats } = useQuery({
+  const { data: questionStats, isLoading } = useQuery({
     queryKey: ['questions-stats'],
     queryFn: async () => {
       console.log('Fetching questions statistics...');
@@ -32,27 +28,7 @@ export const QuestionsStats = () => {
     }
   });
 
-  // Fetch subject structure for all possible subjects and themes
-  const { data: subjectStructure, isLoading: isLoadingStructure } = useQuery({
-    queryKey: ['subject-structure'],
-    queryFn: async () => {
-      console.log('Fetching subject structure...');
-      const { data, error } = await supabase
-        .from('subject_structure')
-        .select('subject, theme')
-        .order('subject, theme');
-
-      if (error) {
-        console.error('Error fetching subject structure:', error);
-        throw error;
-      }
-
-      console.log('Subject structure:', data);
-      return data as SubjectStructure[];
-    }
-  });
-
-  if (isLoadingStats || isLoadingStructure) {
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>
@@ -65,36 +41,22 @@ export const QuestionsStats = () => {
     );
   }
 
-  // Create a complete map of all subjects and themes with zero counts
-  const completeStats = new Map<string, { total: number; themes: Map<string, number> }>();
-
-  // Initialize with all possible subjects and themes from subject_structure
-  subjectStructure?.forEach((item) => {
-    if (!completeStats.has(item.subject)) {
-      completeStats.set(item.subject, {
-        total: 0,
-        themes: new Map()
-      });
+  // Group data by subject and theme
+  const groupedStats = questionStats?.reduce((acc, stat) => {
+    if (!acc[stat.subject]) {
+      acc[stat.subject] = {};
     }
-    completeStats.get(item.subject)!.themes.set(item.theme, 0);
-  });
-
-  // Update counts with actual question statistics
-  questionStats?.forEach((stat) => {
-    if (stat.theme && stat.subject) {
-      const subjectStats = completeStats.get(stat.subject) || {
-        total: 0,
-        themes: new Map<string, number>()
-      };
-      
-      subjectStats.total += Number(stat.count);
-      subjectStats.themes.set(stat.theme, Number(stat.count));
-      
-      if (!completeStats.has(stat.subject)) {
-        completeStats.set(stat.subject, subjectStats);
-      }
+    if (!acc[stat.subject][stat.theme]) {
+      acc[stat.subject][stat.theme] = [];
     }
-  });
+    acc[stat.subject][stat.theme].push(stat);
+    return acc;
+  }, {} as Record<string, Record<string, QuestionCount[]>>);
+
+  // Calculate totals
+  const calculateTotals = (stats: QuestionCount[]) => {
+    return stats.reduce((sum, stat) => sum + Number(stat.count), 0);
+  };
 
   return (
     <Card>
@@ -102,26 +64,42 @@ export const QuestionsStats = () => {
         <CardTitle>Estatísticas de Questões</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {Array.from(completeStats.entries()).map(([subject, data]) => (
-            <div key={subject} className="space-y-2">
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold">{subject}</h3>
-                <span className="text-muted-foreground">
-                  Total: {data.total} questões
-                </span>
-              </div>
-              <div className="pl-4 space-y-1">
-                {Array.from(data.themes.entries()).map(([theme, count]) => (
-                  <div key={theme} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{theme}</span>
-                    <span>{count} questões</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <Accordion type="single" collapsible className="w-full">
+          {groupedStats && Object.entries(groupedStats).map(([subject, themes]) => (
+            <AccordionItem key={subject} value={subject}>
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex justify-between items-center w-full pr-4">
+                  <span>{subject}</span>
+                  <span className="text-muted-foreground text-sm">
+                    {Object.values(themes).reduce((sum, topics) => sum + calculateTotals(topics), 0)} questões
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  {Object.entries(themes).map(([theme, topics]) => (
+                    <div key={theme} className="pl-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">{theme}</h4>
+                        <span className="text-muted-foreground text-sm">
+                          {calculateTotals(topics)} questões
+                        </span>
+                      </div>
+                      <div className="space-y-1 pl-4">
+                        {topics.map((topic) => (
+                          <div key={topic.topic} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{topic.topic}</span>
+                            <span>{topic.count} questões</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
       </CardContent>
     </Card>
   );
