@@ -11,12 +11,18 @@ type SelectedPdf = {
   subject: string | null;
 };
 
-export const PdfUploadCard = () => {
+interface PdfUploadCardProps {
+  selectedPdf: SelectedPdf | null;
+  onPdfSelect: (pdf: SelectedPdf | null) => void;
+}
+
+export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
   const [questionCount, setQuestionCount] = useState("5");
   const [instructions, setInstructions] = useState("");
   const { toast } = useToast();
+
+  console.log('PdfUploadCard - Selected PDF:', selectedPdf); // Debug log
 
   const handleSubmit = async () => {
     if (!selectedPdf) {
@@ -69,7 +75,7 @@ export const PdfUploadCard = () => {
         description: "O PDF está sendo processado. Aguarde a conclusão.",
       });
 
-      setSelectedPdf(null);
+      onPdfSelect(null);
       setInstructions("");
 
     } catch (error) {

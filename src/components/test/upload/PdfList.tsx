@@ -17,6 +17,8 @@ interface PdfListProps {
 }
 
 export const PdfList = ({ pdfs, onSelectPdf }: PdfListProps) => {
+  console.log('PdfList - Available PDFs:', pdfs); // Debug log
+
   return (
     <ScrollArea className="h-[300px] pr-4">
       <div className="space-y-4">
@@ -37,7 +39,10 @@ export const PdfList = ({ pdfs, onSelectPdf }: PdfListProps) => {
             </div>
             <Button
               variant="outline"
-              onClick={() => onSelectPdf(pdf)}
+              onClick={() => {
+                console.log('Selecionando PDF:', pdf); // Debug log
+                onSelectPdf(pdf);
+              }}
             >
               Selecionar para Gerar Questões
             </Button>

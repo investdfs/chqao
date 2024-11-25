@@ -19,7 +19,9 @@ const TestDashboard = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
 
-  const handlePdfSelect = (pdf: SelectedPdf) => {
+  console.log('TestDashboard - Selected PDF:', selectedPdf); // Debug log
+
+  const handlePdfSelect = (pdf: SelectedPdf | null) => {
     console.log('PDF selecionado:', pdf);
     setSelectedPdf(pdf);
   };
@@ -36,7 +38,7 @@ const TestDashboard = () => {
 
         <div className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
-            <PdfUploadCard />
+            <PdfUploadCard selectedPdf={selectedPdf} onPdfSelect={handlePdfSelect} />
             <UploadedPdfsList onSelectPdf={handlePdfSelect} />
           </div>
           
