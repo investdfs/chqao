@@ -8,6 +8,7 @@ type SelectedPdf = {
   id: string;
   filename: string;
   file_path: string;
+  subject: string | null;
 };
 
 export const PdfUploadCard = () => {
@@ -93,6 +94,7 @@ export const PdfUploadCard = () => {
           <div className="p-4 bg-gray-50 rounded-lg">
             <p className="text-sm font-medium">PDF selecionado:</p>
             <p className="text-sm text-gray-600">{selectedPdf.filename}</p>
+            <p className="text-sm text-gray-500">Matéria: {selectedPdf.subject || 'Não definida'}</p>
           </div>
         ) : (
           <p className="text-sm text-gray-500 text-center">

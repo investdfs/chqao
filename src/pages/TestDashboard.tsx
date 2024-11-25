@@ -7,14 +7,26 @@ import { QuestionsStats } from '@/components/test/QuestionsStats';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { UploadedPdfsList } from '@/components/test/UploadedPdfsList';
 
+type SelectedPdf = {
+  id: string;
+  filename: string;
+  file_path: string;
+  subject: string | null;
+};
+
 const TestDashboard = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
+  const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
+
+  const handlePdfSelect = (pdf: SelectedPdf) => {
+    console.log('PDF selecionado:', pdf);
+    setSelectedPdf(pdf);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard de Testes - IA</h1>
           <Button variant="outline" onClick={() => navigate("/admin-dashboard")}>
@@ -22,14 +34,10 @@ const TestDashboard = () => {
           </Button>
         </div>
 
-        {/* Main Content */}
         <div className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <PdfUploadCard />
-            <UploadedPdfsList onSelectPdf={(pdf) => {
-              // Implementar seleção do PDF
-              console.log('PDF selecionado:', pdf);
-            }} />
+            <UploadedPdfsList onSelectPdf={handlePdfSelect} />
           </div>
           
           <div className="grid gap-6 lg:grid-cols-2">

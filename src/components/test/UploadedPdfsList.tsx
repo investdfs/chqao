@@ -1,20 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { FileText, Loader2, Upload } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SubjectSelect } from "./upload/SubjectSelect";
+import { PdfList } from "./upload/PdfList";
 
 type UploadedPdf = {
   id: string;
   filename: string;
   subject: string | null;
-  description: string | null;
+  file_path: string;
   times_used: number;
-  created_at: string;
 };
 
 interface Props {
@@ -36,20 +34,6 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
 
       if (error) throw error;
       return data as UploadedPdf[];
-    }
-  });
-
-  // Fetch available subjects from subject_structure
-  const { data: subjects } = useQuery({
-    queryKey: ['subjects'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subject_structure')
-        .select('subject')
-        .distinct();
-
-      if (error) throw error;
-      return data.map(item => item.subject);
     }
   });
 
@@ -120,9 +104,14 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin" />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>PDFs Disponíveis</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center p-4">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
     );
   }
 
@@ -134,18 +123,7 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
       <CardContent className="space-y-4">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
           <div className="space-y-4">
-            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a matéria" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects?.map((subject) => (
-                  <SelectItem key={subject} value={subject}>
-                    {subject}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SubjectSelect value={selectedSubject} onValueChange={setSelectedSubject} />
 
             <div className="text-center">
               <input
@@ -180,33 +158,7 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
           </div>
         </div>
 
-        <ScrollArea className="h-[300px] pr-4">
-          <div className="space-y-4">
-            {pdfs?.map((pdf) => (
-              <div
-                key={pdf.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-              >
-                <div className="flex items-center space-x-4">
-                  <FileText className="h-6 w-6 text-gray-400" />
-                  <div>
-                    <p className="font-medium">{pdf.filename}</p>
-                    <p className="text-sm text-gray-500">
-                      Matéria: {pdf.subject} • 
-                      Usado {pdf.times_used} {pdf.times_used === 1 ? 'vez' : 'vezes'}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => onSelectPdf(pdf)}
-                >
-                  Selecionar para Gerar Questões
-                </Button>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+        <PdfList pdfs={pdfs || []} onSelectPdf={onSelectPdf} />
       </CardContent>
     </Card>
   );
