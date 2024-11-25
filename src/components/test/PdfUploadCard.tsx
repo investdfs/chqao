@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 export const PdfUploadCard = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [selectedPdfPath, setSelectedPdfPath] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState("5");
   const [instructions, setInstructions] = useState("");
   const { toast } = useToast();
@@ -19,6 +20,7 @@ export const PdfUploadCard = () => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile && selectedFile.type === 'application/pdf') {
       setFile(selectedFile);
+      setSelectedPdfPath(null); // Clear any selected existing PDF
     } else {
       toast({
         title: "Arquivo inválido",
@@ -29,19 +31,40 @@ export const PdfUploadCard = () => {
   };
 
   const handleSubmit = async () => {
-    if (!file) return;
+    if (!file && !selectedPdfPath) return;
 
     try {
       setIsProcessing(true);
-      console.log('Iniciando upload do PDF:', file.name);
+      let filePath = selectedPdfPath;
 
-      // Upload do arquivo para o Storage
-      const filePath = `${crypto.randomUUID()}.pdf`;
-      const { error: uploadError } = await supabase.storage
-        .from('pdf_uploads')
-        .upload(filePath, file);
+      if (file) {
+        console.log('Iniciando upload do PDF:', file.name);
+        // Upload do arquivo para o Storage
+        filePath = `${crypto.randomUUID()}.pdf`;
+        const { error: uploadError } = await supabase.storage
+          .from('pdf_uploads')
+          .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
+
+        // Registrar o PDF na tabela uploaded_pdfs
+        const { error: pdfInsertError } = await supabase
+          .from('uploaded_pdfs')
+          .insert([{
+            filename: file.name,
+            file_path: filePath
+          }]);
+
+        if (pdfInsertError) throw pdfInsertError;
+      } else if (selectedPdfPath) {
+        // Atualizar o contador de uso do PDF
+        const { error: updateError } = await supabase
+          .from('uploaded_pdfs')
+          .update({ times_used: supabase.sql`times_used + 1` })
+          .eq('file_path', selectedPdfPath);
+
+        if (updateError) throw updateError;
+      }
 
       // Criar registro inicial
       const { data: generation, error: insertError } = await supabase
@@ -49,8 +72,8 @@ export const PdfUploadCard = () => {
         .insert([{ 
           content: filePath,
           metadata: { 
-            originalName: file.name,
-            fileSize: file.size,
+            originalName: file?.name,
+            fileSize: file?.size,
             questionCount: parseInt(questionCount),
             customInstructions: instructions
           }
@@ -78,6 +101,7 @@ export const PdfUploadCard = () => {
       });
 
       setFile(null);
+      setSelectedPdfPath(null);
       setInstructions("");
       if (document.querySelector<HTMLInputElement>('#pdf-upload')) {
         (document.querySelector<HTMLInputElement>('#pdf-upload')!).value = '';
@@ -121,6 +145,11 @@ export const PdfUploadCard = () => {
                 <Upload className="h-4 w-4" />
                 <span>{file.name}</span>
               </div>
+            ) : selectedPdfPath ? (
+              <div className="flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                <span>PDF selecionado da lista</span>
+              </div>
             ) : (
               <>
                 <Upload className="h-8 w-8 text-gray-400" />
@@ -162,7 +191,7 @@ export const PdfUploadCard = () => {
 
         <Button 
           onClick={handleSubmit}
-          disabled={!file || isProcessing}
+          disabled={(!file && !selectedPdfPath) || isProcessing}
           className="w-full"
         >
           {isProcessing ? (

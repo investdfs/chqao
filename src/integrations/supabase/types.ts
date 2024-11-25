@@ -186,6 +186,36 @@ export type Database = {
         }
         Relationships: []
       }
+      uploaded_pdfs: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_path: string
+          filename: string
+          id: string
+          subject: string | null
+          times_used: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_path: string
+          filename: string
+          id?: string
+          subject?: string | null
+          times_used?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_path?: string
+          filename?: string
+          id?: string
+          subject?: string | null
+          times_used?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

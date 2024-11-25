@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { PdfUploadCard } from '@/components/test/PdfUploadCard';
 import { GenerationsList } from '@/components/test/GenerationsList';
 import { QuestionsStats } from '@/components/test/QuestionsStats';
+import { UploadedPdfsList } from '@/components/test/UploadedPdfsList';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const TestDashboard = () => {
@@ -22,12 +23,22 @@ const TestDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-3">
           {/* Left Column */}
           <div className="space-y-6">
             <PdfUploadCard />
           </div>
           
+          {/* Middle Column */}
+          <div className="space-y-6">
+            <UploadedPdfsList 
+              onSelectPdf={(pdf) => {
+                // This will be handled by PdfUploadCard
+                console.log('Selected PDF:', pdf);
+              }} 
+            />
+          </div>
+
           {/* Right Column */}
           <div className="space-y-6">
             <QuestionsStats />
