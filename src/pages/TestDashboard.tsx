@@ -5,6 +5,7 @@ import { PdfUploadCard } from '@/components/test/PdfUploadCard';
 import { GenerationsList } from '@/components/test/GenerationsList';
 import { QuestionsStats } from '@/components/test/QuestionsStats';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { UploadedPdfsList } from '@/components/test/UploadedPdfsList';
 
 const TestDashboard = () => {
   const navigate = useNavigate();
@@ -23,7 +24,13 @@ const TestDashboard = () => {
 
         {/* Main Content */}
         <div className="space-y-6">
-          <PdfUploadCard />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <PdfUploadCard />
+            <UploadedPdfsList onSelectPdf={(pdf) => {
+              // Implementar seleção do PDF
+              console.log('PDF selecionado:', pdf);
+            }} />
+          </div>
           
           <div className="grid gap-6 lg:grid-cols-2">
             <QuestionsStats />

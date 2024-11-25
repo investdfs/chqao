@@ -2,71 +2,47 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { UploadArea } from './upload/UploadArea';
 import { GenerationForm } from './upload/GenerationForm';
-import { AvailablePdfsList } from './upload/AvailablePdfsList';
+
+type SelectedPdf = {
+  id: string;
+  filename: string;
+  file_path: string;
+};
 
 export const PdfUploadCard = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [selectedPdfPath, setSelectedPdfPath] = useState<string | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
   const [questionCount, setQuestionCount] = useState("5");
   const [instructions, setInstructions] = useState("");
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === 'application/pdf') {
-      setFile(selectedFile);
-      setSelectedPdfPath(null);
-    } else {
+  const handleSubmit = async () => {
+    if (!selectedPdf) {
       toast({
-        title: "Arquivo inválido",
-        description: "Por favor, selecione um arquivo PDF.",
+        title: "Nenhum PDF selecionado",
+        description: "Por favor, selecione um PDF da lista antes de continuar.",
         variant: "destructive"
       });
+      return;
     }
-  };
-
-  const handleSubmit = async () => {
-    if (!file && !selectedPdfPath) return;
 
     try {
       setIsProcessing(true);
-      let filePath = selectedPdfPath;
+      console.log('Iniciando processamento do PDF:', selectedPdf.filename);
 
-      if (file) {
-        console.log('Iniciando upload do PDF:', file.name);
-        filePath = `${crypto.randomUUID()}.pdf`;
-        const { error: uploadError } = await supabase.storage
-          .from('pdf_uploads')
-          .upload(filePath, file);
+      const { error: updateError } = await supabase.rpc('increment_pdf_usage', {
+        pdf_path: selectedPdf.file_path
+      });
 
-        if (uploadError) throw uploadError;
-
-        const { error: pdfInsertError } = await supabase
-          .from('uploaded_pdfs')
-          .insert([{
-            filename: file.name,
-            file_path: filePath
-          }]);
-
-        if (pdfInsertError) throw pdfInsertError;
-      } else if (selectedPdfPath) {
-        const { error: updateError } = await supabase.rpc('increment_pdf_usage', {
-          pdf_path: selectedPdfPath
-        });
-
-        if (updateError) throw updateError;
-      }
+      if (updateError) throw updateError;
 
       const { data: generation, error: insertError } = await supabase
         .from('ai_question_generations')
         .insert([{ 
-          content: filePath,
+          content: selectedPdf.file_path,
           metadata: { 
-            originalName: file?.name,
-            fileSize: file?.size,
+            originalName: selectedPdf.filename,
             questionCount: parseInt(questionCount),
             customInstructions: instructions
           }
@@ -79,7 +55,7 @@ export const PdfUploadCard = () => {
       const { error: functionError } = await supabase.functions.invoke('process-pdf', {
         body: { 
           generationId: generation.id,
-          filePath: filePath,
+          filePath: selectedPdf.file_path,
           questionCount: parseInt(questionCount),
           customInstructions: instructions
         }
@@ -92,12 +68,8 @@ export const PdfUploadCard = () => {
         description: "O PDF está sendo processado. Aguarde a conclusão.",
       });
 
-      setFile(null);
-      setSelectedPdfPath(null);
+      setSelectedPdf(null);
       setInstructions("");
-      if (document.querySelector<HTMLInputElement>('#pdf-upload')) {
-        (document.querySelector<HTMLInputElement>('#pdf-upload')!).value = '';
-      }
 
     } catch (error) {
       console.error('Erro ao processar PDF:', error);
@@ -112,37 +84,32 @@ export const PdfUploadCard = () => {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Gerar Questões com IA</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <UploadArea
-            file={file}
-            selectedPdfPath={selectedPdfPath}
-            isProcessing={isProcessing}
-            onFileChange={handleFileChange}
-          />
-          <GenerationForm
-            questionCount={questionCount}
-            instructions={instructions}
-            isProcessing={isProcessing}
-            hasFile={!!(file || selectedPdfPath)}
-            onQuestionCountChange={setQuestionCount}
-            onInstructionsChange={setInstructions}
-            onSubmit={handleSubmit}
-          />
-        </CardContent>
-      </Card>
+    <Card>
+      <CardHeader>
+        <CardTitle>Gerar Questões com IA</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {selectedPdf ? (
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm font-medium">PDF selecionado:</p>
+            <p className="text-sm text-gray-600">{selectedPdf.filename}</p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 text-center">
+            Selecione um PDF da lista ao lado para gerar questões
+          </p>
+        )}
 
-      <AvailablePdfsList onSelectPdf={(path) => {
-        setSelectedPdfPath(path);
-        setFile(null);
-        if (document.querySelector<HTMLInputElement>('#pdf-upload')) {
-          (document.querySelector<HTMLInputElement>('#pdf-upload')!).value = '';
-        }
-      }} />
-    </div>
+        <GenerationForm
+          questionCount={questionCount}
+          instructions={instructions}
+          isProcessing={isProcessing}
+          hasFile={!!selectedPdf}
+          onQuestionCountChange={setQuestionCount}
+          onInstructionsChange={setInstructions}
+          onSubmit={handleSubmit}
+        />
+      </CardContent>
+    </Card>
   );
 };
