@@ -57,11 +57,10 @@ export const PdfUploadCard = () => {
 
         if (pdfInsertError) throw pdfInsertError;
       } else if (selectedPdfPath) {
-        // Atualizar o contador de uso do PDF
-        const { error: updateError } = await supabase
-          .from('uploaded_pdfs')
-          .update({ times_used: supabase.sql`times_used + 1` })
-          .eq('file_path', selectedPdfPath);
+        // Atualizar o contador de uso do PDF usando uma expressão raw SQL
+        const { error: updateError } = await supabase.rpc('increment_pdf_usage', {
+          pdf_path: selectedPdfPath
+        });
 
         if (updateError) throw updateError;
       }
