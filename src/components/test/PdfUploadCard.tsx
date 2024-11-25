@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { GenerationForm } from './upload/GenerationForm';
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 type SelectedPdf = {
   id: string;
@@ -22,7 +24,16 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
   const [instructions, setInstructions] = useState("");
   const { toast } = useToast();
 
-  console.log('PdfUploadCard - Selected PDF:', selectedPdf); // Debug log
+  console.log('PdfUploadCard - Selected PDF:', selectedPdf);
+
+  const handleRemovePdf = () => {
+    console.log('Removendo PDF do gerador:', selectedPdf?.filename);
+    onPdfSelect(null);
+    toast({
+      title: "PDF removido",
+      description: "O PDF foi removido do gerador de questões.",
+    });
+  };
 
   const handleSubmit = async () => {
     if (!selectedPdf) {
@@ -98,9 +109,22 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
       <CardContent className="space-y-6">
         {selectedPdf ? (
           <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium">PDF selecionado:</p>
-            <p className="text-sm text-gray-600">{selectedPdf.filename}</p>
-            <p className="text-sm text-gray-500">Matéria: {selectedPdf.subject || 'Não definida'}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">PDF selecionado:</p>
+                <p className="text-sm text-gray-600">{selectedPdf.filename}</p>
+                <p className="text-sm text-gray-500">Matéria: {selectedPdf.subject || 'Não definida'}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRemovePdf}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Remover Matéria
+              </Button>
+            </div>
           </div>
         ) : (
           <p className="text-sm text-gray-500 text-center">
