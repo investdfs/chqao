@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type UploadedPdf = {
   id: string;
@@ -22,7 +23,9 @@ interface Props {
 
 export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
   const { toast } = useToast();
+  
   const { data: pdfs, isLoading, refetch } = useQuery({
     queryKey: ['uploaded-pdfs'],
     queryFn: async () => {
@@ -36,6 +39,20 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
     }
   });
 
+  // Fetch available subjects from subject_structure
+  const { data: subjects } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('subject_structure')
+        .select('subject')
+        .distinct();
+
+      if (error) throw error;
+      return data.map(item => item.subject);
+    }
+  });
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -44,6 +61,15 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
       toast({
         title: "Arquivo inválido",
         description: "Por favor, selecione um arquivo PDF.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!selectedSubject) {
+      toast({
+        title: "Matéria não selecionada",
+        description: "Por favor, selecione uma matéria para o PDF.",
         variant: "destructive"
       });
       return;
@@ -64,7 +90,8 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
         .from('uploaded_pdfs')
         .insert([{
           filename: file.name,
-          file_path: filePath
+          file_path: filePath,
+          subject: selectedSubject
         }]);
 
       if (pdfInsertError) throw pdfInsertError;
@@ -105,35 +132,52 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
         <CardTitle>PDFs Disponíveis</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-          <input
-            type="file"
-            accept=".pdf"
-            className="hidden"
-            id="pdf-upload"
-            onChange={handleFileUpload}
-            disabled={isUploading}
-          />
-          <label
-            htmlFor="pdf-upload"
-            className={`cursor-pointer flex flex-col items-center space-y-2 ${
-              isUploading ? "opacity-50" : ""
-            }`}
-          >
-            {isUploading ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Enviando arquivo...</span>
-              </div>
-            ) : (
-              <>
-                <Upload className="h-8 w-8 text-gray-400" />
-                <span className="text-sm text-gray-600">
-                  Clique para fazer upload ou arraste um arquivo PDF
-                </span>
-              </>
-            )}
-          </label>
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+          <div className="space-y-4">
+            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a matéria" />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects?.map((subject) => (
+                  <SelectItem key={subject} value={subject}>
+                    {subject}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="text-center">
+              <input
+                type="file"
+                accept=".pdf"
+                className="hidden"
+                id="pdf-upload"
+                onChange={handleFileUpload}
+                disabled={isUploading}
+              />
+              <label
+                htmlFor="pdf-upload"
+                className={`cursor-pointer flex flex-col items-center space-y-2 ${
+                  isUploading ? "opacity-50" : ""
+                }`}
+              >
+                {isUploading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Enviando arquivo...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-gray-400" />
+                    <span className="text-sm text-gray-600">
+                      Clique para fazer upload ou arraste um arquivo PDF
+                    </span>
+                  </>
+                )}
+              </label>
+            </div>
+          </div>
         </div>
 
         <ScrollArea className="h-[300px] pr-4">
@@ -148,7 +192,7 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
                   <div>
                     <p className="font-medium">{pdf.filename}</p>
                     <p className="text-sm text-gray-500">
-                      {pdf.subject ? `Matéria: ${pdf.subject}` : 'Sem matéria definida'} • 
+                      Matéria: {pdf.subject} • 
                       Usado {pdf.times_used} {pdf.times_used === 1 ? 'vez' : 'vezes'}
                     </p>
                   </div>
@@ -157,7 +201,7 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
                   variant="outline"
                   onClick={() => onSelectPdf(pdf)}
                 >
-                  Usar PDF
+                  Selecionar para Gerar Questões
                 </Button>
               </div>
             ))}
