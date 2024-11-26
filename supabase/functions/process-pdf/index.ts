@@ -72,7 +72,7 @@ serve(async (req) => {
     console.log('Calling OpenAI API with retry mechanism...');
     const completion = await retryWithDelay(async () => {
       return await openai.createChatCompletion({
-        model: "gpt-4o-mini",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
