@@ -28,9 +28,7 @@ export const getTemplateHeaders = () => [
   "Nome do Concurso"
 ];
 
-// Adicionando 20 questões de exemplo
 export const getSampleQuestions = () => [
-  // E-1 - Estatuto dos Militares
   {
     tema: "Hierarquia Militar",
     assunto: "Círculos Hierárquicos",
@@ -48,45 +46,21 @@ export const getSampleQuestions = () => [
     ano: "",
     nome: ""
   },
-  // Mais 19 questões similares aqui...
   {
-    tema: "Disciplina Militar",
-    assunto: "Manifestações Disciplinares",
-    questao: "Sobre as manifestações essenciais da disciplina militar, analise as afirmativas a seguir:\nI - A rigorosa observância e acatamento integral das leis e regulamentos\nII - A obediência às ordens legais dos superiores\nIII - A dedicação integral ao serviço\nIV - A colaboração espontânea à disciplina coletiva e à eficiência das Forças Armadas",
+    tema: "Regulamento Disciplinar",
+    assunto: "Transgressões Disciplinares",
+    questao: "Sobre as transgressões disciplinares no âmbito militar, analise a seguinte situação: Um militar deixa de comunicar ao superior imediato a alteração de seu endereço residencial. Esta conduta é classificada como:",
     imagem: "",
-    opcaoA: "Apenas I e II estão corretas",
-    opcaoB: "Apenas II e III estão corretas",
-    opcaoC: "Apenas I, II e III estão corretas",
-    opcaoD: "Todas estão corretas",
-    opcaoE: "Apenas I, II e IV estão corretas",
-    resposta: "D",
-    explicacao: "De acordo com o Estatuto dos Militares, todas as afirmativas apresentadas são manifestações essenciais da disciplina militar, demonstrando a amplitude e profundidade do conceito de disciplina nas Forças Armadas.",
+    opcaoA: "Transgressão leve",
+    opcaoB: "Transgressão média",
+    opcaoC: "Transgressão grave",
+    opcaoD: "Não constitui transgressão",
+    opcaoE: "Depende do tempo decorrido sem a comunicação",
+    resposta: "A",
+    explicacao: "De acordo com o Regulamento Disciplinar do Exército, deixar de comunicar ao superior imediato a alteração de endereço residencial é classificada como transgressão leve, pois afeta apenas aspectos administrativos da organização militar.",
     dificuldade: "Fácil",
-    concursoAnterior: "Não",
-    ano: "",
-    nome: ""
+    concursoAnterior: "Sim",
+    ano: "2022",
+    nome: "EsFCEx"
   }
 ];
-
-export const getExampleRow = () => {
-  const sampleQuestions = getSampleQuestions();
-  const firstQuestion = sampleQuestions[0];
-  
-  return [
-    firstQuestion.tema,
-    firstQuestion.assunto,
-    firstQuestion.questao,
-    firstQuestion.imagem,
-    firstQuestion.opcaoA,
-    firstQuestion.opcaoB,
-    firstQuestion.opcaoC,
-    firstQuestion.opcaoD,
-    firstQuestion.opcaoE,
-    firstQuestion.resposta,
-    firstQuestion.explicacao,
-    firstQuestion.dificuldade,
-    firstQuestion.concursoAnterior,
-    firstQuestion.ano,
-    firstQuestion.nome
-  ];
-};

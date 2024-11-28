@@ -39,10 +39,11 @@ export const ExcelTemplateSection = () => {
           q.nome
         ]);
 
+        // Create worksheet with headers and rows
         const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 
         // Set column widths
-        const colWidths = [
+        ws['!cols'] = [
           { wch: 25 },  // Tema
           { wch: 25 },  // Assunto
           { wch: 50 },  // Questão
@@ -60,7 +61,7 @@ export const ExcelTemplateSection = () => {
           { wch: 25 }   // Nome do Concurso
         ];
 
-        ws['!cols'] = colWidths;
+        // Add worksheet to workbook
         XLSX.utils.book_append_sheet(wb, ws, subject);
       });
 
