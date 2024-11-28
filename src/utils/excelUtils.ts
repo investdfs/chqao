@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { templateSubjects, getTemplateHeaders, getExampleRow } from './excel/templateData';
+import { templateSubjects, getTemplateHeaders } from './excel/templateData';
 import { supabase } from "@/integrations/supabase/client";
 
 export const processExcelFile = async (file: File) => {
@@ -73,16 +73,15 @@ export const downloadExcelTemplate = async () => {
   try {
     const wb = XLSX.utils.book_new();
     const headers = getTemplateHeaders();
-    const exampleRow = getExampleRow();
 
     // Criar uma aba para cada matéria
     templateSubjects.forEach(subject => {
       console.log(`Criando aba para: ${subject}`);
       
-      const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+      const ws = XLSX.utils.aoa_to_sheet([headers]);
 
       // Configurar largura das colunas
-      const colWidths = [
+      ws['!cols'] = [
         { wch: 25 },  // Tema
         { wch: 25 },  // Assunto
         { wch: 50 },  // Questão
@@ -100,7 +99,6 @@ export const downloadExcelTemplate = async () => {
         { wch: 25 }   // Nome do Concurso
       ];
 
-      ws['!cols'] = colWidths;
       XLSX.utils.book_append_sheet(wb, ws, subject);
     });
 
