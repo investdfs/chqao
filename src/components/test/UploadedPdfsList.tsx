@@ -13,6 +13,7 @@ type UploadedPdf = {
   subject: string | null;
   file_path: string;
   times_used: number;
+  theme: string | null;
 };
 
 interface Props {
@@ -123,7 +124,11 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
       <CardContent className="space-y-4">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
           <div className="space-y-4">
-            <SubjectSelect value={selectedSubject} onValueChange={setSelectedSubject} />
+            <SubjectSelect 
+              type="subject" 
+              value={selectedSubject} 
+              onValueChange={setSelectedSubject} 
+            />
 
             <div className="text-center">
               <input

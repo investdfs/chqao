@@ -12,6 +12,7 @@ type SelectedPdf = {
   filename: string;
   file_path: string;
   subject: string | null;
+  theme: string | null;
 };
 
 const TestDashboard = () => {
@@ -19,7 +20,7 @@ const TestDashboard = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
 
-  console.log('TestDashboard - Selected PDF:', selectedPdf); // Debug log
+  console.log('TestDashboard - Selected PDF:', selectedPdf);
 
   const handlePdfSelect = (pdf: SelectedPdf | null) => {
     console.log('PDF selecionado:', pdf);
