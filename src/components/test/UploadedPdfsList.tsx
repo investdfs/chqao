@@ -14,6 +14,8 @@ type UploadedPdf = {
   file_path: string;
   times_used: number;
   theme: string | null;
+  created_at: string;
+  description: string | null;
 };
 
 interface Props {
@@ -34,7 +36,12 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as UploadedPdf[];
+      
+      // Ensure all required properties are present, with theme defaulting to null if not present
+      return (data as any[]).map(pdf => ({
+        ...pdf,
+        theme: pdf.theme || null
+      })) as UploadedPdf[];
     }
   });
 
