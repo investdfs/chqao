@@ -1,6 +1,23 @@
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
-const questions = [
+type QuestionDifficulty = Database["public"]["Enums"]["question_difficulty"];
+
+const questions: {
+  subject: string;
+  text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  option_e: string;
+  correct_answer: string;
+  theme: string;
+  topic: string;
+  explanation: string;
+  difficulty: QuestionDifficulty;
+  is_from_previous_exam: boolean;
+}[] = [
   {
     subject: "História do Brasil",
     text: "Qual das alternativas abaixo NÃO representa uma das fases da Era Vargas?",
