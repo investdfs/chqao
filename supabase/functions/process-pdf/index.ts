@@ -18,6 +18,7 @@ interface GeneratedQuestion {
   explanation: string;
   difficulty: "Fácil" | "Médio" | "Difícil";
   theme: string;
+  is_ai_generated: boolean;
 }
 
 serve(async (req) => {
@@ -48,6 +49,12 @@ serve(async (req) => {
     const pdfText = await fileData.text();
     console.log('Texto extraído do PDF, tamanho:', pdfText.length);
 
+    // Atualizar status para processando
+    await supabase
+      .from('ai_question_generations')
+      .update({ status: 'processing' })
+      .eq('id', generationId);
+
     // Chamada para OpenAI com prompt estruturado
     console.log('Chamando API OpenAI...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -76,20 +83,28 @@ serve(async (req) => {
               "correct_answer": "A|B|C|D|E",
               "explanation": "explicação detalhada da resposta",
               "difficulty": "Fácil|Médio|Difícil",
-              "theme": "tema principal da questão"
+              "theme": "tema principal da questão",
+              "is_ai_generated": true
             }
             
             2. Retorne um array com ${questionCount} objetos neste formato.
             3. Use linguagem formal militar.
             4. Mantenha as questões objetivas e claras.
             5. Evite ambiguidades nas alternativas.
-            ${customInstructions ? `6. Instruções adicionais: ${customInstructions}` : ''}`
+            6. Inclua explicações detalhadas e fundamentadas.
+            7. Distribua as questões entre diferentes níveis de dificuldade.
+            ${customInstructions ? `8. Instruções adicionais: ${customInstructions}` : ''}`
           },
           { role: 'user', content: pdfText }
         ],
         temperature: 0.7,
+        max_tokens: 4000,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`);
+    }
 
     const aiResponse = await response.json();
     console.log('Resposta recebida da IA');
@@ -104,20 +119,40 @@ serve(async (req) => {
         throw new Error('Resposta da IA não é um array');
       }
 
+      if (generatedQuestions.length !== parseInt(questionCount)) {
+        throw new Error(`Número incorreto de questões geradas. Esperado: ${questionCount}, Recebido: ${generatedQuestions.length}`);
+      }
+
       generatedQuestions.forEach((q, index) => {
-        if (!q.text || !q.option_a || !q.option_b || !q.option_c || 
-            !q.option_d || !q.option_e || !q.correct_answer || 
-            !q.explanation || !q.difficulty || !q.theme) {
-          throw new Error(`Questão ${index + 1} está faltando campos obrigatórios`);
+        // Validação de campos obrigatórios
+        const requiredFields = ['text', 'option_a', 'option_b', 'option_c', 'option_d', 'option_e', 'correct_answer', 'explanation', 'difficulty', 'theme'];
+        const missingFields = requiredFields.filter(field => !q[field]);
+        
+        if (missingFields.length > 0) {
+          throw new Error(`Questão ${index + 1} está faltando campos obrigatórios: ${missingFields.join(', ')}`);
         }
 
+        // Validação de resposta correta
         if (!['A', 'B', 'C', 'D', 'E'].includes(q.correct_answer)) {
           throw new Error(`Questão ${index + 1} tem resposta inválida: ${q.correct_answer}`);
         }
 
+        // Validação de dificuldade
         if (!['Fácil', 'Médio', 'Difícil'].includes(q.difficulty)) {
           throw new Error(`Questão ${index + 1} tem dificuldade inválida: ${q.difficulty}`);
         }
+
+        // Validação de comprimento mínimo
+        if (q.text.length < 20) {
+          throw new Error(`Questão ${index + 1} tem texto muito curto`);
+        }
+
+        if (q.explanation.length < 30) {
+          throw new Error(`Questão ${index + 1} tem explicação muito curta`);
+        }
+
+        // Marcar como gerada por IA
+        q.is_ai_generated = true;
       });
 
     } catch (error) {
