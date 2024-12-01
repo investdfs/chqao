@@ -1,11 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const openaiKey = Deno.env.get('OPENAI_API_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
 
 interface Question {
   text: string;
@@ -22,6 +29,13 @@ interface Question {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { 
+      headers: corsHeaders 
+    });
+  }
+
   try {
     const { generationId, filePath, questionCount, customInstructions } = await req.json();
     console.log('Iniciando processamento:', { generationId, filePath });
@@ -60,7 +74,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -92,8 +106,6 @@ serve(async (req) => {
           },
           { role: 'user', content: pdfText }
         ],
-        temperature: 0.7,
-        max_tokens: 4000,
       }),
     });
 
@@ -101,13 +113,13 @@ serve(async (req) => {
       throw new Error(`OpenAI API error: ${response.statusText}`);
     }
 
-    const aiResponse = await response.json();
+    const data = await response.json();
     console.log('Resposta recebida da IA');
 
     let generatedQuestions;
     try {
       // Tentar extrair array de questões da resposta
-      const content = aiResponse.choices[0]?.message?.content;
+      const content = data.choices[0]?.message?.content;
       generatedQuestions = JSON.parse(content);
 
       if (!Array.isArray(generatedQuestions)) {
@@ -161,7 +173,7 @@ serve(async (req) => {
         .eq('id', generationId);
 
       return new Response(JSON.stringify({ success: true }), {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
 
     } catch (error) {
@@ -188,7 +200,7 @@ serve(async (req) => {
       }),
       { 
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
     );
   }
