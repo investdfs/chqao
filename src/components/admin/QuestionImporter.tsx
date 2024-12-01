@@ -101,7 +101,7 @@ export const QuestionImporter = () => {
       const { error } = await supabase
         .from("questions")
         .delete()
-        .neq("id", "placeholder");
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // UUID que não existe, então deleta tudo
 
       if (error) throw error;
 
