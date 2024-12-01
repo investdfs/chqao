@@ -1,103 +1,132 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.2.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
-
-async function retryWithDelay(fn: () => Promise<any>, retries = MAX_RETRIES): Promise<any> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (retries > 0 && error.response?.status === 429) {
-      console.log(`Rate limited, retrying in ${RETRY_DELAY}ms... (${retries} retries left)`);
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-      return retryWithDelay(fn, retries - 1);
-    }
-    throw error;
-  }
+interface GeneratedQuestion {
+  text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  option_e: string;
+  correct_answer: string;
+  explanation: string;
+  difficulty: "Fácil" | "Médio" | "Difícil";
+  theme: string;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('Processing PDF request...');
+    console.log('Iniciando processamento de PDF...');
     const { generationId, filePath, questionCount, customInstructions } = await req.json();
-    console.log(`Processing generation ${generationId} with file: ${filePath}`);
-    console.log(`Question count: ${questionCount}, Custom instructions: ${customInstructions}`);
-
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     
-    if (!supabaseUrl || !supabaseKey || !openAIApiKey) {
-      throw new Error('Missing required environment variables');
-    }
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Download the PDF from Storage
-    console.log('Downloading PDF from storage...');
+    // Download do PDF
+    console.log(`Baixando PDF: ${filePath}`);
     const { data: fileData, error: downloadError } = await supabase.storage
       .from('pdf_uploads')
       .download(filePath);
 
     if (downloadError) {
-      console.error('Error downloading PDF:', downloadError);
+      console.error('Erro ao baixar PDF:', downloadError);
       throw downloadError;
     }
 
-    // Convert PDF to text
     const pdfText = await fileData.text();
-    console.log('PDF text extracted, length:', pdfText.length);
+    console.log('Texto extraído do PDF, tamanho:', pdfText.length);
 
-    // Initialize OpenAI
-    const configuration = new Configuration({
-      apiKey: openAIApiKey,
-    });
-    const openai = new OpenAIApi(configuration);
-
-    // Generate questions with OpenAI with retry mechanism
-    console.log('Calling OpenAI API with retry mechanism...');
-    const completion = await retryWithDelay(async () => {
-      return await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+    // Chamada para OpenAI com prompt estruturado
+    console.log('Chamando API OpenAI...');
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
         messages: [
           {
-            role: "system",
-            content: `Você é um especialista em criar questões de múltipla escolha. 
-            Gere ${questionCount} questões baseadas no conteúdo fornecido.
-            ${customInstructions ? `Instruções adicionais: ${customInstructions}` : ''}
-            Cada questão deve ter:
-            - Texto da questão
-            - 5 alternativas (A a E)
-            - Resposta correta
-            - Explicação
-            - Nível de dificuldade (Fácil, Médio ou Difícil)
-            - Tema principal
-            Retorne em formato JSON.`
+            role: 'system',
+            content: `Você é um especialista em criar questões de múltipla escolha para concursos militares.
+            Gere exatamente ${questionCount} questões baseadas no conteúdo fornecido.
+            
+            Regras importantes:
+            1. Cada questão DEVE seguir exatamente este formato JSON:
+            {
+              "text": "texto da questão",
+              "option_a": "texto da opção A",
+              "option_b": "texto da opção B",
+              "option_c": "texto da opção C",
+              "option_d": "texto da opção D",
+              "option_e": "texto da opção E",
+              "correct_answer": "A|B|C|D|E",
+              "explanation": "explicação detalhada da resposta",
+              "difficulty": "Fácil|Médio|Difícil",
+              "theme": "tema principal da questão"
+            }
+            
+            2. Retorne um array com ${questionCount} objetos neste formato.
+            3. Use linguagem formal militar.
+            4. Mantenha as questões objetivas e claras.
+            5. Evite ambiguidades nas alternativas.
+            ${customInstructions ? `6. Instruções adicionais: ${customInstructions}` : ''}`
           },
-          { role: "user", content: pdfText }
+          { role: 'user', content: pdfText }
         ],
         temperature: 0.7,
-      });
+      }),
     });
 
-    const generatedQuestions = JSON.parse(completion.data.choices[0].message.content);
+    const aiResponse = await response.json();
+    console.log('Resposta recebida da IA');
 
-    // Update record with generated questions
-    console.log('Updating generation record with questions...');
+    // Validação do JSON retornado
+    let generatedQuestions: GeneratedQuestion[];
+    try {
+      generatedQuestions = JSON.parse(aiResponse.choices[0].message.content);
+      
+      // Validação adicional
+      if (!Array.isArray(generatedQuestions)) {
+        throw new Error('Resposta da IA não é um array');
+      }
+
+      generatedQuestions.forEach((q, index) => {
+        if (!q.text || !q.option_a || !q.option_b || !q.option_c || 
+            !q.option_d || !q.option_e || !q.correct_answer || 
+            !q.explanation || !q.difficulty || !q.theme) {
+          throw new Error(`Questão ${index + 1} está faltando campos obrigatórios`);
+        }
+
+        if (!['A', 'B', 'C', 'D', 'E'].includes(q.correct_answer)) {
+          throw new Error(`Questão ${index + 1} tem resposta inválida: ${q.correct_answer}`);
+        }
+
+        if (!['Fácil', 'Médio', 'Difícil'].includes(q.difficulty)) {
+          throw new Error(`Questão ${index + 1} tem dificuldade inválida: ${q.difficulty}`);
+        }
+      });
+
+    } catch (error) {
+      console.error('Erro ao processar resposta da IA:', error);
+      throw new Error(`Formato inválido na resposta da IA: ${error.message}`);
+    }
+
+    // Atualizar registro com questões validadas
+    console.log('Atualizando registro com questões geradas...');
     const { error: updateError } = await supabase
       .from('ai_question_generations')
       .update({
@@ -108,42 +137,36 @@ serve(async (req) => {
       .eq('id', generationId);
 
     if (updateError) {
-      console.error('Error updating generation record:', updateError);
+      console.error('Erro ao atualizar registro:', updateError);
       throw updateError;
     }
 
-    console.log('Process completed successfully');
+    console.log('Processamento concluído com sucesso');
     return new Response(
       JSON.stringify({ success: true, questions: generatedQuestions }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error processing PDF:', error);
+    console.error('Erro no processamento:', error);
     
-    // Create Supabase client for error handling
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Update record with error
-    if (error.generationId) {
-      await supabase
-        .from('ai_question_generations')
-        .update({
-          status: 'failed',
-          error_message: error.message || 'Unknown error occurred',
-        })
-        .eq('id', error.generationId);
-    }
+    await supabase
+      .from('ai_question_generations')
+      .update({
+        status: 'failed',
+        error_message: error.message,
+      })
+      .eq('id', generationId);
 
-    const errorMessage = error.response?.data?.error?.message || error.message || 'Unknown error occurred';
     return new Response(
       JSON.stringify({ 
-        error: 'Error processing PDF', 
-        details: errorMessage,
-        status: error.response?.status || 500
+        error: 'Erro ao processar PDF', 
+        details: error.message 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
