@@ -8,44 +8,45 @@ interface StudyGuideProps {
 
 export const StudyGuide = ({ weakPoints, strongPoints }: StudyGuideProps) => {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card>
-        <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-          <CardTitle className="flex items-center gap-2 text-error">
+    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+      <CardHeader>
+        <CardTitle className="gradient-text">Guia de Estudos</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-6">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-error">
             <AlertTriangle className="h-4 w-4" />
-            Pontos Fracos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-2">
-            Atenção! Foque em resolver questões destes tópicos para melhorar sua taxa de acertos.
+            <h3 className="font-semibold">Pontos para Melhorar</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Foque em resolver questões destes tópicos para melhorar sua taxa de acertos:
           </p>
-          <ul className="list-disc pl-4 space-y-1">
+          <ul className="space-y-2">
             {weakPoints.map((point) => (
-              <li key={point} className="text-sm">{point}</li>
+              <li key={point} className="text-sm bg-error-light text-error rounded-lg px-3 py-2">
+                {point}
+              </li>
             ))}
           </ul>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-          <CardTitle className="flex items-center gap-2 text-success">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-success">
             <Trophy className="h-4 w-4" />
-            Pontos Fortes
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-2">
+            <h3 className="font-semibold">Pontos Fortes</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
             Continue praticando para manter seu bom desempenho!
           </p>
-          <ul className="list-disc pl-4 space-y-1">
+          <ul className="space-y-2">
             {strongPoints.map((point) => (
-              <li key={point} className="text-sm">{point}</li>
+              <li key={point} className="text-sm bg-success-light text-success rounded-lg px-3 py-2">
+                {point}
+              </li>
             ))}
           </ul>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

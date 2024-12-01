@@ -20,7 +20,7 @@ export const PerformanceMetrics = ({
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Taxa de Acertos</CardTitle>
           <Check className="h-4 w-4 text-success" />
@@ -34,7 +34,7 @@ export const PerformanceMetrics = ({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Taxa de Erros</CardTitle>
           <X className="h-4 w-4 text-error" />
@@ -48,26 +48,26 @@ export const PerformanceMetrics = ({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Tempo de estudo total</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <Clock className="h-4 w-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{studyTime}</div>
+          <div className="text-2xl font-bold text-primary">{studyTime}</div>
           <p className="text-xs text-muted-foreground">
             Continue praticando diariamente!
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Tempo médio por questão</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <Clock className="h-4 w-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{averageTime}</div>
+          <div className="text-2xl font-bold text-primary">{averageTime}</div>
           <p className="text-xs text-muted-foreground">
             Mantenha um ritmo constante
           </p>

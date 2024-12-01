@@ -11,12 +11,12 @@ interface SubjectProgressProps {
 
 export const SubjectProgress = ({ subjects }: SubjectProgressProps) => {
   return (
-    <Card className="col-span-2">
+    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader>
-        <CardTitle>Progresso por Matéria</CardTitle>
+        <CardTitle className="gradient-text">Progresso por Matéria</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {subjects.map((subject) => {
             const percentage = (subject.correctAnswers / subject.questionsAnswered) * 100 || 0;
             return (
@@ -27,7 +27,13 @@ export const SubjectProgress = ({ subjects }: SubjectProgressProps) => {
                     {subject.correctAnswers}/{subject.questionsAnswered} questões
                   </span>
                 </div>
-                <Progress value={percentage} />
+                <Progress 
+                  value={percentage} 
+                  className="h-2 transition-all duration-300"
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {percentage.toFixed(0)}% de aproveitamento
+                </p>
               </div>
             );
           })}
