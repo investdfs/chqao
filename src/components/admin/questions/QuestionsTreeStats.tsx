@@ -13,35 +13,36 @@ interface TreeNode {
 export const QuestionsTreeStats = () => {
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
 
-  const { data: questions, isLoading } = useQuery({
+  const { data: questionsStats, isLoading } = useQuery({
     queryKey: ['questions-tree-stats'],
     queryFn: async () => {
-      console.log('Fetching questions for tree stats...');
+      console.log('Fetching questions stats...');
       const { data, error } = await supabase
-        .from('questions')
-        .select('subject, theme, topic');
+        .rpc('get_questions_stats');
 
       if (error) {
-        console.error('Error fetching questions:', error);
+        console.error('Error fetching questions stats:', error);
         throw error;
       }
 
-      console.log('Questions data:', data);
+      console.log('Questions stats data:', data);
       return data;
     }
   });
 
   const buildTree = (data: any[]) => {
+    if (!data) return [];
+    
     const tree: TreeNode[] = [];
     const subjects = new Map<string, { themes: Map<string, Set<string>>, count: number }>();
 
     // Group questions by subject, theme, and topic
-    data?.forEach(q => {
+    data.forEach(q => {
       if (!subjects.has(q.subject)) {
         subjects.set(q.subject, { themes: new Map(), count: 0 });
       }
       const subject = subjects.get(q.subject)!;
-      subject.count++;
+      subject.count += q.count || 0;
 
       if (q.theme) {
         if (!subject.themes.has(q.theme)) {
@@ -62,13 +63,18 @@ export const QuestionsTreeStats = () => {
       };
 
       subjectData.themes.forEach((topics, themeName) => {
-        const themeCount = data?.filter(q => q.theme === themeName).length || 0;
+        const themeCount = data
+          .filter(q => q.theme === themeName)
+          .reduce((sum, q) => sum + (q.count || 0), 0);
+
         const themeNode: TreeNode = {
           name: themeName,
           count: themeCount,
           children: Array.from(topics).map(topicName => ({
             name: topicName,
-            count: data?.filter(q => q.topic === topicName).length || 0
+            count: data
+              .filter(q => q.topic === topicName)
+              .reduce((sum, q) => sum + (q.count || 0), 0)
           }))
         };
         subjectNode.children?.push(themeNode);
@@ -149,7 +155,7 @@ export const QuestionsTreeStats = () => {
     );
   }
 
-  const treeData = buildTree(questions || []);
+  const treeData = buildTree(questionsStats || []);
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-all duration-300">
