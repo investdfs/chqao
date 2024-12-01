@@ -5,6 +5,7 @@ import { StudentManager } from "@/components/admin/StudentManager";
 import { AdminManager } from "@/components/admin/AdminManager";
 import { SyncDatabaseButton } from "@/components/admin/SyncDatabaseButton";
 import { QuestionImporter } from "@/components/admin/QuestionImporter";
+import { InsertQuestionsButton } from "@/components/admin/questions/InsertQuestionsButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
@@ -57,6 +58,9 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <QuestionImporter />
+            <div className="mt-4">
+              <InsertQuestionsButton />
+            </div>
           </CardContent>
         </Card>
 
