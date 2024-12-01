@@ -6,6 +6,7 @@ import { AdminManager } from "@/components/admin/AdminManager";
 import { SyncDatabaseButton } from "@/components/admin/SyncDatabaseButton";
 import { QuestionImporter } from "@/components/admin/QuestionImporter";
 import { InsertQuestionsButton } from "@/components/admin/questions/InsertQuestionsButton";
+import { QuestionsTreeStats } from "@/components/admin/questions/QuestionsTreeStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
@@ -47,6 +48,8 @@ const AdminDashboard = () => {
           totalStudents={students.length}
           onlineUsers={onlineUsers}
         />
+
+        <QuestionsTreeStats />
 
         <AdminManager />
         
