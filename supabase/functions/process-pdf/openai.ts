@@ -52,7 +52,8 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
       });
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`OpenAI API error: ${response.statusText || errorData.error || 'Unknown error'}`);
       }
 
       const data = await response.json();
@@ -62,8 +63,9 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
       lastError = error;
       
       if (attempt < MAX_RETRIES - 1) {
-        console.log(`Aguardando ${RETRY_DELAY}ms antes da próxima tentativa...`);
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (attempt + 1)));
+        const delay = RETRY_DELAY * Math.pow(2, attempt); // Exponential backoff
+        console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }

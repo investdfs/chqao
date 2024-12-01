@@ -21,7 +21,7 @@ serve(async (req) => {
   }
 
   try {
-    const { generationId, filePath, questionCount, customInstructions } = await req.json() as ProcessPdfRequest;
+    const { generationId, filePath, questionCount, customInstructions, subject, theme } = await req.json() as ProcessPdfRequest;
     console.log('Iniciando processamento:', { generationId, filePath });
 
     if (!generationId || !filePath || !questionCount) {
