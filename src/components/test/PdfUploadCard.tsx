@@ -4,13 +4,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { GenerationForm } from './upload/GenerationForm';
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Link as LinkIcon } from "lucide-react";
+import { SubjectSelect } from './upload/SubjectSelect';
+import { UrlImportDialog } from './upload/UrlImportDialog';
 
 type SelectedPdf = {
   id: string;
   filename: string;
   file_path: string;
   subject: string | null;
+  theme: string | null;
 };
 
 interface PdfUploadCardProps {
@@ -22,6 +25,9 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
   const [isProcessing, setIsProcessing] = useState(false);
   const [questionCount, setQuestionCount] = useState("5");
   const [instructions, setInstructions] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedTheme, setSelectedTheme] = useState("");
+  const [showUrlImport, setShowUrlImport] = useState(false);
   const { toast } = useToast();
 
   console.log('PdfUploadCard - Selected PDF:', selectedPdf);
@@ -45,6 +51,15 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
       return;
     }
 
+    if (!selectedSubject || !selectedTheme) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, selecione a matéria e o tema antes de continuar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsProcessing(true);
       console.log('Iniciando processamento do PDF:', selectedPdf.filename);
@@ -62,7 +77,9 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
           metadata: { 
             originalName: selectedPdf.filename,
             questionCount: parseInt(questionCount),
-            customInstructions: instructions
+            customInstructions: instructions,
+            subject: selectedSubject,
+            theme: selectedTheme
           }
         }])
         .select()
@@ -75,7 +92,9 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
           generationId: generation.id,
           filePath: selectedPdf.file_path,
           questionCount: parseInt(questionCount),
-          customInstructions: instructions
+          customInstructions: instructions,
+          subject: selectedSubject,
+          theme: selectedTheme
         }
       });
 
@@ -88,6 +107,8 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
 
       onPdfSelect(null);
       setInstructions("");
+      setSelectedSubject("");
+      setSelectedTheme("");
 
     } catch (error) {
       console.error('Erro ao processar PDF:', error);
@@ -103,8 +124,12 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Gerar Questões com IA</CardTitle>
+        <Button variant="outline" size="sm" onClick={() => setShowUrlImport(true)}>
+          <LinkIcon className="h-4 w-4 mr-2" />
+          Importar via URL
+        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         {selectedPdf ? (
@@ -113,7 +138,6 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
               <div>
                 <p className="text-sm font-medium">PDF selecionado:</p>
                 <p className="text-sm text-gray-600">{selectedPdf.filename}</p>
-                <p className="text-sm text-gray-500">Matéria: {selectedPdf.subject || 'Não definida'}</p>
               </div>
               <Button
                 variant="ghost"
@@ -122,7 +146,7 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
                 className="text-red-500 hover:text-red-700 hover:bg-red-50"
               >
                 <X className="h-4 w-4 mr-1" />
-                Remover Matéria
+                Remover PDF
               </Button>
             </div>
           </div>
@@ -132,14 +156,40 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
           </p>
         )}
 
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Matéria</label>
+            <SubjectSelect
+              type="subject"
+              value={selectedSubject}
+              onValueChange={setSelectedSubject}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Tema</label>
+            <SubjectSelect
+              type="theme"
+              value={selectedTheme}
+              onValueChange={setSelectedTheme}
+              subjectFilter={selectedSubject}
+            />
+          </div>
+        </div>
+
         <GenerationForm
           questionCount={questionCount}
           instructions={instructions}
           isProcessing={isProcessing}
-          hasFile={!!selectedPdf}
+          hasFile={!!selectedPdf && !!selectedSubject && !!selectedTheme}
           onQuestionCountChange={setQuestionCount}
           onInstructionsChange={setInstructions}
           onSubmit={handleSubmit}
+        />
+
+        <UrlImportDialog
+          open={showUrlImport}
+          onOpenChange={setShowUrlImport}
         />
       </CardContent>
     </Card>

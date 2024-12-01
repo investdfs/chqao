@@ -6,34 +6,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface SubjectSelectProps {
   value: string;
   onValueChange: (value: string) => void;
+  type: 'subject' | 'theme';
+  subjectFilter?: string;
 }
 
-export const SubjectSelect = ({ value, onValueChange }: SubjectSelectProps) => {
-  const { data: subjects } = useQuery({
-    queryKey: ['subjects'],
+export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: SubjectSelectProps) => {
+  const { data: items } = useQuery({
+    queryKey: ['subject-structure', type, subjectFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('subject_structure')
-        .select('subject')
-        .order('subject');
+        .select(type)
+        .order(type);
 
+      if (type === 'theme' && subjectFilter) {
+        query = query.eq('subject', subjectFilter);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       
       // Remove duplicates
-      const uniqueSubjects = [...new Set(data.map(item => item.subject))];
-      return uniqueSubjects;
+      const uniqueItems = [...new Set(data.map(item => item[type]))];
+      return uniqueItems;
     }
   });
+
+  const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema';
 
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger>
-        <SelectValue placeholder="Selecione a matéria" />
+        <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {subjects?.map((subject) => (
-          <SelectItem key={subject} value={subject}>
-            {subject}
+        {items?.map((item) => (
+          <SelectItem key={item} value={item}>
+            {item}
           </SelectItem>
         ))}
       </SelectContent>
