@@ -1,80 +1,17 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { Eye } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AdminList } from "./AdminList";
-import { AddAdminDialog } from "./AddAdminDialog";
-import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
-import { supabase } from "@/integrations/supabase/client";
+import { AdminManagerHeader } from "./manager/AdminManagerHeader";
+import { useAdminManager } from "./manager/useAdminManager";
 
 export const AdminManager = () => {
-  const { toast } = useToast();
-  const [showAdmins, setShowAdmins] = useState(false);
-  const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
-  
-  const admins = sheetsData?.users.filter(user => user.type === 'admin') || [];
-
-  const handleToggleStatus = async (adminId: string) => {
-    try {
-      const admin = admins.find(a => a.id === adminId);
-      if (!admin) return;
-
-      const newStatus = admin.status === 'active' ? 'blocked' : 'active';
-      
-      console.log('Updating admin status:', { adminId, newStatus });
-      const { error } = await supabase
-        .from('admins')
-        .update({ status: newStatus })
-        .eq('id', adminId);
-
-      if (error) throw error;
-      
-      toast({
-        title: "Status atualizado",
-        description: "O status do administrador foi atualizado com sucesso.",
-      });
-      
-      refetch();
-    } catch (error) {
-      console.error('Error updating admin status:', error);
-      toast({
-        title: "Erro ao atualizar status",
-        description: "Ocorreu um erro ao atualizar o status do administrador.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleAddAdmin = async (email: string, name: string) => {
-    try {
-      console.log('Adding new admin:', { email, name });
-      const { error } = await supabase
-        .from('admins')
-        .insert([{ 
-          email, 
-          name,
-          password: Math.random().toString(36).slice(-8), // Generate random password
-          status: 'active'
-        }]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Administrador adicionado",
-        description: "O novo administrador foi cadastrado com sucesso.",
-      });
-      
-      refetch();
-    } catch (error) {
-      console.error('Error adding admin:', error);
-      toast({
-        title: "Erro ao adicionar administrador",
-        description: "Ocorreu um erro ao cadastrar o novo administrador.",
-        variant: "destructive"
-      });
-    }
-  };
+  const {
+    showAdmins,
+    setShowAdmins,
+    admins,
+    isLoading,
+    handleToggleStatus,
+    handleAddAdmin
+  } = useAdminManager();
 
   if (isLoading) {
     return <div>Carregando...</div>;
@@ -83,19 +20,11 @@ export const AdminManager = () => {
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Gerenciar Administradores</span>
-          <div className="flex gap-2">
-            <AddAdminDialog onAdd={handleAddAdmin} />
-            <Button 
-              onClick={() => setShowAdmins(!showAdmins)}
-              className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2"
-            >
-              <Eye className="h-4 w-4" />
-              {showAdmins ? "Ocultar" : "Ver Admins"}
-            </Button>
-          </div>
-        </CardTitle>
+        <AdminManagerHeader
+          showAdmins={showAdmins}
+          onToggleView={() => setShowAdmins(!showAdmins)}
+          onAddAdmin={handleAddAdmin}
+        />
       </CardHeader>
       {showAdmins && (
         <CardContent>
