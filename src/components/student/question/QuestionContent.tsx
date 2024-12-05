@@ -79,6 +79,7 @@ const QuestionContent = ({
               correctAnswer={question.correctAnswer}
               explanation={question.explanation}
               onReset={handleReset}
+              questionId={question.id}
             />
           )}
         </div>

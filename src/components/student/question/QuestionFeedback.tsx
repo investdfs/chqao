@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { QuestionStatsDialog } from "./QuestionStatsDialog";
 
 interface QuestionFeedbackProps {
   isCorrect: boolean;
@@ -7,6 +9,7 @@ interface QuestionFeedbackProps {
   correctAnswer: string;
   explanation: string;
   onReset: () => void;
+  questionId: string;
 }
 
 const QuestionFeedback = ({
@@ -15,7 +18,10 @@ const QuestionFeedback = ({
   correctAnswer,
   explanation,
   onReset,
+  questionId,
 }: QuestionFeedbackProps) => {
+  const [showStats, setShowStats] = useState(false);
+
   return (
     <div className="space-y-4">
       <div
@@ -56,11 +62,18 @@ const QuestionFeedback = ({
           <Button variant="outline" size="sm">
             Gabarito comentado
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowStats(true)}>
             Estatísticas
           </Button>
         </div>
       </div>
+
+      <QuestionStatsDialog
+        open={showStats}
+        onOpenChange={setShowStats}
+        questionId={questionId}
+        correctAnswer={correctAnswer}
+      />
     </div>
   );
 };
