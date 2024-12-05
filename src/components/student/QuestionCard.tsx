@@ -15,7 +15,7 @@ interface QuestionOption {
 
 interface QuestionCardProps {
   question: {
-    id: string;
+    id: string;  // Changed from number to string to match Supabase UUID type
     text: string;
     options: QuestionOption[];
     correctAnswer: string;
