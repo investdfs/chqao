@@ -1,5 +1,5 @@
 interface QuestionMetadataProps {
-  id: number;
+  id: string;  // Changed from number to string
   subject?: string;
   topic?: string;
   source?: string;
