@@ -4,27 +4,48 @@ import { supabase } from "@/integrations/supabase/client";
 import QuestionCard from "@/components/student/QuestionCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const QuestionPractice = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  // Buscar o ID do estudante da sessão
-  const { data: session } = useQuery({
-    queryKey: ['session'],
+  // Buscar o estudante logado usando o email da sessão
+  const { data: studentData, isLoading: isLoadingStudent } = useQuery({
+    queryKey: ['student'],
     queryFn: async () => {
-      console.log("Buscando sessão do usuário...");
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Erro ao buscar sessão:", error);
+      console.log("Buscando dados do estudante...");
+      
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error("Erro ao buscar sessão:", sessionError);
         return null;
       }
-      console.log("Sessão encontrada:", session);
-      return session;
+
+      if (!session?.user?.email) {
+        console.log("Nenhum usuário logado");
+        navigate("/login");
+        return null;
+      }
+
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('*')
+        .eq('email', session.user.email)
+        .single();
+
+      if (studentError) {
+        console.error("Erro ao buscar estudante:", studentError);
+        return null;
+      }
+
+      console.log("Dados do estudante encontrados:", student);
+      return student;
     },
   });
 
-  const { data: questions, isLoading, error } = useQuery({
+  const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
       console.log("Buscando questões do Supabase...");
@@ -60,22 +81,32 @@ const QuestionPractice = () => {
     }
   };
 
-  if (!session) {
+  if (isLoadingStudent) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+        <div className="max-w-3xl mx-auto">
+          <Skeleton className="h-[600px] w-full rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!studentData) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">
-            Usuário não autenticado
+            Acesso não autorizado
           </h2>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Faça login para acessar as questões
+            Faça login como estudante para acessar as questões
           </p>
         </div>
       </div>
     );
   }
 
-  if (isLoading) {
+  if (isLoadingQuestions) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
         <div className="max-w-3xl mx-auto">
@@ -141,7 +172,8 @@ const QuestionPractice = () => {
           onPreviousQuestion={handlePreviousQuestion}
           questionNumber={currentQuestionIndex + 1}
           totalQuestions={questions.length}
-          studentId={session.user.id}
+          studentId={studentData.id}
+          isUserBlocked={studentData.status === 'blocked'}
         />
       </div>
     </div>
