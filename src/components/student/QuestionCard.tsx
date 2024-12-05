@@ -15,7 +15,7 @@ interface QuestionOption {
 
 interface QuestionCardProps {
   question: {
-    id: string;  // Changed from number to string to match Supabase UUID type
+    id: string;
     text: string;
     options: QuestionOption[];
     correctAnswer: string;
@@ -116,6 +116,8 @@ const QuestionCard = ({
               onAnswer={handleAnswer}
               canAnswer={!!selectedAnswer}
               hasAnswered={hasAnswered}
+              questionNumber={questionNumber}
+              totalQuestions={totalQuestions}
             />
 
             {hasAnswered && (

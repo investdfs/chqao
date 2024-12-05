@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface NavigationButtonsProps {
   onPrevious: () => void;
@@ -6,6 +7,8 @@ interface NavigationButtonsProps {
   onAnswer: () => void;
   canAnswer: boolean;
   hasAnswered: boolean;
+  questionNumber: number;
+  totalQuestions: number;
 }
 
 const NavigationButtons = ({
@@ -14,23 +17,39 @@ const NavigationButtons = ({
   onAnswer,
   canAnswer,
   hasAnswered,
+  questionNumber,
+  totalQuestions,
 }: NavigationButtonsProps) => {
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-4">
-      <Button variant="outline" onClick={onPrevious} className="w-full sm:flex-1">
-        ← Anterior
+    <div className="flex justify-between items-center mt-4">
+      <Button
+        variant="outline"
+        onClick={onPrevious}
+        disabled={questionNumber <= 1}
+        className="flex items-center gap-2"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Anterior
       </Button>
+
+      {!hasAnswered && (
+        <Button
+          onClick={onAnswer}
+          disabled={!canAnswer}
+          className="px-8"
+        >
+          Responder
+        </Button>
+      )}
 
       <Button
-        className="w-full sm:flex-1 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
-        onClick={onAnswer}
-        disabled={!canAnswer || hasAnswered}
+        variant="outline"
+        onClick={onNext}
+        disabled={questionNumber >= totalQuestions}
+        className="flex items-center gap-2"
       >
-        Responder
-      </Button>
-
-      <Button variant="outline" onClick={onNext} className="w-full sm:flex-1">
-        Próxima →
+        Próxima
+        <ChevronRight className="h-4 w-4" />
       </Button>
     </div>
   );

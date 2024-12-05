@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -12,7 +12,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
   const [hasAnswered, setHasAnswered] = useState(false);
   const { toast } = useToast();
 
-  const handleAnswer = async () => {
+  const handleAnswer = useCallback(async () => {
     if (!selectedAnswer) {
       console.log("Nenhuma resposta selecionada");
       return;
@@ -65,12 +65,12 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
         variant: "destructive",
       });
     }
-  };
+  }, [questionId, selectedAnswer, studentId, toast]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSelectedAnswer("");
     setHasAnswered(false);
-  };
+  }, []);
 
   return {
     selectedAnswer,
