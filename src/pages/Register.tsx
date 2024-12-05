@@ -31,9 +31,26 @@ const Register = () => {
         return;
       }
 
+      // Primeiro, verificar se o usuário já existe
+      const { data: existingUser } = await supabase
+        .from('students')
+        .select('id')
+        .eq('email', formData.email)
+        .single();
+
+      if (existingUser) {
+        toast({
+          title: "Erro no cadastro",
+          description: "Este email já está cadastrado. Por favor, faça login ou use outro email.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
       console.log('Iniciando registro do estudante:', { email: formData.email, name: formData.name });
 
-      // Primeiro, criar o usuário na autenticação do Supabase
+      // Criar o usuário na autenticação do Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -47,12 +64,21 @@ const Register = () => {
 
       if (authError) {
         console.error('Erro ao criar usuário na autenticação:', authError);
-        throw authError;
+        if (authError.message.includes("already registered")) {
+          toast({
+            title: "Erro no cadastro",
+            description: "Este email já está cadastrado. Por favor, faça login ou use outro email.",
+            variant: "destructive"
+          });
+        } else {
+          throw authError;
+        }
+        return;
       }
 
       console.log('Usuário criado na autenticação:', authData);
 
-      // Agora, criar o registro na tabela students
+      // Criar o registro na tabela students
       const { error: studentError } = await supabase
         .from('students')
         .insert([
