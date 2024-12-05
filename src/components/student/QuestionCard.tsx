@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionMetadata from "./question/QuestionMetadata";
 import QuestionOptions from "./question/QuestionOptions";
@@ -28,6 +30,7 @@ interface QuestionCardProps {
   questionNumber: number;
   totalQuestions: number;
   isUserBlocked?: boolean;
+  studentId?: string;
 }
 
 const QuestionCard = ({
@@ -37,10 +40,12 @@ const QuestionCard = ({
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
+  studentId,
 }: QuestionCardProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
+  const { toast } = useToast();
 
   // Reset states when question changes
   useEffect(() => {
@@ -71,9 +76,38 @@ const QuestionCard = ({
     );
   }
 
-  const handleAnswer = () => {
-    if (selectedAnswer) {
+  const handleAnswer = async () => {
+    if (selectedAnswer && studentId) {
       setHasAnswered(true);
+      
+      try {
+        console.log("Salvando resposta do usuário:", {
+          questionId: question.id,
+          selectedAnswer,
+          studentId
+        });
+        
+        const { error } = await supabase
+          .from('question_answers')
+          .upsert({
+            question_id: question.id,
+            selected_option: selectedAnswer,
+            student_id: studentId
+          }, {
+            onConflict: 'question_id,student_id'
+          });
+
+        if (error) {
+          console.error("Erro ao salvar resposta:", error);
+          toast({
+            title: "Erro ao salvar resposta",
+            description: "Não foi possível salvar sua resposta. Tente novamente.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao salvar resposta:", error);
+      }
     }
   };
 
@@ -109,6 +143,7 @@ const QuestionCard = ({
               hasAnswered={hasAnswered}
               correctAnswer={question.correctAnswer}
               onAnswerSelect={setSelectedAnswer}
+              questionId={question.id.toString()}
             />
 
             <NavigationButtons

@@ -1,5 +1,7 @@
-import { Check, X } from "lucide-react";
+import { Check, X, Users } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionOption {
   id: string;
@@ -12,6 +14,7 @@ interface QuestionOptionsProps {
   hasAnswered: boolean;
   correctAnswer: string;
   onAnswerSelect: (value: string) => void;
+  questionId: string;
 }
 
 const QuestionOptions = ({
@@ -20,7 +23,33 @@ const QuestionOptions = ({
   hasAnswered,
   correctAnswer,
   onAnswerSelect,
+  questionId,
 }: QuestionOptionsProps) => {
+  // Buscar contagem de respostas
+  const { data: answerCounts } = useQuery({
+    queryKey: ['answer-counts', questionId],
+    queryFn: async () => {
+      console.log("Buscando contagem de respostas para questão:", questionId);
+      const { data, error } = await supabase
+        .rpc('get_answer_counts', { question_id: questionId });
+      
+      if (error) {
+        console.error("Erro ao buscar contagem de respostas:", error);
+        return {};
+      }
+
+      // Converter array de resultados em um objeto para fácil acesso
+      const counts: Record<string, number> = {};
+      data?.forEach(item => {
+        counts[item.option_letter] = Number(item.count);
+      });
+      
+      console.log("Contagem de respostas:", counts);
+      return counts;
+    },
+    enabled: hasAnswered, // Só busca após o usuário responder
+  });
+
   return (
     <RadioGroup
       value={selectedAnswer}
@@ -48,14 +77,22 @@ const QuestionOptions = ({
           >
             {option.text}
           </label>
-          {hasAnswered && option.id === correctAnswer && (
-            <Check className="h-5 w-5 text-success dark:text-blue-400" />
+          {hasAnswered && (
+            <div className="flex items-center space-x-2">
+              {answerCounts && answerCounts[option.id] > 0 && (
+                <span className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <Users className="h-4 w-4 mr-1" />
+                  {answerCounts[option.id]}
+                </span>
+              )}
+              {option.id === correctAnswer && (
+                <Check className="h-5 w-5 text-success dark:text-blue-400" />
+              )}
+              {option.id === selectedAnswer && option.id !== correctAnswer && (
+                <X className="h-5 w-5 text-error dark:text-red-400" />
+              )}
+            </div>
           )}
-          {hasAnswered &&
-            option.id === selectedAnswer &&
-            option.id !== correctAnswer && (
-              <X className="h-5 w-5 text-error dark:text-red-400" />
-            )}
         </div>
       ))}
     </RadioGroup>
