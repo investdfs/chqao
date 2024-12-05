@@ -14,7 +14,7 @@ export const StatisticsCards = ({
 }: StatisticsCardsProps) => {
   const [totalStudents, setTotalStudents] = useState(initialTotalStudents);
   const [totalQuestions, setTotalQuestions] = useState(0);
-  const [onlineUsers, setOnlineUsers] = useState(0);
+  const [onlineUsers, setOnlineUsers] = useState(initialOnlineUsers);
 
   useEffect(() => {
     const fetchStatistics = async () => {
@@ -51,7 +51,7 @@ export const StatisticsCards = ({
 
     fetchStatistics();
 
-    // Set up real-time presence tracking
+    // Create a stable channel instance
     const channel = supabase.channel('online-users', {
       config: {
         presence: {
@@ -60,22 +60,26 @@ export const StatisticsCards = ({
       },
     });
 
-    channel
-      .on('presence', { event: 'sync' }, () => {
-        const presenceState = channel.presenceState();
-        console.log('Presence state updated:', presenceState);
-        
-        // Count unique users across all states
-        const uniqueUsers = new Set();
-        Object.values(presenceState).forEach(stateUsers => {
-          (stateUsers as any[]).forEach(user => {
-            uniqueUsers.add(user.user_id);
-          });
+    // Handle presence state changes
+    const handlePresenceSync = () => {
+      const presenceState = channel.presenceState();
+      console.log('Presence state updated:', presenceState);
+      
+      // Count unique users across all states
+      const uniqueUsers = new Set();
+      Object.values(presenceState).forEach(stateUsers => {
+        (stateUsers as any[]).forEach(user => {
+          uniqueUsers.add(user.user_id);
         });
-        
-        console.log('Online users count:', uniqueUsers.size);
-        setOnlineUsers(uniqueUsers.size);
-      })
+      });
+      
+      console.log('Online users count:', uniqueUsers.size);
+      setOnlineUsers(uniqueUsers.size);
+    };
+
+    // Subscribe to presence events
+    channel
+      .on('presence', { event: 'sync' }, handlePresenceSync)
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('User joined:', newPresences);
       })
@@ -84,9 +88,12 @@ export const StatisticsCards = ({
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
+          // Generate a stable user ID based on timestamp and random number
+          const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
           const status = await channel.track({
             online_at: new Date().toISOString(),
-            user_id: Math.random().toString(), // In a real app, use actual user ID
+            user_id: userId,
           });
           console.log('Presence tracking status:', status);
         }
@@ -97,7 +104,7 @@ export const StatisticsCards = ({
       console.log('Cleaning up presence channel...');
       channel.unsubscribe();
     };
-  }, []);
+  }, []); // Empty dependency array since we don't need to re-run this effect
 
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
