@@ -1,37 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { useAuthLogin } from "@/hooks/useAuthLogin";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
-  const { handleLogin, loading, isLoadingData } = useAuthLogin();
+  const { handleLogin, loading } = useAuthLogin();
 
   const handleSubmit = (email: string, password: string) => {
     handleLogin({ email, password }, isAdmin);
   };
-
-  if (isLoadingData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-secondary">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
