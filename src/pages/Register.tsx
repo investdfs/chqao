@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -20,50 +21,72 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (formData.password !== formData.confirmPassword) {
+    try {
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Erro no cadastro",
+          description: "As senhas não coincidem.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('Iniciando registro do estudante:', { email: formData.email, name: formData.name });
+
+      // Primeiro, criar o usuário na autenticação do Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+            type: 'student'
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('Erro ao criar usuário na autenticação:', authError);
+        throw authError;
+      }
+
+      console.log('Usuário criado na autenticação:', authData);
+
+      // Agora, criar o registro na tabela students
+      const { error: studentError } = await supabase
+        .from('students')
+        .insert([
+          {
+            email: formData.email,
+            name: formData.name,
+            password: formData.password,
+            status: 'active'
+          }
+        ]);
+
+      if (studentError) {
+        console.error('Erro ao criar registro na tabela students:', studentError);
+        throw studentError;
+      }
+
+      console.log('Registro criado com sucesso na tabela students');
+
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Você já pode fazer login na plataforma.",
+      });
+      
+      navigate("/login");
+    } catch (error: any) {
+      console.error('Erro durante o registro:', error);
       toast({
         title: "Erro no cadastro",
-        description: "As senhas não coincidem.",
+        description: error.message || "Ocorreu um erro ao criar sua conta. Tente novamente.",
         variant: "destructive"
       });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // Get existing students or initialize empty array
-    const existingStudents = JSON.parse(localStorage.getItem('students') || '[]');
-    
-    // Check if email already exists
-    if (existingStudents.some((student: any) => student.email === formData.email)) {
-      toast({
-        title: "Erro no cadastro",
-        description: "Este email já está cadastrado.",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Create new student object
-    const newStudent = {
-      id: Date.now(),
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      status: "active",
-      plan: "free"
-    };
-
-    // Add new student to existing students
-    const updatedStudents = [...existingStudents, newStudent];
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
-
-    setLoading(false);
-    toast({
-      title: "Conta criada com sucesso!",
-      description: "Você já pode fazer login na plataforma.",
-    });
-    navigate("/login");
   };
 
   return (
