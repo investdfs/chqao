@@ -32,13 +32,19 @@ const Register = () => {
       }
 
       // Primeiro, verificar se o usuário já existe
-      const { data: existingUser } = await supabase
+      const { data: existingUsers, error: queryError } = await supabase
         .from('students')
         .select('id')
-        .eq('email', formData.email)
-        .single();
+        .eq('email', formData.email);
 
-      if (existingUser) {
+      console.log('Verificando usuário existente:', { existingUsers, queryError });
+
+      if (queryError) {
+        console.error('Erro ao verificar usuário existente:', queryError);
+        throw queryError;
+      }
+
+      if (existingUsers && existingUsers.length > 0) {
         toast({
           title: "Erro no cadastro",
           description: "Este email já está cadastrado. Por favor, faça login ou use outro email.",
