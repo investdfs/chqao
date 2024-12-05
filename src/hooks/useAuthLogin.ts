@@ -73,6 +73,25 @@ export const useAuthLogin = () => {
         }
       }
 
+      // Primeiro, tenta criar o usuário
+      console.log("Tentando criar usuário no Supabase...");
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password: formData.password,
+        options: {
+          data: {
+            is_admin: isAdmin
+          }
+        }
+      });
+
+      // Se houver erro na criação que não seja de usuário já existente, lança o erro
+      if (signUpError && !signUpError.message.includes('User already registered')) {
+        console.error('Erro ao criar usuário:', signUpError);
+        throw signUpError;
+      }
+
+      // Agora tenta fazer login
       console.log("Tentando fazer login no Supabase...");
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: normalizedEmail,
@@ -80,38 +99,8 @@ export const useAuthLogin = () => {
       });
 
       if (signInError) {
-        console.log('Erro no login:', signInError);
-        
-        if (signInError.message.includes('Email not confirmed')) {
-          console.log("Email não confirmado, tentando criar usuário...");
-          const { error: signUpError } = await supabase.auth.signUp({
-            email: normalizedEmail,
-            password: formData.password,
-            options: {
-              data: {
-                is_admin: isAdmin
-              }
-            }
-          });
-
-          if (signUpError) {
-            console.error('Erro ao criar usuário:', signUpError);
-            throw new Error('Erro ao criar usuário');
-          }
-
-          console.log("Usuário criado, tentando login novamente...");
-          const { error: finalSignInError } = await supabase.auth.signInWithPassword({
-            email: normalizedEmail,
-            password: formData.password,
-          });
-
-          if (finalSignInError) {
-            console.error('Erro no login final:', finalSignInError);
-            throw new Error('Erro ao fazer login após criar usuário');
-          }
-        } else {
-          throw signInError;
-        }
+        console.error('Erro no login:', signInError);
+        throw signInError;
       }
 
       toast({
