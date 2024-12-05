@@ -81,22 +81,44 @@ const Login = () => {
         }
       }
 
-      // Criar sessão no Supabase
+      // Tentar fazer login primeiro
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: normalizedEmail,
         password: formData.password,
       });
 
       if (signInError) {
-        // Se o usuário não existe no auth, criar
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: normalizedEmail,
-          password: formData.password,
-        });
+        console.log('Erro no login:', signInError);
+        
+        // Se o erro for de email não confirmado, tentar criar o usuário
+        if (signInError.message.includes('Email not confirmed')) {
+          const { error: signUpError } = await supabase.auth.signUp({
+            email: normalizedEmail,
+            password: formData.password,
+            options: {
+              data: {
+                is_admin: isAdmin
+              }
+            }
+          });
 
-        if (signUpError) {
-          console.error('Erro ao criar usuário:', signUpError);
-          throw new Error('Erro ao criar usuário');
+          if (signUpError) {
+            console.error('Erro ao criar usuário:', signUpError);
+            throw new Error('Erro ao criar usuário');
+          }
+
+          // Tentar fazer login novamente após criar o usuário
+          const { error: finalSignInError } = await supabase.auth.signInWithPassword({
+            email: normalizedEmail,
+            password: formData.password,
+          });
+
+          if (finalSignInError) {
+            console.error('Erro no login final:', finalSignInError);
+            throw new Error('Erro ao fazer login após criar usuário');
+          }
+        } else {
+          throw signInError;
         }
       }
 
@@ -108,11 +130,11 @@ const Login = () => {
       navigate(isAdmin ? "/admin-dashboard" : "/student-dashboard", {
         state: { userStatus: user.status }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during login:', error);
       toast({
         title: "Erro ao fazer login",
-        description: "Por favor, tente novamente.",
+        description: error.message || "Por favor, tente novamente.",
         variant: "destructive"
       });
     } finally {
