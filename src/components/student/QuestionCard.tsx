@@ -81,7 +81,7 @@ const QuestionCard = ({
       setHasAnswered(true);
       
       try {
-        console.log("Salvando resposta do usuário:", {
+        console.log("Tentando salvar resposta:", {
           questionId: question.id,
           selectedAnswer,
           studentId
@@ -90,7 +90,7 @@ const QuestionCard = ({
         const { error } = await supabase
           .from('question_answers')
           .upsert({
-            question_id: question.id.toString(),
+            question_id: question.id,
             selected_option: selectedAnswer,
             student_id: studentId
           }, {
@@ -104,10 +104,22 @@ const QuestionCard = ({
             description: "Não foi possível salvar sua resposta. Tente novamente.",
             variant: "destructive",
           });
+        } else {
+          console.log("Resposta salva com sucesso!");
         }
       } catch (error) {
         console.error("Erro ao salvar resposta:", error);
+        toast({
+          title: "Erro ao salvar resposta",
+          description: "Ocorreu um erro inesperado. Tente novamente.",
+          variant: "destructive",
+        });
       }
+    } else {
+      console.log("Resposta não selecionada ou studentId não fornecido:", {
+        selectedAnswer,
+        studentId
+      });
     }
   };
 
