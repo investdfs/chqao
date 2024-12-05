@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionMetadata from "./question/QuestionMetadata";
 import QuestionOptions from "./question/QuestionOptions";
 import QuestionFeedback from "./question/QuestionFeedback";
 import NavigationButtons from "./question/NavigationButtons";
+import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
 interface QuestionOption {
   id: string;
@@ -42,15 +41,20 @@ const QuestionCard = ({
   isUserBlocked = false,
   studentId,
 }: QuestionCardProps) => {
-  const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [hasAnswered, setHasAnswered] = useState(false);
-  const [isFocusMode, setIsFocusMode] = useState(false);
-  const { toast } = useToast();
+  const {
+    selectedAnswer,
+    setSelectedAnswer,
+    hasAnswered,
+    handleAnswer,
+    handleReset
+  } = useQuestionAnswer({
+    questionId: question.id,
+    studentId
+  });
 
   // Reset states when question changes
   useEffect(() => {
-    setSelectedAnswer("");
-    setHasAnswered(false);
+    handleReset();
   }, [question.id]);
 
   if (isUserBlocked) {
@@ -76,63 +80,11 @@ const QuestionCard = ({
     );
   }
 
-  const handleAnswer = async () => {
-    if (selectedAnswer && studentId) {
-      setHasAnswered(true);
-      
-      try {
-        console.log("Tentando salvar resposta:", {
-          questionId: question.id,
-          selectedAnswer,
-          studentId
-        });
-        
-        const { error } = await supabase
-          .from('question_answers')
-          .upsert({
-            question_id: question.id,
-            selected_option: selectedAnswer,
-            student_id: studentId
-          }, {
-            onConflict: 'question_id,student_id'
-          });
-
-        if (error) {
-          console.error("Erro ao salvar resposta:", error);
-          toast({
-            title: "Erro ao salvar resposta",
-            description: "Não foi possível salvar sua resposta. Tente novamente.",
-            variant: "destructive",
-          });
-        } else {
-          console.log("Resposta salva com sucesso!");
-        }
-      } catch (error) {
-        console.error("Erro ao salvar resposta:", error);
-        toast({
-          title: "Erro ao salvar resposta",
-          description: "Ocorreu um erro inesperado. Tente novamente.",
-          variant: "destructive",
-        });
-      }
-    } else {
-      console.log("Resposta não selecionada ou studentId não fornecido:", {
-        selectedAnswer,
-        studentId
-      });
-    }
-  };
-
-  const handleReset = () => {
-    setSelectedAnswer("");
-    setHasAnswered(false);
-  };
-
   return (
     <div className="space-y-6">
       <QuestionHeader
-        isFocusMode={isFocusMode}
-        onFocusModeToggle={() => setIsFocusMode(!isFocusMode)}
+        isFocusMode={false}
+        onFocusModeToggle={() => {}}
       />
 
       <Card className="animate-fade-in dark:bg-gray-800">
