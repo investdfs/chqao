@@ -9,17 +9,32 @@ const QuestionPractice = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const { toast } = useToast();
 
+  // Buscar o ID do estudante da sessão
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      console.log("Buscando sessão do usuário...");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Erro ao buscar sessão:", error);
+        return null;
+      }
+      console.log("Sessão encontrada:", session);
+      return session;
+    },
+  });
+
   const { data: questions, isLoading, error } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
-      console.log("Fetching questions from Supabase...");
+      console.log("Buscando questões do Supabase...");
       const { data, error } = await supabase
         .from('questions')
         .select('*')
         .order('created_at', { ascending: true });
 
       if (error) {
-        console.error("Error fetching questions:", error);
+        console.error("Erro ao buscar questões:", error);
         toast({
           variant: "destructive",
           title: "Erro ao carregar questões",
@@ -28,7 +43,7 @@ const QuestionPractice = () => {
         throw error;
       }
 
-      console.log("Questions fetched successfully:", data?.length, "questions");
+      console.log("Questões buscadas com sucesso:", data?.length, "questões");
       return data || [];
     },
   });
@@ -44,6 +59,21 @@ const QuestionPractice = () => {
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">
+            Usuário não autenticado
+          </h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Faça login para acessar as questões
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -87,7 +117,7 @@ const QuestionPractice = () => {
 
   const currentQuestion = questions[currentQuestionIndex];
   const formattedQuestion = {
-    id: currentQuestionIndex + 1,
+    id: currentQuestion.id,
     text: currentQuestion.text,
     subject: currentQuestion.subject,
     topic: currentQuestion.topic || undefined,
@@ -111,6 +141,7 @@ const QuestionPractice = () => {
           onPreviousQuestion={handlePreviousQuestion}
           questionNumber={currentQuestionIndex + 1}
           totalQuestions={questions.length}
+          studentId={session.user.id}
         />
       </div>
     </div>

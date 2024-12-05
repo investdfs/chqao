@@ -15,7 +15,7 @@ interface QuestionOption {
 
 interface QuestionCardProps {
   question: {
-    id: number;
+    id: string;
     text: string;
     options: QuestionOption[];
     correctAnswer: string;
@@ -107,7 +107,7 @@ const QuestionCard = ({
               hasAnswered={hasAnswered}
               correctAnswer={question.correctAnswer}
               onAnswerSelect={setSelectedAnswer}
-              questionId={question.id.toString()}
+              questionId={question.id}
             />
 
             <NavigationButtons

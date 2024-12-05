@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 interface UseQuestionAnswerProps {
-  questionId: number;
+  questionId: string;
   studentId?: string;
 }
 
@@ -13,27 +13,34 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
   const { toast } = useToast();
 
   const handleAnswer = async () => {
-    if (!selectedAnswer || !studentId) {
-      console.log("Resposta não selecionada ou studentId não fornecido:", {
-        selectedAnswer,
-        studentId,
+    if (!selectedAnswer) {
+      console.log("Nenhuma resposta selecionada");
+      return;
+    }
+
+    if (!studentId) {
+      console.log("ID do estudante não fornecido");
+      toast({
+        title: "Erro ao salvar resposta",
+        description: "Você precisa estar logado para responder questões.",
+        variant: "destructive",
       });
       return;
     }
 
+    console.log("Tentando salvar resposta:", {
+      questionId,
+      selectedAnswer,
+      studentId,
+    });
+    
     setHasAnswered(true);
     
     try {
-      console.log("Tentando salvar resposta:", {
-        questionId,
-        selectedAnswer,
-        studentId,
-      });
-      
       const { error } = await supabase
         .from('question_answers')
         .upsert({
-          question_id: questionId.toString(), // Convertendo para string conforme exigido pelo Supabase
+          question_id: questionId,
           selected_option: selectedAnswer,
           student_id: studentId
         }, {
