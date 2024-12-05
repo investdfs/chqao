@@ -90,7 +90,7 @@ const QuestionCard = ({
         const { error } = await supabase
           .from('question_answers')
           .upsert({
-            question_id: question.id,
+            question_id: question.id.toString(),
             selected_option: selectedAnswer,
             student_id: studentId
           }, {
