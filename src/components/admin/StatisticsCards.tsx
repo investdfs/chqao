@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, BookOpen, Signal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface StatisticsCardsProps {
@@ -15,6 +15,7 @@ export const StatisticsCards = ({
   const [totalStudents, setTotalStudents] = useState(initialTotalStudents);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [onlineUsers, setOnlineUsers] = useState(initialOnlineUsers);
+  const channelRef = useRef<any>(null);
 
   useEffect(() => {
     const fetchStatistics = async () => {
@@ -51,58 +52,68 @@ export const StatisticsCards = ({
 
     fetchStatistics();
 
-    // Create a stable channel instance
-    const channel = supabase.channel('online-users', {
-      config: {
-        presence: {
-          key: 'user_presence',
+    // Initialize presence channel if not already created
+    if (!channelRef.current) {
+      console.log('Initializing presence channel...');
+      channelRef.current = supabase.channel('online-users', {
+        config: {
+          presence: {
+            key: 'user_presence',
+          },
         },
-      },
-    });
-
-    // Handle presence state changes
-    const handlePresenceSync = () => {
-      const presenceState = channel.presenceState();
-      console.log('Presence state updated:', presenceState);
-      
-      // Count unique users across all states
-      const uniqueUsers = new Set();
-      Object.values(presenceState).forEach(stateUsers => {
-        (stateUsers as any[]).forEach(user => {
-          uniqueUsers.add(user.user_id);
-        });
       });
-      
-      console.log('Online users count:', uniqueUsers.size);
-      setOnlineUsers(uniqueUsers.size);
-    };
 
-    // Subscribe to presence events
-    channel
-      .on('presence', { event: 'sync' }, handlePresenceSync)
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('User joined:', newPresences);
-      })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('User left:', leftPresences);
-      })
-      .subscribe(async (status) => {
+      // Set up presence handlers
+      channelRef.current
+        .on('presence', { event: 'sync' }, () => {
+          const presenceState = channelRef.current.presenceState();
+          console.log('Presence state updated:', presenceState);
+          
+          const uniqueUsers = new Set();
+          Object.values(presenceState).forEach(stateUsers => {
+            (stateUsers as any[]).forEach(user => {
+              uniqueUsers.add(user.user_id);
+            });
+          });
+          
+          console.log('Online users count:', uniqueUsers.size);
+          setOnlineUsers(uniqueUsers.size);
+        })
+        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+          console.log('User joined:', newPresences);
+        })
+        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+          console.log('User left:', leftPresences);
+        });
+
+      // Subscribe and track presence
+      channelRef.current.subscribe(async (status: string) => {
         if (status === 'SUBSCRIBED') {
-          // Generate a stable user ID based on timestamp and random number
+          console.log('Channel subscribed successfully');
           const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           
-          const status = await channel.track({
-            online_at: new Date().toISOString(),
-            user_id: userId,
-          });
-          console.log('Presence tracking status:', status);
+          try {
+            const status = await channelRef.current.track({
+              online_at: new Date().toISOString(),
+              user_id: userId,
+            });
+            console.log('Presence tracking status:', status);
+          } catch (error) {
+            console.error('Error tracking presence:', error);
+          }
+        } else {
+          console.log('Channel subscription status:', status);
         }
       });
+    }
 
-    // Cleanup
+    // Cleanup function
     return () => {
       console.log('Cleaning up presence channel...');
-      channel.unsubscribe();
+      if (channelRef.current) {
+        channelRef.current.unsubscribe();
+        channelRef.current = null;
+      }
     };
   }, []); // Empty dependency array since we don't need to re-run this effect
 
