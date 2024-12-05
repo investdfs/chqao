@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionStatsDialogProps {
@@ -64,11 +64,14 @@ export const QuestionStatsDialog = ({
                       <XAxis dataKey="option" />
                       <YAxis />
                       <Tooltip />
-                      <Bar
-                        dataKey="count"
-                        fill={(entry) => entry.isCorrect ? "#22c55e" : "#3b82f6"}
-                        name="Respostas"
-                      />
+                      <Bar dataKey="count" name="Respostas">
+                        {chartData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`}
+                            fill={entry.isCorrect ? "#22c55e" : "#3b82f6"}
+                          />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
