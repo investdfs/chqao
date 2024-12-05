@@ -20,6 +20,7 @@ const QuestionPractice = () => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
         console.error("Erro ao buscar sessão:", sessionError);
+        navigate("/login");
         return null;
       }
 
@@ -29,6 +30,8 @@ const QuestionPractice = () => {
         return null;
       }
 
+      console.log("Email do usuário logado:", session.user.email);
+
       const { data: student, error: studentError } = await supabase
         .from('students')
         .select('*')
@@ -37,12 +40,17 @@ const QuestionPractice = () => {
 
       if (studentError) {
         console.error("Erro ao buscar estudante:", studentError);
+        if (studentError.code === 'PGRST116') {
+          console.log("Estudante não encontrado para o email:", session.user.email);
+        }
+        navigate("/login");
         return null;
       }
 
       console.log("Dados do estudante encontrados:", student);
       return student;
     },
+    retry: false // Não tentar novamente em caso de erro
   });
 
   const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
@@ -67,6 +75,7 @@ const QuestionPractice = () => {
       console.log("Questões buscadas com sucesso:", data?.length, "questões");
       return data || [];
     },
+    enabled: !!studentData // Só buscar questões se tiver dados do estudante
   });
 
   const handleNextQuestion = () => {
