@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const Login = () => {
         throw new Error('Erro ao carregar dados dos usuários');
       }
 
+      // Primeiro, verificar se o usuário existe na planilha
       const user = sheetsData.users.find(
         (u: any) => 
           u.email === normalizedEmail && 
@@ -58,6 +60,44 @@ const Login = () => {
         });
         setLoading(false);
         return;
+      }
+
+      // Se não for admin, criar ou atualizar o registro na tabela students
+      if (!isAdmin) {
+        const { error: upsertError } = await supabase
+          .from('students')
+          .upsert({
+            email: normalizedEmail,
+            name: user.name || '',
+            password: formData.password,
+            status: user.status || 'active'
+          }, {
+            onConflict: 'email'
+          });
+
+        if (upsertError) {
+          console.error('Erro ao atualizar dados do estudante:', upsertError);
+          throw new Error('Erro ao atualizar dados do estudante');
+        }
+      }
+
+      // Criar sessão no Supabase
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: formData.password,
+      });
+
+      if (signInError) {
+        // Se o usuário não existe no auth, criar
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: formData.password,
+        });
+
+        if (signUpError) {
+          console.error('Erro ao criar usuário:', signUpError);
+          throw new Error('Erro ao criar usuário');
+        }
       }
 
       toast({
