@@ -78,13 +78,15 @@ export const UploadedPdfsList = ({ onSelectPdf }: Props) => {
 
       if (uploadError) throw uploadError;
 
+      // Removed the id from the insert since it's auto-generated
       const { error: pdfInsertError } = await supabase
         .from('uploaded_pdfs')
-        .insert([{
+        .insert({
           filename: file.name,
           file_path: filePath,
-          subject: selectedSubject
-        }]);
+          subject: selectedSubject,
+          times_used: 0 // Added default value
+        });
 
       if (pdfInsertError) throw pdfInsertError;
 

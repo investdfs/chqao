@@ -22,7 +22,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
-          name: string
+          name?: string
           password: string
           status?: Database["public"]["Enums"]["admin_status"] | null
         }
@@ -71,39 +71,41 @@ export type Database = {
       }
       question_answers: {
         Row: {
+          created_at: string
           id: string
           question_id: string
           selected_option: string
           student_id: string
-          created_at: string
         }
         Insert: {
+          created_at?: string
           id?: string
           question_id: string
           selected_option: string
           student_id: string
-          created_at?: string
         }
         Update: {
+          created_at?: string
           id?: string
           question_id?: string
           selected_option?: string
           student_id?: string
-          created_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "question_answers_question_id_fkey"
             columns: ["question_id"]
+            isOneToOne: false
             referencedRelation: "questions"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "question_answers_student_id_fkey"
             columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       questions: {
@@ -188,7 +190,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
-          name: string
+          name?: string
           password: string
           status?: Database["public"]["Enums"]["student_status"] | null
         }
@@ -241,7 +243,7 @@ export type Database = {
           description?: string | null
           file_path: string
           filename: string
-          id: string
+          id?: string
           subject?: string | null
           times_used?: number | null
         }
@@ -319,10 +321,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<
@@ -361,10 +363,10 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-      Update: infer U
-    }
-    ? U
-    : never
+        Update: infer U
+      }
+      ? U
+      : never
     : never
 
 export type Enums<
