@@ -10,6 +10,11 @@ interface QuestionFeedbackProps {
   explanation: string;
   onReset: () => void;
   questionId: string;
+  sessionStats?: {
+    correctAnswers: number;
+    totalAnswers: number;
+    answerDistribution: Record<string, number>;
+  };
 }
 
 const QuestionFeedback = ({
@@ -61,9 +66,6 @@ const QuestionFeedback = ({
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm">
             Gabarito comentado
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowStats(true)}>
-            Estatísticas
           </Button>
         </div>
       </div>
