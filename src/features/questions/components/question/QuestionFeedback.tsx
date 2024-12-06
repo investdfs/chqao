@@ -8,6 +8,11 @@ interface QuestionFeedbackProps {
   explanation: string;
   onReset: () => void;
   questionId: string;
+  sessionStats?: {
+    correctAnswers: number;
+    totalAnswers: number;
+    answerDistribution: Record<string, number>;
+  };
 }
 
 const QuestionFeedback = ({
