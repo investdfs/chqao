@@ -1,8 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuestionStats } from "@/hooks/useQuestionStats";
+import { StatsChart } from "./stats/StatsChart";
+import { StatsDetails } from "./stats/StatsDetails";
 
 interface QuestionStatsDialogProps {
   open: boolean;
@@ -17,29 +16,7 @@ export const QuestionStatsDialog = ({
   questionId,
   correctAnswer,
 }: QuestionStatsDialogProps) => {
-  const { data: answerCounts, isLoading } = useQuery({
-    queryKey: ["question-stats", questionId],
-    queryFn: async () => {
-      console.log("Buscando contagem de respostas para questão:", questionId);
-      const { data, error } = await supabase
-        .rpc("get_answer_counts", { question_id: questionId });
-
-      if (error) {
-        console.error("Erro ao buscar estatísticas:", error);
-        throw error;
-      }
-
-      console.log("Contagem de respostas:", data);
-      return data;
-    },
-  });
-
-  const totalAnswers = answerCounts?.reduce((sum, item) => sum + Number(item.count), 0) || 0;
-  const chartData = answerCounts?.map(item => ({
-    option: item.option_letter,
-    count: item.count,
-    isCorrect: item.option_letter === correctAnswer,
-  })) || [];
+  const { chartData, totalAnswers, isLoading } = useQuestionStats(questionId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -57,53 +34,16 @@ export const QuestionStatsDialog = ({
             <>
               <div className="space-y-4">
                 <h3 className="font-semibold text-primary">Distribuição de Respostas</h3>
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="option" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" name="Respostas">
-                        {chartData.map((entry, index) => (
-                          <Cell 
-                            key={`cell-${index}`}
-                            fill={entry.isCorrect ? "#22c55e" : "#3b82f6"}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                <StatsChart data={chartData} correctAnswer={correctAnswer} />
               </div>
 
               <div className="space-y-4">
                 <h3 className="font-semibold text-primary">Detalhes</h3>
-                {chartData.map((item) => (
-                  <div key={item.option} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        Alternativa {item.option}
-                        {item.isCorrect && (
-                          <span className="text-xs bg-success/20 text-success px-2 py-0.5 rounded-full">
-                            Correta
-                          </span>
-                        )}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {((item.count / totalAnswers) * 100).toFixed(1)}% ({item.count} respostas)
-                      </span>
-                    </div>
-                    <Progress
-                      value={(item.count / totalAnswers) * 100}
-                      className={item.isCorrect ? "bg-success/20" : ""}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 text-sm text-muted-foreground">
-                Total de respostas: {totalAnswers}
+                <StatsDetails 
+                  data={chartData}
+                  correctAnswer={correctAnswer}
+                  totalAnswers={totalAnswers}
+                />
               </div>
             </>
           )}
