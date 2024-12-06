@@ -1,8 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import QuestionCard from "@/components/student/QuestionCard";
-import { useQuestionPractice } from "@/hooks/useQuestionPractice";
+import { QuestionProvider, useQuestion } from "@/contexts/QuestionContext";
 
-const QuestionPractice = () => {
+const QuestionPracticeContent = () => {
   const {
     currentQuestionIndex,
     studentData,
@@ -11,8 +11,9 @@ const QuestionPractice = () => {
     isLoadingQuestions,
     error,
     handleNextQuestion,
-    handlePreviousQuestion
-  } = useQuestionPractice();
+    handlePreviousQuestion,
+    currentQuestion
+  } = useQuestion();
 
   if (isLoadingStudent) {
     return (
@@ -79,28 +80,13 @@ const QuestionPractice = () => {
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const formattedQuestion = {
-    id: currentQuestion.id,
-    text: currentQuestion.text,
-    subject: currentQuestion.subject,
-    topic: currentQuestion.topic || undefined,
-    options: [
-      { id: "A", text: currentQuestion.option_a },
-      { id: "B", text: currentQuestion.option_b },
-      { id: "C", text: currentQuestion.option_c },
-      { id: "D", text: currentQuestion.option_d },
-      { id: "E", text: currentQuestion.option_e },
-    ],
-    correctAnswer: currentQuestion.correct_answer,
-    explanation: currentQuestion.explanation || "",
-  };
+  if (!currentQuestion) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
       <div className="max-w-3xl mx-auto">
         <QuestionCard
-          question={formattedQuestion}
+          question={currentQuestion}
           onNextQuestion={handleNextQuestion}
           onPreviousQuestion={handlePreviousQuestion}
           questionNumber={currentQuestionIndex + 1}
@@ -110,6 +96,14 @@ const QuestionPractice = () => {
         />
       </div>
     </div>
+  );
+};
+
+const QuestionPractice = () => {
+  return (
+    <QuestionProvider>
+      <QuestionPracticeContent />
+    </QuestionProvider>
   );
 };
 

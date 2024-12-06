@@ -48,7 +48,6 @@ const QuestionCard = ({
     studentId
   });
 
-  // Reset states when question changes
   useEffect(() => {
     handleReset();
   }, [question.id]);
