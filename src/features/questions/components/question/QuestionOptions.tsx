@@ -57,7 +57,7 @@ const QuestionOptions = ({
     onAnswerSelect(value);
     if (isAutoAnswerEnabled && onAutoAnswer) {
       console.log("Auto-resposta ativada, respondendo automaticamente");
-      onAutoAnswer();
+      setTimeout(() => onAutoAnswer(), 100); // Pequeno delay para garantir que o estado foi atualizado
     }
   };
 
