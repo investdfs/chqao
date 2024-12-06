@@ -49,7 +49,7 @@ const NavigationButtons = memo(({
         variant="outline"
         onClick={onNext}
         disabled={questionNumber >= totalQuestions}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:bg-primary hover:text-white animate-pulse"
       >
         Próxima
         <ChevronRight className="h-4 w-4" />

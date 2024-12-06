@@ -1,8 +1,5 @@
-import { useState } from "react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuestionStatsDialog } from "./QuestionStatsDialog";
-import { SessionStatsDialog } from "../stats/SessionStatsDialog";
 
 interface QuestionFeedbackProps {
   isCorrect: boolean;
@@ -11,11 +8,6 @@ interface QuestionFeedbackProps {
   explanation: string;
   onReset: () => void;
   questionId: string;
-  sessionStats: {
-    correctAnswers: number;
-    totalAnswers: number;
-    answerDistribution: Record<string, number>;
-  };
 }
 
 const QuestionFeedback = ({
@@ -24,12 +16,7 @@ const QuestionFeedback = ({
   correctAnswer,
   explanation,
   onReset,
-  questionId,
-  sessionStats,
 }: QuestionFeedbackProps) => {
-  const [showQuestionStats, setShowQuestionStats] = useState(false);
-  const [showSessionStats, setShowSessionStats] = useState(false);
-
   return (
     <div className="space-y-4">
       <div
@@ -66,28 +53,7 @@ const QuestionFeedback = ({
         <Button variant="outline" size="sm" onClick={onReset}>
           Refazer
         </Button>
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={() => setShowQuestionStats(true)}>
-            Estatísticas da Questão
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowSessionStats(true)}>
-            Estatísticas da Sessão
-          </Button>
-        </div>
       </div>
-
-      <QuestionStatsDialog
-        open={showQuestionStats}
-        onOpenChange={setShowQuestionStats}
-        questionId={questionId}
-        correctAnswer={correctAnswer}
-      />
-
-      <SessionStatsDialog
-        open={showSessionStats}
-        onOpenChange={setShowSessionStats}
-        sessionStats={sessionStats}
-      />
     </div>
   );
 };

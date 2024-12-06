@@ -1,4 +1,4 @@
-import { useEffect, memo, useState } from "react";
+import { useEffect, memo } from "react";
 import QuestionHeader from "@/features/questions/components/question/QuestionHeader";
 import QuestionContent from "@/features/questions/components/question/QuestionContent";
 import BlockedUserCard from "@/features/questions/components/question/BlockedUserCard";
@@ -40,8 +40,6 @@ const QuestionCard = memo(({
   studentId
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
-  
-  const [isFocusMode, setIsFocusMode] = useState(false);
 
   const { selectedAnswer, setSelectedAnswer, hasAnswered, handleAnswer, handleReset } = useQuestionAnswer({
     questionId: question.id,
@@ -61,20 +59,13 @@ const QuestionCard = memo(({
     handleAnswer();
   };
 
-  const handleFocusModeToggle = () => {
-    setIsFocusMode(prev => !prev);
-  };
-
   if (isUserBlocked) {
     return <BlockedUserCard />;
   }
 
   return (
     <div className="space-y-6">
-      <QuestionHeader 
-        isFocusMode={isFocusMode}
-        onFocusModeToggle={handleFocusModeToggle}
-      />
+      <QuestionHeader />
       <QuestionContent
         question={question}
         selectedAnswer={selectedAnswer}
