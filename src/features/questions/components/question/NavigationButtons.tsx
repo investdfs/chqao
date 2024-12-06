@@ -1,11 +1,12 @@
 import { memo } from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, BarChart } from "lucide-react";
 
 interface NavigationButtonsProps {
   onPrevious: () => void;
   onNext: () => void;
   onAnswer: () => void;
+  onShowStats?: () => void;
   canAnswer: boolean;
   hasAnswered: boolean;
   questionNumber: number;
@@ -16,6 +17,7 @@ const NavigationButtons = memo(({
   onPrevious,
   onNext,
   onAnswer,
+  onShowStats,
   canAnswer,
   hasAnswered,
   questionNumber,
@@ -35,13 +37,22 @@ const NavigationButtons = memo(({
         Anterior
       </Button>
 
-      {!hasAnswered && (
+      {!hasAnswered ? (
         <Button
           onClick={onAnswer}
           disabled={!canAnswer}
           className="px-8"
         >
           Responder
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          onClick={onShowStats}
+          className="flex items-center gap-2"
+        >
+          <BarChart className="h-4 w-4" />
+          Estatísticas
         </Button>
       )}
 

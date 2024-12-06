@@ -1,10 +1,10 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "@/features/questions/components/question/QuestionMetadata";
 import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
 import NavigationButtons from "@/features/questions/components/question/NavigationButtons";
 import QuestionFeedback from "@/features/questions/components/question/QuestionFeedback";
-import { useSessionStats } from "@/features/questions/hooks/useSessionStats";
+import { SessionStatsDialog } from "@/features/questions/components/stats/SessionStatsDialog";
 
 interface SessionStats {
   correctAnswers: number;
@@ -49,6 +49,7 @@ const QuestionContent = memo(({
   sessionStats,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
+  const [showStats, setShowStats] = useState(false);
 
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
@@ -78,6 +79,7 @@ const QuestionContent = memo(({
             onPrevious={onPreviousQuestion}
             onNext={onNextQuestion}
             onAnswer={handleAnswer}
+            onShowStats={() => setShowStats(true)}
             canAnswer={!!selectedAnswer}
             hasAnswered={hasAnswered}
             questionNumber={questionNumber}
@@ -97,6 +99,14 @@ const QuestionContent = memo(({
           )}
         </div>
       </CardContent>
+
+      {sessionStats && (
+        <SessionStatsDialog
+          open={showStats}
+          onOpenChange={setShowStats}
+          sessionStats={sessionStats}
+        />
+      )}
     </Card>
   );
 });
