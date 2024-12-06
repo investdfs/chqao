@@ -25,6 +25,11 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
+  sessionStats: {
+    correctAnswers: number;
+    totalAnswers: number;
+    answerDistribution: Record<string, number>;
+  };
 }
 
 const QuestionContent = memo(({
@@ -38,6 +43,7 @@ const QuestionContent = memo(({
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
+  sessionStats,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
@@ -83,6 +89,7 @@ const QuestionContent = memo(({
               explanation={question.explanation}
               onReset={handleReset}
               questionId={question.id}
+              sessionStats={sessionStats}
             />
           )}
         </div>

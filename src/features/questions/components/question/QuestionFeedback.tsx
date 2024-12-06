@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuestionStatsDialog } from "@/features/questions/components/question/QuestionStatsDialog";
+import { QuestionStatsDialog } from "./QuestionStatsDialog";
+import { SessionStatsDialog } from "../stats/SessionStatsDialog";
 
 interface QuestionFeedbackProps {
   isCorrect: boolean;
@@ -10,6 +11,11 @@ interface QuestionFeedbackProps {
   explanation: string;
   onReset: () => void;
   questionId: string;
+  sessionStats: {
+    correctAnswers: number;
+    totalAnswers: number;
+    answerDistribution: Record<string, number>;
+  };
 }
 
 const QuestionFeedback = ({
@@ -19,8 +25,10 @@ const QuestionFeedback = ({
   explanation,
   onReset,
   questionId,
+  sessionStats,
 }: QuestionFeedbackProps) => {
-  const [showStats, setShowStats] = useState(false);
+  const [showQuestionStats, setShowQuestionStats] = useState(false);
+  const [showSessionStats, setShowSessionStats] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -59,20 +67,26 @@ const QuestionFeedback = ({
           Refazer
         </Button>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm">
-            Gabarito comentado
+          <Button variant="outline" size="sm" onClick={() => setShowQuestionStats(true)}>
+            Estatísticas da Questão
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowStats(true)}>
-            Estatísticas
+          <Button variant="outline" size="sm" onClick={() => setShowSessionStats(true)}>
+            Estatísticas da Sessão
           </Button>
         </div>
       </div>
 
       <QuestionStatsDialog
-        open={showStats}
-        onOpenChange={setShowStats}
+        open={showQuestionStats}
+        onOpenChange={setShowQuestionStats}
         questionId={questionId}
         correctAnswer={correctAnswer}
+      />
+
+      <SessionStatsDialog
+        open={showSessionStats}
+        onOpenChange={setShowSessionStats}
+        sessionStats={sessionStats}
       />
     </div>
   );
