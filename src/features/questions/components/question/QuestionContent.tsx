@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import QuestionMetadata from "./QuestionMetadata";
-import QuestionOptions from "./QuestionOptions";
-import NavigationButtons from "./NavigationButtons";
-import QuestionFeedback from "./QuestionFeedback";
+import QuestionMetadata from "@/features/questions/components/question/QuestionMetadata";
+import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
+import NavigationButtons from "@/features/questions/components/question/NavigationButtons";
+import QuestionFeedback from "@/features/questions/components/question/QuestionFeedback";
 
 interface QuestionContentProps {
   question: {

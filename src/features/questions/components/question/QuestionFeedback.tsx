@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuestionStatsDialog } from "./QuestionStatsDialog";
+import { QuestionStatsDialog } from "@/features/questions/components/question/QuestionStatsDialog";
 
 interface QuestionFeedbackProps {
   isCorrect: boolean;

@@ -1,7 +1,7 @@
 import { useEffect, memo } from "react";
-import QuestionHeader from "./question/QuestionHeader";
-import QuestionContent from "./question/QuestionContent";
-import BlockedUserCard from "./question/BlockedUserCard";
+import QuestionHeader from "@/features/questions/components/question/QuestionHeader";
+import QuestionContent from "@/features/questions/components/question/QuestionContent";
+import BlockedUserCard from "@/features/questions/components/question/BlockedUserCard";
 import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
 
 interface QuestionOption {
