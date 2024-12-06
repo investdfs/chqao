@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import QuestionCard from "@/components/student/QuestionCard";
-import { QuestionProvider, useQuestion } from "@/contexts/QuestionContext";
+import QuestionCard from "@/features/questions/components/QuestionCard";
+import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
 
 const QuestionPracticeContent = () => {
   const {
