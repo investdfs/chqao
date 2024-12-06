@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, X, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuestionStatsDialog } from "./QuestionStatsDialog";
+import { SessionStatsDialog } from "@/features/questions/components/stats/SessionStatsDialog";
 
 interface QuestionFeedbackProps {
   isCorrect: boolean;
@@ -24,6 +24,11 @@ const QuestionFeedback = ({
   explanation,
   onReset,
   questionId,
+  sessionStats = {
+    correctAnswers: 0,
+    totalAnswers: 0,
+    answerDistribution: {},
+  },
 }: QuestionFeedbackProps) => {
   const [showStats, setShowStats] = useState(false);
 
@@ -71,11 +76,10 @@ const QuestionFeedback = ({
         </div>
       </div>
 
-      <QuestionStatsDialog
+      <SessionStatsDialog
         open={showStats}
         onOpenChange={setShowStats}
-        questionId={questionId}
-        correctAnswer={correctAnswer}
+        sessionStats={sessionStats}
       />
     </div>
   );

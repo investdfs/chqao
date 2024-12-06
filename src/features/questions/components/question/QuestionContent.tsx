@@ -4,6 +4,7 @@ import QuestionMetadata from "@/features/questions/components/question/QuestionM
 import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
 import NavigationButtons from "@/features/questions/components/question/NavigationButtons";
 import QuestionFeedback from "@/features/questions/components/question/QuestionFeedback";
+import { useSessionStats } from "@/features/questions/hooks/useSessionStats";
 
 interface QuestionContentProps {
   question: {
@@ -25,11 +26,6 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
-  sessionStats: {
-    correctAnswers: number;
-    totalAnswers: number;
-    answerDistribution: Record<string, number>;
-  };
 }
 
 const QuestionContent = memo(({
@@ -43,9 +39,10 @@ const QuestionContent = memo(({
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
-  sessionStats,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
+
+  const { sessionStats } = useSessionStats();
 
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
