@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -11,7 +12,7 @@ interface NavigationButtonsProps {
   totalQuestions: number;
 }
 
-const NavigationButtons = ({
+const NavigationButtons = memo(({
   onPrevious,
   onNext,
   onAnswer,
@@ -20,6 +21,8 @@ const NavigationButtons = ({
   questionNumber,
   totalQuestions,
 }: NavigationButtonsProps) => {
+  console.log("Renderizando NavigationButtons, questionNumber:", questionNumber);
+
   return (
     <div className="flex justify-between items-center mt-4">
       <Button
@@ -53,6 +56,8 @@ const NavigationButtons = ({
       </Button>
     </div>
   );
-};
+});
+
+NavigationButtons.displayName = 'NavigationButtons';
 
 export default NavigationButtons;

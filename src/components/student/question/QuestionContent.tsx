@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
 import QuestionOptions from "./QuestionOptions";
@@ -26,7 +27,7 @@ interface QuestionContentProps {
   totalQuestions: number;
 }
 
-const QuestionContent = ({
+const QuestionContent = memo(({
   question,
   selectedAnswer,
   setSelectedAnswer,
@@ -38,6 +39,8 @@ const QuestionContent = ({
   questionNumber,
   totalQuestions,
 }: QuestionContentProps) => {
+  console.log("Renderizando QuestionContent para questão:", question.id);
+
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
@@ -86,6 +89,8 @@ const QuestionContent = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+QuestionContent.displayName = 'QuestionContent';
 
 export default QuestionContent;

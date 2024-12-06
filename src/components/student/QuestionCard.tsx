@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, memo } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
@@ -28,7 +28,7 @@ interface QuestionCardProps {
   studentId?: string;
 }
 
-const QuestionCard = ({
+const QuestionCard = memo(({
   question,
   onNextQuestion,
   onPreviousQuestion,
@@ -37,6 +37,8 @@ const QuestionCard = ({
   isUserBlocked = false,
   studentId,
 }: QuestionCardProps) => {
+  console.log("Renderizando QuestionCard para questão:", question.id);
+
   const {
     selectedAnswer,
     setSelectedAnswer,
@@ -49,6 +51,7 @@ const QuestionCard = ({
   });
 
   useEffect(() => {
+    console.log("Question ID mudou, resetando estado");
     handleReset();
   }, [question.id]);
 
@@ -76,6 +79,8 @@ const QuestionCard = ({
       />
     </div>
   );
-};
+});
+
+QuestionCard.displayName = 'QuestionCard';
 
 export default QuestionCard;
