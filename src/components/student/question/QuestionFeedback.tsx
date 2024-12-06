@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuestionStatsDialog } from "./QuestionStatsDialog";
 
@@ -64,8 +64,9 @@ const QuestionFeedback = ({
           Refazer
         </Button>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm">
-            Gabarito comentado
+          <Button variant="outline" size="sm" onClick={() => setShowStats(true)}>
+            <BarChart className="h-4 w-4 mr-2" />
+            Estatísticas
           </Button>
         </div>
       </div>
