@@ -4,28 +4,104 @@ import { Card } from "@/components/ui/card";
 import { PerformanceMetrics } from "@/components/student/PerformanceMetrics";
 import { SubjectProgress } from "@/components/student/SubjectProgress";
 import { StudyGuide } from "@/components/student/StudyGuide";
-import { BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut, RotateCcw } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const userStatus = location.state?.userStatus || "active";
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const performanceData = {
-    correctAnswers: 3,
-    totalQuestions: 4,
-    studyTime: "5m 12s",
-    averageTime: "1m 18s",
+  // Fetch student data
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        navigate('/login');
+        return null;
+      }
+      return session;
+    },
+  });
+
+  // Fetch student performance data
+  const { data: performanceData } = useQuery({
+    queryKey: ['studentPerformance', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await supabase
+        .rpc('get_student_performance', {
+          student_id_param: session.user.id
+        });
+
+      if (error) {
+        console.error('Error fetching performance:', error);
+        return null;
+      }
+
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const handleResetProgress = async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .rpc('reset_student_progress', {
+          student_id_param: session.user.id
+        });
+
+      if (error) throw error;
+
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries({ queryKey: ['studentPerformance'] });
+
+      toast({
+        title: "Progresso resetado com sucesso",
+        description: "Todas as suas estatísticas foram zeradas.",
+      });
+    } catch (error) {
+      console.error('Error resetting progress:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao resetar progresso",
+        description: "Tente novamente mais tarde.",
+      });
+    }
   };
 
-  const subjectsProgress = [
-    { name: "Biologia", questionsAnswered: 3, correctAnswers: 2 },
-    { name: "Português", questionsAnswered: 1, correctAnswers: 1 },
-  ];
+  // Transform performance data for SubjectProgress component
+  const subjectsProgress = performanceData?.map(subject => ({
+    name: subject.subject,
+    questionsAnswered: Number(subject.questions_answered),
+    correctAnswers: Number(subject.correct_answers),
+  })) || [];
 
   const studyGuideData = {
-    weakPoints: ["Genética", "Ecologia"],
-    strongPoints: ["Evolução", "População"],
+    weakPoints: subjectsProgress
+      .filter(subject => (subject.correctAnswers / subject.questionsAnswered) < 0.7)
+      .map(subject => subject.name),
+    strongPoints: subjectsProgress
+      .filter(subject => (subject.correctAnswers / subject.questionsAnswered) >= 0.7)
+      .map(subject => subject.name),
   };
 
   return (
@@ -35,14 +111,45 @@ const StudentDashboard = () => {
           <h1 className="text-xl sm:text-2xl font-bold gradient-text">
             CHQAO - Estude Praticando
           </h1>
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")} 
-            className="w-full sm:w-auto hover:bg-primary-light/50 flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Sair
-          </Button>
+          <div className="flex items-center gap-4">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Zerar Estatísticas
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Zerar todas as estatísticas?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. Todo seu progresso será apagado
+                    e você começará do zero.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleResetProgress}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    APAGAR DADOS
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/")} 
+              className="hover:bg-primary-light/50 flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Sair
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -69,7 +176,14 @@ const StudentDashboard = () => {
         </Card>
 
         <div className="space-y-8">
-          <PerformanceMetrics {...performanceData} />
+          {performanceData && performanceData.length > 0 && (
+            <PerformanceMetrics
+              correctAnswers={performanceData.reduce((sum, subject) => sum + Number(subject.correct_answers), 0)}
+              totalQuestions={performanceData.reduce((sum, subject) => sum + Number(subject.questions_answered), 0)}
+              studyTime="--"
+              averageTime="--"
+            />
+          )}
           
           <div className="grid lg:grid-cols-2 gap-8">
             <SubjectProgress subjects={subjectsProgress} />

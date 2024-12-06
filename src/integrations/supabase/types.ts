@@ -281,9 +281,25 @@ export type Database = {
           count: number
         }[]
       }
+      get_student_performance: {
+        Args: {
+          student_id_param: string
+        }
+        Returns: {
+          subject: string
+          questions_answered: number
+          correct_answers: number
+        }[]
+      }
       increment_pdf_usage: {
         Args: {
           pdf_path: string
+        }
+        Returns: undefined
+      }
+      reset_student_progress: {
+        Args: {
+          student_id_param: string
         }
         Returns: undefined
       }
