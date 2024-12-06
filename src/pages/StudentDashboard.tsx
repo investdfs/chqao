@@ -104,6 +104,10 @@ const StudentDashboard = () => {
       .map(subject => subject.name),
   };
 
+  // Calculate total statistics
+  const totalCorrectAnswers = subjectsProgress.reduce((sum, subject) => sum + subject.correctAnswers, 0);
+  const totalQuestionsAnswered = subjectsProgress.reduce((sum, subject) => sum + subject.questionsAnswered, 0);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-white">
       <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
@@ -176,14 +180,12 @@ const StudentDashboard = () => {
         </Card>
 
         <div className="space-y-8">
-          {performanceData && performanceData.length > 0 && (
-            <PerformanceMetrics
-              correctAnswers={performanceData.reduce((sum, subject) => sum + Number(subject.correct_answers), 0)}
-              totalQuestions={performanceData.reduce((sum, subject) => sum + Number(subject.questions_answered), 0)}
-              studyTime="--"
-              averageTime="--"
-            />
-          )}
+          <PerformanceMetrics
+            correctAnswers={totalCorrectAnswers}
+            totalQuestions={totalQuestionsAnswered}
+            studyTime="--"
+            averageTime="--"
+          />
           
           <div className="grid lg:grid-cols-2 gap-8">
             <SubjectProgress subjects={subjectsProgress} />

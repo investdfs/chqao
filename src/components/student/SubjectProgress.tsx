@@ -17,26 +17,32 @@ export const SubjectProgress = ({ subjects }: SubjectProgressProps) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {subjects.map((subject) => {
-            const percentage = (subject.correctAnswers / subject.questionsAnswered) * 100 || 0;
-            return (
-              <div key={subject.name} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{subject.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {subject.correctAnswers}/{subject.questionsAnswered} questões
-                  </span>
+          {subjects.length > 0 ? (
+            subjects.map((subject) => {
+              const percentage = (subject.correctAnswers / subject.questionsAnswered) * 100 || 0;
+              return (
+                <div key={subject.name} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{subject.name}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {subject.correctAnswers}/{subject.questionsAnswered} questões
+                    </span>
+                  </div>
+                  <Progress 
+                    value={percentage} 
+                    className="h-2 transition-all duration-300"
+                  />
+                  <p className="text-xs text-muted-foreground text-right">
+                    {percentage.toFixed(0)}% de aproveitamento
+                  </p>
                 </div>
-                <Progress 
-                  value={percentage} 
-                  className="h-2 transition-all duration-300"
-                />
-                <p className="text-xs text-muted-foreground text-right">
-                  {percentage.toFixed(0)}% de aproveitamento
-                </p>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div className="text-center text-muted-foreground py-4">
+              Nenhuma questão respondida ainda
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
