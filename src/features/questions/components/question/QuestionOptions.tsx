@@ -2,6 +2,7 @@ import { Check, X, Users } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAutoAnswer } from "@/features/questions/hooks/useAutoAnswer";
 
 interface QuestionOption {
   id: string;
@@ -15,6 +16,7 @@ interface QuestionOptionsProps {
   correctAnswer: string;
   onAnswerSelect: (value: string) => void;
   questionId: string;
+  onAutoAnswer?: () => void;
 }
 
 const QuestionOptions = ({
@@ -24,7 +26,10 @@ const QuestionOptions = ({
   correctAnswer,
   onAnswerSelect,
   questionId,
+  onAutoAnswer,
 }: QuestionOptionsProps) => {
+  const { isAutoAnswerEnabled } = useAutoAnswer();
+  
   const { data: answerCounts } = useQuery({
     queryKey: ['answer-counts', questionId],
     queryFn: async () => {
@@ -48,10 +53,18 @@ const QuestionOptions = ({
     enabled: hasAnswered,
   });
 
+  const handleOptionSelect = (value: string) => {
+    onAnswerSelect(value);
+    if (isAutoAnswerEnabled && onAutoAnswer) {
+      console.log("Auto-resposta ativada, respondendo automaticamente");
+      onAutoAnswer();
+    }
+  };
+
   return (
     <RadioGroup
       value={selectedAnswer}
-      onValueChange={onAnswerSelect}
+      onValueChange={handleOptionSelect}
       disabled={hasAnswered}
       className="space-y-3"
     >
