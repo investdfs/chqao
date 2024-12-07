@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
+import { Calendar, Check } from "lucide-react";
 
 interface StudyConsistencyProps {
   consecutiveDays: number;
@@ -22,12 +22,20 @@ export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistenc
         </p>
         <div className="flex gap-1 overflow-x-auto pb-2">
           {studyDays.map((day, index) => (
-            <div
-              key={index}
-              className={`w-6 h-6 rounded-sm flex-shrink-0 ${
-                day.studied ? 'bg-success/20' : 'bg-error/20'
-              }`}
-            />
+            <div key={index} className="flex flex-col items-center">
+              <span className="text-xs text-gray-500 mb-1">
+                {new Date(day.date).getDate()}
+              </span>
+              <div
+                className={`w-6 h-6 rounded-sm flex-shrink-0 flex items-center justify-center relative ${
+                  day.studied ? 'bg-success/20' : 'bg-error/20'
+                }`}
+              >
+                {day.studied && (
+                  <Check className="w-4 h-4 text-success" />
+                )}
+              </div>
+            </div>
           ))}
         </div>
       </CardContent>
