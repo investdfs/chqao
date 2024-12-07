@@ -1,9 +1,10 @@
 import { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
-import QuestionOptions from "./QuestionOptions";
+import EnhancedQuestionOptions from "./EnhancedQuestionOptions";
 import NavigationButtons from "./NavigationButtons";
 import QuestionFeedback from "./QuestionFeedback";
+import ThemeSelector from "@/components/theme/ThemeSelector";
 
 interface QuestionContentProps {
   question: {
@@ -44,6 +45,9 @@ const QuestionContent = memo(({
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
+        <div className="flex justify-end mb-4">
+          <ThemeSelector />
+        </div>
         <div className="space-y-6">
           <QuestionMetadata
             id={question.id}
@@ -56,7 +60,7 @@ const QuestionContent = memo(({
             {question.text}
           </div>
 
-          <QuestionOptions
+          <EnhancedQuestionOptions
             options={question.options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}
