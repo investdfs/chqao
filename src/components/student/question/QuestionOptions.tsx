@@ -2,6 +2,7 @@ import { Check, X, Users } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAutoAnswer } from "@/features/questions/hooks/useAutoAnswer";
 
 interface QuestionOption {
   id: string;
@@ -15,6 +16,7 @@ interface QuestionOptionsProps {
   correctAnswer: string;
   onAnswerSelect: (value: string) => void;
   questionId: string;
+  onAutoAnswer?: () => void;
 }
 
 const QuestionOptions = ({
@@ -24,8 +26,10 @@ const QuestionOptions = ({
   correctAnswer,
   onAnswerSelect,
   questionId,
+  onAutoAnswer,
 }: QuestionOptionsProps) => {
-  // Buscar contagem de respostas
+  const { isAutoAnswerEnabled } = useAutoAnswer();
+  
   const { data: answerCounts } = useQuery({
     queryKey: ['answer-counts', questionId],
     queryFn: async () => {
@@ -38,7 +42,6 @@ const QuestionOptions = ({
         return {};
       }
 
-      // Converter array de resultados em um objeto para fácil acesso
       const counts: Record<string, number> = {};
       data?.forEach(item => {
         counts[item.option_letter] = Number(item.count);
@@ -47,13 +50,23 @@ const QuestionOptions = ({
       console.log("Contagem de respostas:", counts);
       return counts;
     },
-    enabled: hasAnswered, // Só busca após o usuário responder
+    enabled: hasAnswered,
   });
+
+  const handleOptionSelect = (value: string) => {
+    onAnswerSelect(value);
+    if (isAutoAnswerEnabled && onAutoAnswer) {
+      console.log("Auto-resposta ativada, respondendo automaticamente");
+      setTimeout(() => {
+        onAutoAnswer();
+      }, 0);
+    }
+  };
 
   return (
     <RadioGroup
       value={selectedAnswer}
-      onValueChange={onAnswerSelect}
+      onValueChange={handleOptionSelect}
       disabled={hasAnswered}
       className="space-y-3"
     >

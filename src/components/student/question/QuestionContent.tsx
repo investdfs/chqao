@@ -63,6 +63,7 @@ const QuestionContent = memo(({
             correctAnswer={question.correctAnswer}
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
+            onAutoAnswer={handleAnswer}
           />
 
           <NavigationButtons
