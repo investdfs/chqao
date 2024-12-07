@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
       admins: {
@@ -16,7 +16,7 @@ export type Database = {
           id: string
           name: string
           password: string
-          status: Database["public"]["Enums"]["admin_status"] | null
+          status: "active" | "blocked" | null
         }
         Insert: {
           created_at?: string
@@ -24,7 +24,7 @@ export type Database = {
           id?: string
           name?: string
           password: string
-          status?: Database["public"]["Enums"]["admin_status"] | null
+          status?: "active" | "blocked" | null
         }
         Update: {
           created_at?: string
@@ -32,9 +32,8 @@ export type Database = {
           id?: string
           name?: string
           password?: string
-          status?: Database["public"]["Enums"]["admin_status"] | null
+          status?: "active" | "blocked" | null
         }
-        Relationships: []
       }
       ai_question_generations: {
         Row: {
@@ -45,7 +44,7 @@ export type Database = {
           generated_questions: Json | null
           id: string
           metadata: Json | null
-          status: Database["public"]["Enums"]["ai_generation_status"] | null
+          status: "pending" | "processing" | "completed" | "failed" | null
         }
         Insert: {
           completed_at?: string | null
@@ -55,7 +54,7 @@ export type Database = {
           generated_questions?: Json | null
           id?: string
           metadata?: Json | null
-          status?: Database["public"]["Enums"]["ai_generation_status"] | null
+          status?: "pending" | "processing" | "completed" | "failed" | null
         }
         Update: {
           completed_at?: string | null
@@ -65,9 +64,8 @@ export type Database = {
           generated_questions?: Json | null
           id?: string
           metadata?: Json | null
-          status?: Database["public"]["Enums"]["ai_generation_status"] | null
+          status?: "pending" | "processing" | "completed" | "failed" | null
         }
-        Relationships: []
       }
       question_answers: {
         Row: {
@@ -112,7 +110,7 @@ export type Database = {
         Row: {
           correct_answer: string
           created_at: string
-          difficulty: Database["public"]["Enums"]["question_difficulty"] | null
+          difficulty: "Fácil" | "Médio" | "Difícil" | null
           exam_name: string | null
           exam_year: number | null
           explanation: string | null
@@ -134,7 +132,7 @@ export type Database = {
         Insert: {
           correct_answer: string
           created_at?: string
-          difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          difficulty?: "Fácil" | "Médio" | "Difícil" | null
           exam_name?: string | null
           exam_year?: number | null
           explanation?: string | null
@@ -156,7 +154,7 @@ export type Database = {
         Update: {
           correct_answer?: string
           created_at?: string
-          difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          difficulty?: "Fácil" | "Médio" | "Difícil" | null
           exam_name?: string | null
           exam_year?: number | null
           explanation?: string | null
@@ -184,15 +182,15 @@ export type Database = {
           id: string
           name: string
           password: string
-          status: Database["public"]["Enums"]["student_status"] | null
+          status: "active" | "blocked" | null
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
-          name?: string
+          name: string
           password: string
-          status?: Database["public"]["Enums"]["student_status"] | null
+          status?: "active" | "blocked" | null
         }
         Update: {
           created_at?: string
@@ -200,7 +198,7 @@ export type Database = {
           id?: string
           name?: string
           password?: string
-          status?: Database["public"]["Enums"]["student_status"] | null
+          status?: "active" | "blocked" | null
         }
         Relationships: []
       }
@@ -264,75 +262,61 @@ export type Database = {
     }
     Functions: {
       get_answer_counts: {
-        Args: {
-          question_id: string
-        }
-        Returns: {
+        Args: { question_id: string }
+        Returns: Array<{
           option_letter: string
           count: number
-        }[]
+        }>
       }
       get_questions_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: {
+        Args: Record<string, never>
+        Returns: Array<{
           subject: string
           theme: string
           topic: string
           count: number
-        }[]
+        }>
       }
       get_student_performance: {
-        Args: {
-          student_id_param: string
-        }
-        Returns: {
+        Args: { student_id_param: string }
+        Returns: Array<{
           subject: string
           questions_answered: number
           correct_answers: number
-        }[]
+        }>
       }
       get_study_stats: {
-        Args: {
-          student_id_param: string
-        }
-        Returns: {
-          total_study_time: unknown
+        Args: { student_id_param: string }
+        Returns: Array<{
+          total_study_time: string
           consecutive_study_days: number
           weekly_study_hours: number
           weekly_questions_target: number
           weekly_questions_completed: number
-        }[]
+        }>
       }
       get_syllabus_progress: {
-        Args: {
-          student_id_param: string
-        }
-        Returns: {
+        Args: { student_id_param: string }
+        Returns: Array<{
           completed_topics: number
           pending_topics: number
           progress_percentage: number
-        }[]
+        }>
       }
       get_weekly_study_data: {
-        Args: {
-          student_id_param: string
-        }
-        Returns: {
+        Args: { student_id_param: string }
+        Returns: Array<{
           study_day: string
           question_count: number
-          study_time: unknown
-        }[]
+          study_time: string
+        }>
       }
       increment_pdf_usage: {
-        Args: {
-          pdf_path: string
-        }
+        Args: { pdf_path: string }
         Returns: undefined
       }
       reset_student_progress: {
-        Args: {
-          student_id_param: string
-        }
+        Args: { student_id_param: string }
         Returns: undefined
       }
     }
@@ -347,100 +331,3 @@ export type Database = {
     }
   }
 }
-
-type PublicSchema = Database[Extract<keyof Database, "public">]
-
-export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
-
-export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
-  }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never

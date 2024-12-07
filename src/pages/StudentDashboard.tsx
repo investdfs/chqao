@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { StudyTimeCard } from "@/components/student/dashboard/StudyTimeCard";
 import { PerformanceCard } from "@/components/student/dashboard/PerformanceCard";
 import { SyllabusProgressCard } from "@/components/student/dashboard/SyllabusProgressCard";
@@ -7,16 +11,13 @@ import { StudyConsistency } from "@/components/student/dashboard/StudyConsistenc
 import { SubjectsPanel } from "@/components/student/dashboard/SubjectsPanel";
 import { WeeklyGoals } from "@/components/student/dashboard/WeeklyGoals";
 import { WeeklyStudyChart } from "@/components/student/dashboard/WeeklyStudyChart";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useStudentStats } from "@/components/student/dashboard/hooks/useStudentStats";
+import { useStudentPerformance } from "@/components/student/dashboard/hooks/useStudentPerformance";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Fetch session data
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -29,107 +30,8 @@ const StudentDashboard = () => {
     },
   });
 
-  // Fetch study statistics
-  const { data: studyStats } = useQuery({
-    queryKey: ['studyStats', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return null;
-      
-      const { data, error } = await supabase
-        .rpc('get_study_stats', {
-          student_id_param: session.user.id
-        });
-
-      if (error) {
-        console.error('Error fetching study stats:', error);
-        toast({
-          variant: "destructive",
-          title: "Erro ao carregar estatísticas",
-          description: "Não foi possível carregar suas estatísticas de estudo.",
-        });
-        return null;
-      }
-
-      return data[0];
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  // Fetch syllabus progress
-  const { data: syllabusProgress } = useQuery({
-    queryKey: ['syllabusProgress', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return null;
-      
-      const { data, error } = await supabase
-        .rpc('get_syllabus_progress', {
-          student_id_param: session.user.id
-        });
-
-      if (error) {
-        console.error('Error fetching syllabus progress:', error);
-        return null;
-      }
-
-      return data[0];
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  // Fetch weekly study data
-  const { data: weeklyStudyData } = useQuery({
-    queryKey: ['weeklyStudyData', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return null;
-      
-      const { data, error } = await supabase
-        .rpc('get_weekly_study_data', {
-          student_id_param: session.user.id
-        });
-
-      if (error) {
-        console.error('Error fetching weekly study data:', error);
-        return null;
-      }
-
-      return data;
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  // Fetch performance data
-  const { data: performanceData } = useQuery({
-    queryKey: ['studentPerformance', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return null;
-      
-      const { data, error } = await supabase
-        .rpc('get_student_performance', {
-          student_id_param: session.user.id
-        });
-
-      if (error) {
-        console.error('Error fetching performance:', error);
-        return null;
-      }
-
-      return data;
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  const subjects = performanceData?.map(subject => ({
-    name: subject.subject,
-    studyTime: "10h06min", // This should come from the backend
-    correctAnswers: Number(subject.correct_answers),
-    incorrectAnswers: Number(subject.questions_answered - subject.correct_answers),
-    totalQuestions: Number(subject.questions_answered),
-    performance: (Number(subject.correct_answers) / Number(subject.questions_answered)) * 100 || 0,
-  })) || [];
-
-  const totalCorrect = subjects.reduce((sum, subject) => sum + subject.correctAnswers, 0);
-  const totalQuestions = subjects.reduce((sum, subject) => sum + subject.totalQuestions, 0);
-  const performancePercentage = (totalCorrect / totalQuestions) * 100 || 0;
+  const { studyStats, syllabusProgress, weeklyStudyData } = useStudentStats(session?.user?.id);
+  const { subjects, totalCorrect, totalQuestions, performancePercentage } = useStudentPerformance(session?.user?.id);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-white">
@@ -168,7 +70,7 @@ const StudentDashboard = () => {
           consecutiveDays={studyStats?.consecutive_study_days || 0}
           studyDays={Array.from({ length: 30 }, (_, i) => ({
             date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-            studied: Math.random() > 0.3, // This should come from the backend
+            studied: Math.random() > 0.3,
           }))}
         />
 
@@ -191,7 +93,7 @@ const StudentDashboard = () => {
               data={weeklyStudyData?.map(day => ({
                 day: day.study_day,
                 questions: Number(day.question_count),
-                time: Number(day.study_time) / 3600, // Convert seconds to hours
+                time: Number(day.study_time),
               })) || []}
             />
           </div>
