@@ -18,46 +18,25 @@ interface StudyConsistencyChartProps {
 }
 
 export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps) => {
-  // Process data for the chart
+  // Process data for the chart - all days start as not studied
   const chartData = Array.from({ length: 31 }, (_, i) => {
     const day = i + 1;
-    const studied = studyDays.some(
-      d => new Date(d.date).getDate() === day && d.studied
-    );
     
-    // Calculate cumulative counts up to this day
-    const cumulativeStudied = studyDays.filter(
-      d => new Date(d.date).getDate() <= day && d.studied
-    ).length;
-    
-    const cumulativeNotStudied = studyDays.filter(
-      d => new Date(d.date).getDate() <= day && !d.studied
-    ).length;
-
     return {
       day: day.toString(),
-      diasEstudados: cumulativeStudied,
-      diasNaoEstudados: cumulativeNotStudied,
-      porcentagemEstudada: ((cumulativeStudied / (cumulativeStudied + cumulativeNotStudied)) * 100 || 0).toFixed(1)
+      diasEstudados: 0,
+      diasNaoEstudados: day, // Incrementa conforme os dias passam
+      porcentagemEstudada: "0.0"
     };
   });
 
-  // Calculate overall performance metrics
+  // Calculate overall performance metrics - inicialmente zero
   const totalDays = studyDays.length;
-  const studiedDays = studyDays.filter(day => day.studied).length;
-  const studyPercentage = (studiedDays / totalDays) * 100;
-  const isGoodPerformance = studyPercentage >= 70;
+  const studiedDays = 0;
+  const studyPercentage = 0;
 
   const getFeedbackMessage = () => {
-    if (totalDays === 0) {
-      return "Você ainda não começou seus estudos este mês. Que tal começar agora? Estabeleça uma rotina diária de estudos e pratique com questões regularmente.";
-    }
-
-    if (isGoodPerformance) {
-      return `Parabéns pelo seu comprometimento! Você estudou em ${studiedDays} dos ${totalDays} dias registrados (${studyPercentage.toFixed(1)}%). Continue mantendo essa consistência e lembre-se de revisar as questões que errou para fortalecer seu aprendizado.`;
-    }
-
-    return `Atenção! Você estudou em apenas ${studiedDays} dos ${totalDays} dias registrados (${studyPercentage.toFixed(1)}%). Para melhorar seu desempenho, tente estabelecer uma rotina diária de estudos, mesmo que por um curto período. Não se esqueça de revisar as questões que errou, pois elas são oportunidades valiosas de aprendizado.`;
+    return "Você ainda não começou seus estudos este mês. Que tal começar agora? Estabeleça uma rotina diária de estudos e pratique com questões regularmente. Lembre-se de que a consistência é a chave para o sucesso nos estudos. Comece hoje mesmo a resolver questões e acompanhe seu progresso diário.";
   };
 
   return (

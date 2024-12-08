@@ -33,13 +33,9 @@ export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistenc
   const allDays = Array.from({ length: 31 }, (_, i) => {
     const currentDate = new Date();
     currentDate.setDate(i + 1);
-    // Only mark as studied if we have a matching study day record
-    const matchingStudyDay = studyDays.find(day => 
-      new Date(day.date).getDate() === (i + 1)
-    );
     return {
       date: currentDate.toISOString(),
-      studied: matchingStudyDay ? matchingStudyDay.studied : false
+      studied: false // Always set to false by default
     };
   });
 
@@ -71,7 +67,7 @@ export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistenc
               <DialogHeader>
                 <DialogTitle>Análise de Estudos do Mês</DialogTitle>
               </DialogHeader>
-              <StudyConsistencyChart studyDays={studyDays} />
+              <StudyConsistencyChart studyDays={allDays} />
             </DialogContent>
           </Dialog>
         </div>
