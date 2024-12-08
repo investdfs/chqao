@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 interface StudyConsistencyChartProps {
   studyDays: Array<{
@@ -36,8 +37,24 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
   const studyPercentage = 0;
 
   const getFeedbackMessage = () => {
-    return "Você ainda não começou seus estudos este mês. Que tal começar agora? Estabeleça uma rotina diária de estudos e pratique com questões regularmente. Lembre-se de que a consistência é a chave para o sucesso nos estudos. Comece hoje mesmo a resolver questões e acompanhe seu progresso diário.";
+    if (studyPercentage >= 70) {
+      return {
+        icon: <CheckCircle2 className="h-6 w-6 text-success" />,
+        title: "Excelente Progresso!",
+        message: `Parabéns pelo seu comprometimento! Você estudou em ${studiedDays} dos ${totalDays} dias registrados (${studyPercentage.toFixed(1)}%). Continue mantendo essa consistência e lembre-se de revisar as questões que errou para fortalecer seu aprendizado.`
+      };
+    }
+
+    return {
+      icon: <AlertTriangle className="h-6 w-6 text-warning" />,
+      title: "Atenção!",
+      message: totalDays === 0 
+        ? "Você ainda não começou seus estudos este mês. Que tal começar agora? Estabeleça uma rotina diária de estudos e pratique com questões regularmente. Lembre-se de que a consistência é a chave para o sucesso nos estudos. Comece hoje mesmo a resolver questões e acompanhe seu progresso diário."
+        : `Você estudou em apenas ${studiedDays} dos ${totalDays} dias registrados (${studyPercentage.toFixed(1)}%). Para melhorar seu desempenho, tente estabelecer uma rotina diária de estudos, mesmo que por um curto período. Não se esqueça de revisar as questões que errou, pois elas são oportunidades valiosas de aprendizado.`
+    };
   };
+
+  const feedback = getFeedbackMessage();
 
   return (
     <Card className="p-4 space-y-6">
@@ -92,8 +109,14 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
-        {getFeedbackMessage()}
+      <div className="bg-muted/50 p-6 rounded-lg space-y-3">
+        <div className="flex items-center gap-3">
+          {feedback.icon}
+          <h3 className="font-semibold text-lg">{feedback.title}</h3>
+        </div>
+        <p className="text-muted-foreground leading-relaxed">
+          {feedback.message}
+        </p>
       </div>
     </Card>
   );
