@@ -23,17 +23,19 @@ export const SubjectsPanel = () => {
           <div className="space-y-6">
             {subjectGroups?.map((group, groupIndex) => (
               <div key={groupIndex} className="space-y-2">
-                <div className="flex items-center justify-between text-sm font-semibold border-b pb-1">
-                  <span>{group.name}</span>
-                  <span>{group.totalQuestions}</span>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold">{group.name}</span>
+                  <span className="font-medium text-muted-foreground">
+                    {group.totalQuestions} questões
+                  </span>
                 </div>
-                <div className="space-y-2 pl-4">
+                <div className="space-y-1.5 pl-4">
                   {group.subjects.map((subject, subjectIndex) => (
                     <div
                       key={subjectIndex}
                       className="flex items-center justify-between text-sm text-muted-foreground"
                     >
-                      <span>{subject.subject}</span>
+                      <span className="truncate pr-4">{subject.subject}</span>
                       <span className="font-medium">{subject.questionCount}</span>
                     </div>
                   ))}

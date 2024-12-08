@@ -3,13 +3,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 type SubjectStats = {
   subject: string;
-  questionCount: number;
+  theme: string | null;
+  topic: string | null;
+  count: number;
 };
 
 type SubjectGroup = {
   name: string;
   totalQuestions: number;
-  subjects: SubjectStats[];
+  subjects: {
+    subject: string;
+    questionCount: number;
+  }[];
 };
 
 export const useSubjectsStats = () => {
@@ -17,14 +22,15 @@ export const useSubjectsStats = () => {
     queryKey: ["subjects-stats"],
     queryFn: async () => {
       console.log("Fetching subjects statistics...");
-      const { data: questions, error } = await supabase
-        .from("questions")
-        .select("subject");
+      const { data: stats, error } = await supabase
+        .rpc('get_questions_stats');
 
       if (error) {
         console.error("Error fetching subjects stats:", error);
         throw error;
       }
+
+      console.log("Raw stats data:", stats);
 
       // Predefined subject structure
       const subjectGroups: SubjectGroup[] = [
@@ -64,19 +70,19 @@ export const useSubjectsStats = () => {
         },
       ];
 
-      // Count questions for each subject
-      questions?.forEach((question) => {
+      // Update question counts from database stats
+      stats?.forEach((stat: SubjectStats) => {
         for (const group of subjectGroups) {
-          const subject = group.subjects.find(s => s.subject === question.subject);
+          const subject = group.subjects.find(s => s.subject === stat.subject);
           if (subject) {
-            subject.questionCount++;
-            group.totalQuestions++;
+            subject.questionCount = Number(stat.count);
+            group.totalQuestions += Number(stat.count);
             break;
           }
         }
       });
 
-      console.log("Subject statistics processed:", subjectGroups);
+      console.log("Processed subject groups:", subjectGroups);
       return subjectGroups;
     },
   });
