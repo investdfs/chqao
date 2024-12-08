@@ -29,15 +29,17 @@ interface StudyConsistencyProps {
 export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistencyProps) => {
   const [selectedRange, setSelectedRange] = useState<string>("all");
   
-  // Generate array of all days 1-31
+  // Generate array of all days 1-31 with default "not studied" status
   const allDays = Array.from({ length: 31 }, (_, i) => {
     const currentDate = new Date();
     currentDate.setDate(i + 1);
+    // Only mark as studied if we have a matching study day record
+    const matchingStudyDay = studyDays.find(day => 
+      new Date(day.date).getDate() === (i + 1)
+    );
     return {
       date: currentDate.toISOString(),
-      studied: studyDays.some(day => 
-        new Date(day.date).getDate() === (i + 1) && day.studied
-      )
+      studied: matchingStudyDay ? matchingStudyDay.studied : false
     };
   });
 
