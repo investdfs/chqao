@@ -1,18 +1,16 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionFiltersProps {
   selectedSubject: string;
   selectedTopic: string;
   onSubjectChange: (value: string) => void;
   onTopicChange: (value: string) => void;
-  subjects: Array<{
-    id: string; // Mudamos de number para string
-    name: string;
-    topics: string[];
-  }>;
   onFocusMode: () => void;
   isFocusMode: boolean;
   questionCount: number;
@@ -23,12 +21,19 @@ interface QuestionFiltersProps {
   onPrioritizeErrorsChange: (checked: boolean) => void;
 }
 
+interface SubjectNode {
+  id: string;
+  name: string;
+  level: number;
+  parent_id: string | null;
+  has_children: boolean;
+}
+
 const QuestionFilters = ({
   selectedSubject,
   selectedTopic,
   onSubjectChange,
   onTopicChange,
-  subjects,
   onFocusMode,
   isFocusMode,
   questionCount,
@@ -38,15 +43,64 @@ const QuestionFilters = ({
   prioritizeErrors,
   onPrioritizeErrorsChange,
 }: QuestionFiltersProps) => {
+  const [selectedTheme, setSelectedTheme] = useState<string>("");
+
+  // Fetch hierarchical structure
+  const { data: subjectStructure } = useQuery({
+    queryKey: ['subject-hierarchy'],
+    queryFn: async () => {
+      console.log("Fetching subject hierarchy...");
+      const { data, error } = await supabase.rpc('get_subject_hierarchy');
+      
+      if (error) {
+        console.error("Error fetching subject hierarchy:", error);
+        throw error;
+      }
+      
+      console.log("Subject hierarchy data:", data);
+      return data as SubjectNode[];
+    }
+  });
+
+  // Filter subjects (level 1)
+  const subjects = subjectStructure?.filter(node => node.level === 1) || [];
+  
+  // Filter themes (level 2) based on selected subject
+  const themes = subjectStructure?.filter(node => {
+    const parentNode = subjectStructure.find(s => s.name === selectedSubject);
+    return node.level === 2 && node.parent_id === parentNode?.id;
+  }) || [];
+  
+  // Filter topics (level 3) based on selected theme
+  const topics = subjectStructure?.filter(node => {
+    const parentNode = subjectStructure.find(s => s.name === selectedTheme);
+    return node.level === 3 && node.parent_id === parentNode?.id;
+  }) || [];
+
+  // Reset child selections when parent changes
+  useEffect(() => {
+    if (selectedSubject === "") {
+      setSelectedTheme("");
+      onTopicChange("");
+    }
+  }, [selectedSubject, onTopicChange]);
+
+  useEffect(() => {
+    if (selectedTheme === "") {
+      onTopicChange("");
+    }
+  }, [selectedTheme, onTopicChange]);
+
   return (
     <div className="flex flex-col gap-4 bg-white dark:bg-gray-800 p-4 border-b dark:border-gray-700">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full lg:w-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full lg:w-auto">
           <Select value={selectedSubject} onValueChange={onSubjectChange}>
             <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Escolha uma matéria" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">Todas as matérias</SelectItem>
               {subjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.name}>
                   {subject.name}
@@ -55,22 +109,39 @@ const QuestionFilters = ({
             </SelectContent>
           </Select>
 
+          <Select 
+            value={selectedTheme} 
+            onValueChange={setSelectedTheme}
+            disabled={!selectedSubject}
+          >
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Escolha um tema" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Todos os temas</SelectItem>
+              {themes.map((theme) => (
+                <SelectItem key={theme.id} value={theme.name}>
+                  {theme.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select
             value={selectedTopic}
             onValueChange={onTopicChange}
-            disabled={!selectedSubject}
+            disabled={!selectedTheme}
           >
             <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Escolha um tópico" />
             </SelectTrigger>
             <SelectContent>
-              {subjects
-                .find((s) => s.name === selectedSubject)
-                ?.topics.map((topic) => (
-                  <SelectItem key={topic} value={topic}>
-                    {topic}
-                  </SelectItem>
-                ))}
+              <SelectItem value="">Todos os tópicos</SelectItem>
+              {topics.map((topic) => (
+                <SelectItem key={topic.id} value={topic.name}>
+                  {topic.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 

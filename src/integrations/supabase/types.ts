@@ -207,26 +207,46 @@ export type Database = {
       subject_structure: {
         Row: {
           created_at: string | null
+          display_order: number | null
           id: string
+          level: number
+          name: string
+          parent_id: string | null
           subject: string
           theme: string
           topic: string
         }
         Insert: {
           created_at?: string | null
+          display_order?: number | null
           id?: string
+          level?: number
+          name: string
+          parent_id?: string | null
           subject: string
           theme: string
           topic: string
         }
         Update: {
           created_at?: string | null
+          display_order?: number | null
           id?: string
+          level?: number
+          name?: string
+          parent_id?: string | null
           subject?: string
           theme?: string
           topic?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subject_structure_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "subject_structure"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       uploaded_pdfs: {
         Row: {
@@ -303,6 +323,17 @@ export type Database = {
           weekly_questions_completed: number
         }[]
       }
+      get_subject_hierarchy: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          level: number
+          parent_id: string
+          display_order: number
+          has_children: boolean
+        }[]
+      }
       get_syllabus_progress: {
         Args: {
           student_id_param: string
@@ -328,6 +359,15 @@ export type Database = {
           pdf_path: string
         }
         Returns: undefined
+      }
+      insert_subject_content: {
+        Args: {
+          p_name: string
+          p_level: number
+          p_parent_id?: string
+          p_display_order?: number
+        }
+        Returns: string
       }
       reset_student_progress: {
         Args: {
