@@ -11,12 +11,12 @@ import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import QuestionPractice from "./pages/QuestionPractice";
 import TestDashboard from "./pages/TestDashboard";
+import PreviousExams from "./pages/PreviousExams";
 
-// Configuração do React Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutos
+      staleTime: 5 * 60 * 1000,
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -38,6 +38,7 @@ const App: React.FC = () => {
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/question-practice" element={<QuestionPractice />} />
             <Route path="/test-dashboard" element={<TestDashboard />} />
+            <Route path="/previous-exams" element={<PreviousExams />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
