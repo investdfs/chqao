@@ -42,8 +42,26 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
     };
   });
 
+  // Calculate overall performance metrics
+  const totalDays = studyDays.length;
+  const studiedDays = studyDays.filter(day => day.studied).length;
+  const studyPercentage = (studiedDays / totalDays) * 100;
+  const isGoodPerformance = studyPercentage >= 70;
+
+  const getFeedbackMessage = () => {
+    if (totalDays === 0) {
+      return "Você ainda não começou seus estudos este mês. Que tal começar agora? Estabeleça uma rotina diária de estudos e pratique com questões regularmente.";
+    }
+
+    if (isGoodPerformance) {
+      return `Parabéns pelo seu comprometimento! Você estudou em ${studiedDays} dos ${totalDays} dias registrados (${studyPercentage.toFixed(1)}%). Continue mantendo essa consistência e lembre-se de revisar as questões que errou para fortalecer seu aprendizado.`;
+    }
+
+    return `Atenção! Você estudou em apenas ${studiedDays} dos ${totalDays} dias registrados (${studyPercentage.toFixed(1)}%). Para melhorar seu desempenho, tente estabelecer uma rotina diária de estudos, mesmo que por um curto período. Não se esqueça de revisar as questões que errou, pois elas são oportunidades valiosas de aprendizado.`;
+  };
+
   return (
-    <Card className="p-4">
+    <Card className="p-4 space-y-6">
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
@@ -94,6 +112,9 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
             />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+      <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
+        {getFeedbackMessage()}
       </div>
     </Card>
   );
