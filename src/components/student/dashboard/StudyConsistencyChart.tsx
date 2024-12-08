@@ -109,14 +109,16 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="bg-muted/50 p-6 rounded-lg space-y-3">
-        <div className="flex items-center gap-3">
+      <div className="bg-primary-light/30 p-6 rounded-xl shadow-sm space-y-3">
+        <div className="flex items-center gap-3 bg-white/80 p-3 rounded-lg">
           {feedback.icon}
-          <h3 className="font-semibold text-lg">{feedback.title}</h3>
+          <h3 className="font-semibold text-lg text-primary-dark">{feedback.title}</h3>
         </div>
-        <p className="text-muted-foreground leading-relaxed">
-          {feedback.message}
-        </p>
+        <div className="bg-white/80 p-4 rounded-lg">
+          <p className="text-sm text-gray-700 leading-relaxed text-justify">
+            {feedback.message}
+          </p>
+        </div>
       </div>
     </Card>
   );
