@@ -31,7 +31,7 @@ const StudentDashboard = () => {
   });
 
   const { studyStats, syllabusProgress, weeklyStudyData } = useStudentStats(session?.user?.id);
-  const { subjects, totalCorrect, totalQuestions, performancePercentage } = useStudentPerformance(session?.user?.id);
+  const { totalCorrect, totalQuestions, performancePercentage } = useStudentPerformance(session?.user?.id);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-white">
@@ -75,7 +75,7 @@ const StudentDashboard = () => {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <SubjectsPanel subjects={subjects} />
+          <SubjectsPanel />
           <div className="space-y-4">
             <WeeklyGoals
               studyHours={{
