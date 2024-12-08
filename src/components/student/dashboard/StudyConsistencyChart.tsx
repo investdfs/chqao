@@ -39,14 +39,14 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
   const getFeedbackMessage = () => {
     if (studyPercentage >= 70) {
       return {
-        icon: <CheckCircle2 className="h-6 w-6 text-success" />,
+        icon: <CheckCircle2 className="h-5 w-5 text-success animate-fade-in" />,
         title: "Excelente Progresso!",
         message: `Parabéns pelo seu comprometimento! Você estudou em ${studiedDays} dos ${totalDays} dias registrados (${studyPercentage.toFixed(1)}%). Continue mantendo essa consistência e lembre-se de revisar as questões que errou para fortalecer seu aprendizado.`
       };
     }
 
     return {
-      icon: <AlertTriangle className="h-6 w-6 text-warning" />,
+      icon: <AlertTriangle className="h-5 w-5 text-warning animate-pulse" />,
       title: "Atenção!",
       message: totalDays === 0 
         ? "Você ainda não começou seus estudos este mês. Que tal começar agora? Estabeleça uma rotina diária de estudos e pratique com questões regularmente. Lembre-se de que a consistência é a chave para o sucesso nos estudos. Comece hoje mesmo a resolver questões e acompanhe seu progresso diário."
@@ -57,7 +57,7 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
   const feedback = getFeedbackMessage();
 
   return (
-    <Card className="p-4 space-y-6">
+    <Card className="p-3 space-y-4">
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
@@ -109,16 +109,14 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="bg-primary-light/30 p-6 rounded-xl shadow-sm space-y-3">
-        <div className="flex items-center gap-3 bg-white/80 p-3 rounded-lg">
+      <div className="animate-fade-up">
+        <div className="flex items-center gap-2 mb-1.5">
           {feedback.icon}
-          <h3 className="font-semibold text-lg text-primary-dark">{feedback.title}</h3>
+          <h3 className="font-semibold text-sm text-primary-dark">{feedback.title}</h3>
         </div>
-        <div className="bg-white/80 p-4 rounded-lg">
-          <p className="text-sm text-gray-700 leading-relaxed text-justify">
-            {feedback.message}
-          </p>
-        </div>
+        <p className="text-xs text-gray-600 leading-relaxed text-justify pl-7">
+          {feedback.message}
+        </p>
       </div>
     </Card>
   );
