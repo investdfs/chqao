@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Signal } from "lucide-react";
+import { Users, BookOpen, Signal, FileText } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,6 +15,7 @@ export const StatisticsCards = ({
   const [totalStudents, setTotalStudents] = useState(initialTotalStudents);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [onlineUsers, setOnlineUsers] = useState(initialOnlineUsers);
+  const [previousExams, setPreviousExams] = useState({ total: 0, questions: 0 });
   const channelRef = useRef<any>(null);
 
   useEffect(() => {
@@ -44,6 +45,22 @@ export const StatisticsCards = ({
         } else {
           console.log('Total questions:', questionsCount);
           setTotalQuestions(questionsCount || 0);
+        }
+
+        // Fetch previous exams statistics
+        const { data: examQuestions, error: examError } = await supabase
+          .from('questions')
+          .select('exam_year', { count: 'exact' })
+          .eq('is_from_previous_exam', true);
+
+        if (examError) {
+          console.error('Error fetching exam questions:', examError);
+        } else {
+          const uniqueYears = new Set(examQuestions?.map(q => q.exam_year));
+          setPreviousExams({
+            total: uniqueYears.size,
+            questions: examQuestions?.length || 0
+          });
         }
       } catch (error) {
         console.error('Error fetching statistics:', error);
@@ -115,46 +132,59 @@ export const StatisticsCards = ({
         channelRef.current = null;
       }
     };
-  }, []); // Empty dependency array since we don't need to re-run this effect
+  }, []);
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-4 gap-4">
       <Card className="shadow-md hover:shadow-lg transition-shadow">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary">
-            <Users className="h-5 w-5" />
+        <CardHeader className="p-4">
+          <CardTitle className="flex items-center gap-2 text-primary text-sm">
+            <Users className="h-4 w-4" />
             Total de Alunos
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold text-primary">{totalStudents}</div>
-          <p className="text-gray-600">Alunos cadastrados</p>
+        <CardContent className="p-4 pt-0">
+          <div className="text-2xl font-bold text-primary">{totalStudents}</div>
+          <p className="text-xs text-gray-600">Alunos cadastrados</p>
         </CardContent>
       </Card>
 
       <Card className="shadow-md hover:shadow-lg transition-shadow">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary">
-            <BookOpen className="h-5 w-5" />
+        <CardHeader className="p-4">
+          <CardTitle className="flex items-center gap-2 text-primary text-sm">
+            <BookOpen className="h-4 w-4" />
             Questões
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold text-primary">{totalQuestions}</div>
-          <p className="text-gray-600">Questões cadastradas</p>
+        <CardContent className="p-4 pt-0">
+          <div className="text-2xl font-bold text-primary">{totalQuestions}</div>
+          <p className="text-xs text-gray-600">Questões cadastradas</p>
         </CardContent>
       </Card>
 
       <Card className="shadow-md hover:shadow-lg transition-shadow">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary">
-            <Signal className="h-5 w-5" />
+        <CardHeader className="p-4">
+          <CardTitle className="flex items-center gap-2 text-primary text-sm">
+            <FileText className="h-4 w-4" />
+            Provas Anteriores
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <div className="text-2xl font-bold text-primary">{previousExams.total}</div>
+          <p className="text-xs text-gray-600">{previousExams.questions} questões</p>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-md hover:shadow-lg transition-shadow">
+        <CardHeader className="p-4">
+          <CardTitle className="flex items-center gap-2 text-primary text-sm">
+            <Signal className="h-4 w-4" />
             Usuários Online
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold text-primary">{onlineUsers}</div>
-          <p className="text-gray-600">Atualmente ativos</p>
+        <CardContent className="p-4 pt-0">
+          <div className="text-2xl font-bold text-primary">{onlineUsers}</div>
+          <p className="text-xs text-gray-600">Atualmente ativos</p>
         </CardContent>
       </Card>
     </div>
