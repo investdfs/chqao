@@ -4,7 +4,7 @@ import { useSubjectsStats } from "./hooks/useSubjectsStats";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const SubjectsPanel = () => {
-  const { data: subjectsStats, isLoading } = useSubjectsStats();
+  const { data: subjectGroups, isLoading } = useSubjectsStats();
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
@@ -20,18 +20,24 @@ export const SubjectsPanel = () => {
             <Skeleton className="h-4 w-full" />
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-[2fr,1fr] gap-4 text-sm font-medium text-muted-foreground">
-              <div>Matéria</div>
-              <div className="text-right">Questões</div>
-            </div>
-            {subjectsStats?.map((subject, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-[2fr,1fr] gap-4 text-sm items-center"
-              >
-                <div>{subject.subject}</div>
-                <div className="text-right font-medium">{subject.questionCount}</div>
+          <div className="space-y-6">
+            {subjectGroups?.map((group, groupIndex) => (
+              <div key={groupIndex} className="space-y-2">
+                <div className="flex items-center justify-between text-sm font-semibold border-b pb-1">
+                  <span>{group.name}</span>
+                  <span>{group.totalQuestions}</span>
+                </div>
+                <div className="space-y-2 pl-4">
+                  {group.subjects.map((subject, subjectIndex) => (
+                    <div
+                      key={subjectIndex}
+                      className="flex items-center justify-between text-sm text-muted-foreground"
+                    >
+                      <span>{subject.subject}</span>
+                      <span className="font-medium">{subject.questionCount}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
