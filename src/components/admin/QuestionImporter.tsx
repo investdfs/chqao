@@ -5,6 +5,8 @@ import { QuestionsDialog } from "./questions/QuestionsDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useQuestionImporter } from "./questions/hooks/useQuestionImporter";
+import { InsertQuestionsButton } from "./questions/InsertQuestionsButton";
+import { InsertPreviousExamQuestionsButton } from "./questions/InsertPreviousExamQuestionsButton";
 
 export const QuestionImporter = () => {
   const {
@@ -42,6 +44,11 @@ export const QuestionImporter = () => {
         }}
         onShowResetDialog={() => setShowResetDialog(true)}
       />
+
+      <div className="flex items-center justify-start gap-4">
+        <InsertQuestionsButton />
+        <InsertPreviousExamQuestionsButton />
+      </div>
 
       <QuestionsDialog
         open={showQuestions}
