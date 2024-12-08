@@ -1,13 +1,13 @@
-import { BarChart as BarChartIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend
 } from "recharts";
 
 interface StudyConsistencyChartProps {
@@ -24,9 +24,21 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
     const studied = studyDays.some(
       d => new Date(d.date).getDate() === day && d.studied
     );
+    
+    // Calculate cumulative counts up to this day
+    const cumulativeStudied = studyDays.filter(
+      d => new Date(d.date).getDate() <= day && d.studied
+    ).length;
+    
+    const cumulativeNotStudied = studyDays.filter(
+      d => new Date(d.date).getDate() <= day && !d.studied
+    ).length;
+
     return {
       day: day.toString(),
-      questionsCompleted: studied ? 1 : 0,
+      diasEstudados: cumulativeStudied,
+      diasNaoEstudados: cumulativeNotStudied,
+      porcentagemEstudada: ((cumulativeStudied / (cumulativeStudied + cumulativeNotStudied)) * 100 || 0).toFixed(1)
     };
   });
 
@@ -34,7 +46,7 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
     <Card className="p-4">
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData}>
+          <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="day"
@@ -42,17 +54,45 @@ export const StudyConsistencyChart = ({ studyDays }: StudyConsistencyChartProps)
               interval={2}
             />
             <YAxis
+              yAxisId="left"
               tick={{ fontSize: 12 }}
-              domain={[0, 1]}
-              ticks={[0, 1]}
+              label={{ value: 'Dias Acumulados', angle: -90, position: 'insideLeft' }}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 12 }}
+              domain={[0, 100]}
+              label={{ value: 'Porcentagem (%)', angle: 90, position: 'insideRight' }}
             />
             <Tooltip />
-            <Bar
-              dataKey="questionsCompleted"
-              fill="#10B981"
-              name="Questões Realizadas"
+            <Legend />
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="diasEstudados"
+              stroke="#10B981"
+              name="Dias Estudados"
+              strokeWidth={2}
             />
-          </BarChart>
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="diasNaoEstudados"
+              stroke="#EF4444"
+              name="Dias Não Estudados"
+              strokeWidth={2}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="porcentagemEstudada"
+              stroke="#8B5CF6"
+              name="Porcentagem Estudada (%)"
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
         </ResponsiveContainer>
       </div>
     </Card>

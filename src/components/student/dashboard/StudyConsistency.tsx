@@ -8,7 +8,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StudyConsistencyChart } from "./StudyConsistencyChart";
+import { useState } from "react";
 
 interface StudyConsistencyProps {
   consecutiveDays: number;
@@ -19,6 +27,8 @@ interface StudyConsistencyProps {
 }
 
 export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistencyProps) => {
+  const [selectedRange, setSelectedRange] = useState<string>("all");
+  
   // Generate array of all days 1-31
   const allDays = Array.from({ length: 31 }, (_, i) => {
     const currentDate = new Date();
@@ -30,6 +40,11 @@ export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistenc
       )
     };
   });
+
+  // Filter days based on selected range
+  const visibleDays = selectedRange === "all" 
+    ? allDays 
+    : allDays.slice((parseInt(selectedRange) - 1) * 7, parseInt(selectedRange) * 7);
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
@@ -63,7 +78,22 @@ export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistenc
         <p className="text-sm mb-4">
           Você está há {consecutiveDays} dias sem falhar!
         </p>
-        <div className="flex overflow-x-auto gap-1 pb-2 px-1">
+        <div className="md:hidden mb-4">
+          <Select value={selectedRange} onValueChange={setSelectedRange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecione a semana" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os dias</SelectItem>
+              <SelectItem value="1">Semana 1 (1-7)</SelectItem>
+              <SelectItem value="2">Semana 2 (8-14)</SelectItem>
+              <SelectItem value="3">Semana 3 (15-21)</SelectItem>
+              <SelectItem value="4">Semana 4 (22-28)</SelectItem>
+              <SelectItem value="5">Semana 5 (29-31)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="hidden md:flex justify-between overflow-x-auto gap-2 pb-2 px-1">
           {allDays.map((day, index) => (
             <div 
               key={index} 
@@ -71,6 +101,29 @@ export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistenc
             >
               <span className="text-xs text-gray-500 mb-1">
                 {index + 1}
+              </span>
+              <div
+                className={`w-8 h-8 rounded-sm flex items-center justify-center relative transition-colors ${
+                  day.studied ? 'bg-success/20' : 'bg-error/20'
+                }`}
+              >
+                {day.studied ? (
+                  <Check className="w-4 h-4 text-success" />
+                ) : (
+                  <X className="w-4 h-4 text-error" />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex md:hidden justify-between overflow-x-auto gap-2 pb-2 px-1">
+          {visibleDays.map((day, index) => (
+            <div 
+              key={index} 
+              className="flex flex-col items-center min-w-[32px]"
+            >
+              <span className="text-xs text-gray-500 mb-1">
+                {selectedRange === "all" ? index + 1 : (parseInt(selectedRange) - 1) * 7 + index + 1}
               </span>
               <div
                 className={`w-8 h-8 rounded-sm flex items-center justify-center relative transition-colors ${
