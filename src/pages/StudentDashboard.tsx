@@ -89,13 +89,7 @@ const StudentDashboard = () => {
                 percentage: ((studyStats?.weekly_questions_completed || 0) / (studyStats?.weekly_questions_target || 250)) * 100,
               }}
             />
-            <WeeklyStudyChart
-              data={weeklyStudyData?.map(day => ({
-                day: day.study_day,
-                questions: Number(day.question_count),
-                time: Number(day.study_time),
-              })) || []}
-            />
+            <WeeklyStudyChart data={weeklyStudyData || []} />
           </div>
         </div>
       </main>

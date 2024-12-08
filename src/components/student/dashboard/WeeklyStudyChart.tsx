@@ -22,13 +22,8 @@ export const WeeklyStudyChart = ({ data }: WeeklyStudyChartProps) => {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="study_day"
-                defaultValue=""
-              />
-              <YAxis 
-                defaultValue={0}
-              />
+              <XAxis dataKey="study_day" />
+              <YAxis />
               <Tooltip />
               <Bar dataKey="question_count" fill="#8884d8" />
             </BarChart>
