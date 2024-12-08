@@ -16,10 +16,10 @@ export const useSubjectsStats = () => {
   return useQuery({
     queryKey: ["subjects-stats"],
     queryFn: async () => {
+      console.log("Fetching subjects statistics...");
       const { data: questions, error } = await supabase
         .from("questions")
-        .select("subject")
-        .is("deleted_at", null);
+        .select("subject");
 
       if (error) {
         console.error("Error fetching subjects stats:", error);
@@ -76,6 +76,7 @@ export const useSubjectsStats = () => {
         }
       });
 
+      console.log("Subject statistics processed:", subjectGroups);
       return subjectGroups;
     },
   });
