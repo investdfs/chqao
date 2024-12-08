@@ -63,11 +63,11 @@ export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistenc
         <p className="text-sm mb-4">
           Você está há {consecutiveDays} dias sem falhar!
         </p>
-        <div className="grid grid-cols-7 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-16 gap-1 w-full auto-rows-max overflow-x-auto pb-2">
+        <div className="flex overflow-x-auto gap-1 pb-2 px-1">
           {allDays.map((day, index) => (
             <div 
               key={index} 
-              className="flex flex-col items-center justify-center"
+              className="flex flex-col items-center min-w-[32px]"
             >
               <span className="text-xs text-gray-500 mb-1">
                 {index + 1}
