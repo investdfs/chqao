@@ -1,31 +1,36 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-
-interface WeeklyStudyData {
-  day: string;
-  questions: number;
-  time: number;
-}
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface WeeklyStudyChartProps {
-  data: WeeklyStudyData[];
+  data: {
+    study_day: string;
+    question_count: number;
+    study_time: string;
+  }[];
 }
 
 export const WeeklyStudyChart = ({ data }: WeeklyStudyChartProps) => {
+  console.log("Rendering WeeklyStudyChart with data:", data);
+
   return (
-    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-medium">ESTUDO SEMANAL</CardTitle>
+        <CardTitle>Questões por Dia</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[200px]">
+        <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <XAxis dataKey="day" />
-              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="study_day"
+                defaultValue=""
+              />
+              <YAxis 
+                defaultValue={0}
+              />
               <Tooltip />
-              <Bar dataKey="questions" fill="#10B981" name="Questões" />
-              <Bar dataKey="time" fill="#6366F1" name="Tempo (h)" />
+              <Bar dataKey="question_count" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>
