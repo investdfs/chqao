@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 interface NavigationButtonsProps {
   onPrevious: () => void;
@@ -10,6 +10,7 @@ interface NavigationButtonsProps {
   hasAnswered: boolean;
   questionNumber: number;
   totalQuestions: number;
+  isAnswering?: boolean;
 }
 
 const NavigationButtons = memo(({
@@ -20,6 +21,7 @@ const NavigationButtons = memo(({
   hasAnswered,
   questionNumber,
   totalQuestions,
+  isAnswering = false,
 }: NavigationButtonsProps) => {
   console.log("Renderizando NavigationButtons, questionNumber:", questionNumber);
 
@@ -28,7 +30,7 @@ const NavigationButtons = memo(({
       <Button
         variant="outline"
         onClick={onPrevious}
-        disabled={questionNumber <= 1}
+        disabled={questionNumber <= 1 || isAnswering}
         className="flex items-center gap-2"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -38,17 +40,24 @@ const NavigationButtons = memo(({
       {!hasAnswered && (
         <Button
           onClick={onAnswer}
-          disabled={!canAnswer}
-          className="px-8"
+          disabled={!canAnswer || isAnswering}
+          className="px-8 min-w-[120px]"
         >
-          Responder
+          {isAnswering ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Verificando
+            </>
+          ) : (
+            'Responder'
+          )}
         </Button>
       )}
 
       <Button
         variant="outline"
         onClick={onNext}
-        disabled={questionNumber >= totalQuestions}
+        disabled={questionNumber >= totalQuestions || isAnswering}
         className="flex items-center gap-2"
       >
         Próxima

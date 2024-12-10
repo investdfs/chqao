@@ -43,12 +43,27 @@ const QuestionContent = memo(({
 }: QuestionContentProps) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [showMobileFeedback, setShowMobileFeedback] = useState(false);
+  const [isAnswering, setIsAnswering] = useState(false);
 
-  useEffect(() => {
-    if (hasAnswered && isMobile) {
+  const handleAnswerWithDelay = async () => {
+    console.log("Iniciando processo de resposta com delay");
+    setIsAnswering(true);
+    handleAnswer();
+    
+    if (isMobile) {
+      console.log("Aguardando 3 segundos antes de mostrar feedback");
+      await new Promise(resolve => setTimeout(resolve, 3000));
       setShowMobileFeedback(true);
     }
-  }, [hasAnswered, isMobile]);
+    setIsAnswering(false);
+  };
+
+  useEffect(() => {
+    if (hasAnswered && isMobile && !isAnswering) {
+      console.log("Mostrando feedback após delay");
+      setShowMobileFeedback(true);
+    }
+  }, [hasAnswered, isMobile, isAnswering]);
 
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
@@ -77,11 +92,12 @@ const QuestionContent = memo(({
           <NavigationButtons
             onPrevious={onPreviousQuestion}
             onNext={onNextQuestion}
-            onAnswer={handleAnswer}
+            onAnswer={handleAnswerWithDelay}
             canAnswer={!!selectedAnswer}
             hasAnswered={hasAnswered}
             questionNumber={questionNumber}
             totalQuestions={totalQuestions}
+            isAnswering={isAnswering}
           />
 
           {hasAnswered && !isMobile && (
