@@ -8,14 +8,14 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { ArrowRight, BookOpen, Brain, Target, Trophy, Users, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Brain, Target, Trophy, Users, Sparkles, CheckCircle } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
   const isPreview = window.location.hostname.includes('preview');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary-light via-white to-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#9b87f5] via-[#D6BCFA] to-white">
       {isPreview && (
         <nav className="bg-white/80 backdrop-blur-md shadow-sm py-4 sticky top-0 z-50">
           <div className="container mx-auto px-4">
@@ -53,27 +53,27 @@ const Index = () => {
       )}
 
       <section className="relative py-20 sm:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-radial from-primary-light/50 to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-gradient-radial from-[#9b87f5]/30 to-transparent opacity-50" />
         <div className="container mx-auto px-4 relative">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
             <div className="lg:w-1/2 space-y-8 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary animate-pulse">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 text-[#7E69AB] shadow-lg animate-pulse">
                 <Sparkles className="w-4 h-4" />
                 <span className="text-sm font-medium">Plataforma Inovadora de Estudos</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                Prepare-se para o <span className="text-primary animate-pulse">Sucesso</span> no CHQAO
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                Prepare-se para o <span className="text-[#1A1F2C] animate-pulse">Sucesso</span> no CHQAO
               </h1>
-              <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
+              <p className="text-lg sm:text-xl text-white/90 leading-relaxed">
                 Domine o conteúdo através de questões personalizadas e feedback instantâneo. 
                 Uma plataforma desenvolvida especialmente para seu sucesso.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
                   onClick={() => navigate("/register")}
-                  className="group relative overflow-hidden px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 bg-primary hover:bg-primary-hover"
+                  className="group relative overflow-hidden px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 bg-[#1A1F2C] hover:bg-[#2A2F3C] text-white"
                 >
-                  <span className="relative z-10 flex items-center gap-2 text-white">
+                  <span className="relative z-10 flex items-center gap-2">
                     Comece Agora
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -81,7 +81,7 @@ const Index = () => {
                 <Button
                   onClick={() => navigate("/login")}
                   variant="outline"
-                  className="px-8 py-6 text-lg border-2 hover:bg-primary-light transition-colors duration-300"
+                  className="px-8 py-6 text-lg border-2 border-white text-white hover:bg-white/20 transition-colors duration-300"
                 >
                   Já tenho conta
                 </Button>
@@ -89,7 +89,7 @@ const Index = () => {
             </div>
             <div className="lg:w-1/2 relative">
               <div className="relative w-full aspect-square max-w-lg mx-auto">
-                <div className="absolute inset-0 bg-gradient-conic from-primary/30 via-primary-light to-transparent animate-spin-slow rounded-full blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-conic from-[#9b87f5]/30 via-[#D6BCFA] to-transparent animate-spin-slow rounded-full blur-3xl" />
                 <img
                   src="/placeholder.svg"
                   alt="Estudante praticando questões"
@@ -101,23 +101,23 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-b from-white to-primary-light/20">
+      <section className="py-20 bg-gradient-to-b from-white to-[#F1F0FB]">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center text-[#1A1F2C] mb-16">
             Por que escolher o CHQAO?
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group bg-white/80 backdrop-blur rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in hover:translate-y-[-4px]"
+                className="group bg-white/90 backdrop-blur rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in hover:translate-y-[-4px] border border-[#D6BCFA]/20"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <feature.icon className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 bg-[#F1F0FB] rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <feature.icon className="w-6 h-6 text-[#7E69AB]" />
                 </div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-semibold mb-4 text-[#1A1F2C]">{feature.title}</h3>
+                <p className="text-[#8E9196] leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -130,13 +130,13 @@ const Index = () => {
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-primary-light/50 to-white rounded-xl p-8 text-center transform hover:-translate-y-1 transition-all duration-300 animate-fade-in shadow-lg hover:shadow-xl"
+                className="bg-gradient-to-br from-[#F1F0FB] to-white rounded-xl p-8 text-center transform hover:-translate-y-1 transition-all duration-300 animate-fade-in shadow-lg hover:shadow-xl border border-[#D6BCFA]/20"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2 animate-float">
+                <div className="text-3xl sm:text-4xl font-bold text-[#7E69AB] mb-2 animate-float">
                   {stat.value}
                 </div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
+                <div className="text-[#8E9196] font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -171,6 +171,11 @@ const features = [
     icon: Users,
     title: "Comunidade Engajada",
     description: "Faça parte de uma comunidade de estudantes comprometidos com o sucesso.",
+  },
+  {
+    icon: CheckCircle,
+    title: "Resultados Comprovados",
+    description: "Nossa metodologia já ajudou milhares de estudantes a alcançarem seus objetivos.",
   },
 ];
 

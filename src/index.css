@@ -13,7 +13,7 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-primary-light/30 via-white to-accent-blue/10 min-h-screen text-foreground antialiased selection:bg-primary/20;
+    @apply bg-gradient-to-br from-[#9b87f5]/30 via-white to-[#D6BCFA]/20 min-h-screen text-[#1A1F2C] antialiased selection:bg-[#9b87f5]/20;
   }
 
   /* Smooth scrolling */
@@ -27,57 +27,57 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100 rounded-full;
+    @apply bg-[#F1F0FB] rounded-full;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary/50 rounded-full hover:bg-primary/70 transition-colors;
+    @apply bg-[#9b87f5]/50 rounded-full hover:bg-[#9b87f5]/70 transition-colors;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-gradient-primary text-white px-6 py-3 rounded-lg font-medium 
-           hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 
+    @apply bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] text-white px-6 py-3 rounded-lg font-medium 
+           hover:shadow-lg hover:shadow-[#9b87f5]/20 transition-all duration-300 
            disabled:opacity-50 disabled:cursor-not-allowed hover:translate-y-[-2px]
            active:translate-y-0 active:shadow-md;
   }
 
   .btn-secondary {
-    @apply bg-secondary text-primary px-6 py-3 rounded-lg font-medium 
-           hover:bg-primary-light transition-all shadow-sm hover:shadow-md 
+    @apply bg-[#F1F0FB] text-[#7E69AB] px-6 py-3 rounded-lg font-medium 
+           hover:bg-[#E5DEFF] transition-all shadow-sm hover:shadow-md 
            disabled:opacity-50 disabled:cursor-not-allowed hover:translate-y-[-2px]
            active:translate-y-0;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 rounded-lg border border-gray-200 
-           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
+    @apply w-full px-4 py-3 rounded-lg border border-[#D6BCFA] 
+           focus:outline-none focus:ring-2 focus:ring-[#9b87f5] focus:border-transparent 
            shadow-sm transition-all duration-200 bg-white/80 backdrop-blur-sm;
   }
 
   .card {
-    @apply bg-card-glass backdrop-blur-md rounded-xl shadow-lg 
+    @apply bg-white/80 backdrop-blur-md rounded-xl shadow-lg 
            hover:shadow-xl transition-all duration-300 p-6 
-           hover:translate-y-[-4px] border border-white/20;
+           hover:translate-y-[-4px] border border-[#D6BCFA]/20;
   }
 
   .question-option {
-    @apply flex items-center gap-4 p-4 rounded-lg border-2 border-gray-200 
-           hover:border-primary hover:bg-primary-light/50 cursor-pointer 
+    @apply flex items-center gap-4 p-4 rounded-lg border-2 border-[#D6BCFA] 
+           hover:border-[#9b87f5] hover:bg-[#F1F0FB] cursor-pointer 
            transition-all shadow-sm hover:translate-y-[-2px] backdrop-blur-sm;
   }
 
   .question-option.correct {
-    @apply border-success bg-success-light/70 backdrop-blur-sm;
+    @apply border-[#10B981] bg-[#D1FAE5]/70 backdrop-blur-sm;
   }
 
   .question-option.incorrect {
-    @apply border-error bg-error-light/70 backdrop-blur-sm;
+    @apply border-[#EF4444] bg-[#FEE2E2]/70 backdrop-blur-sm;
   }
 
   .table-row-hover {
-    @apply hover:bg-primary-light/30 transition-colors duration-150;
+    @apply hover:bg-[#F1F0FB] transition-colors duration-150;
   }
 
   .status-badge {
@@ -85,11 +85,11 @@
   }
 
   .status-badge-active {
-    @apply bg-success-light text-success;
+    @apply bg-[#D1FAE5] text-[#10B981];
   }
 
   .status-badge-blocked {
-    @apply bg-error-light text-error;
+    @apply bg-[#FEE2E2] text-[#EF4444];
   }
 
   /* Glass effect */
@@ -100,13 +100,13 @@
   /* Gradient text */
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r 
-           from-primary via-accent-purple to-accent-pink 
+           from-[#9b87f5] via-[#7E69AB] to-[#6E59A5] 
            animate-shimmer bg-[length:200%_100%];
   }
 
   /* Shimmer effect */
   .shimmer {
-    @apply animate-shimmer bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 
+    @apply animate-shimmer bg-gradient-to-r from-[#F1F0FB] via-[#E5DEFF] to-[#F1F0FB] 
            bg-[length:200%_100%] rounded-lg;
   }
 }
