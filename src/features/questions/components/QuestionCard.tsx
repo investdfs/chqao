@@ -1,27 +1,25 @@
 import { useEffect, memo } from "react";
-import QuestionHeader from "@/features/questions/components/question/QuestionHeader";
-import QuestionContent from "@/features/questions/components/question/QuestionContent";
-import BlockedUserCard from "@/features/questions/components/question/BlockedUserCard";
+import QuestionHeader from "./question/QuestionHeader";
+import QuestionContent from "./question/QuestionContent";
+import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
-import { useSessionStats } from "@/features/questions/hooks/useSessionStats";
 
 interface QuestionOption {
   id: string;
   text: string;
 }
 
-interface Question {
-  id: string;
-  text: string;
-  subject?: string;
-  topic?: string;
-  options: QuestionOption[];
-  correctAnswer: string;
-  explanation: string;
-}
-
 interface QuestionCardProps {
-  question: Question;
+  question: {
+    id: string;
+    text: string;
+    options: QuestionOption[];
+    correctAnswer: string;
+    explanation: string;
+    source?: string;
+    subject?: string;
+    topic?: string;
+  };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
   questionNumber: number;
@@ -37,48 +35,50 @@ const QuestionCard = memo(({
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
-  studentId
+  studentId,
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
-  const { selectedAnswer, setSelectedAnswer, hasAnswered, handleAnswer, handleReset } = useQuestionAnswer({
+  const {
+    selectedAnswer,
+    setSelectedAnswer,
+    hasAnswered,
+    handleAnswer,
+    handleReset
+  } = useQuestionAnswer({
     questionId: question.id,
     studentId
   });
-
-  const { sessionStats, updateStats, resetStats } = useSessionStats();
 
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
     handleReset();
   }, [question.id]);
 
-  const handleAnswerWithStats = () => {
-    const isCorrect = selectedAnswer === question.correctAnswer;
-    updateStats(selectedAnswer, isCorrect);
-    handleAnswer();
-  };
-
   if (isUserBlocked) {
     return <BlockedUserCard />;
   }
 
   return (
-    <div className="space-y-6">
-      <QuestionHeader />
-      <QuestionContent
-        question={question}
-        selectedAnswer={selectedAnswer}
-        setSelectedAnswer={setSelectedAnswer}
-        hasAnswered={hasAnswered}
-        handleAnswer={handleAnswerWithStats}
-        handleReset={handleReset}
-        onNextQuestion={onNextQuestion}
-        onPreviousQuestion={onPreviousQuestion}
-        questionNumber={questionNumber}
-        totalQuestions={totalQuestions}
-        sessionStats={sessionStats}
+    <div className="h-full flex flex-col space-y-4">
+      <QuestionHeader
+        isFocusMode={false}
+        onFocusModeToggle={() => {}}
       />
+      <div className="flex-1 overflow-y-auto">
+        <QuestionContent
+          question={question}
+          selectedAnswer={selectedAnswer}
+          setSelectedAnswer={setSelectedAnswer}
+          hasAnswered={hasAnswered}
+          handleAnswer={handleAnswer}
+          handleReset={handleReset}
+          onNextQuestion={onNextQuestion}
+          onPreviousQuestion={onPreviousQuestion}
+          questionNumber={questionNumber}
+          totalQuestions={totalQuestions}
+        />
+      </div>
     </div>
   );
 });

@@ -17,9 +17,9 @@ const QuestionPracticeContent = () => {
 
   if (isLoadingStudent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4">
-        <div className="max-w-3xl mx-auto">
-          <Skeleton className="h-[600px] w-full rounded-lg" />
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center">
+        <div className="max-w-4xl w-full mx-auto">
+          <Skeleton className="h-[calc(100vh-2rem)] w-full rounded-lg" />
         </div>
       </div>
     );
@@ -27,8 +27,8 @@ const QuestionPracticeContent = () => {
 
   if (!studentData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4">
-        <div className="max-w-3xl mx-auto text-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center">
           <h2 className="text-2xl font-bold text-white">
             Acesso não autorizado
           </h2>
@@ -42,9 +42,9 @@ const QuestionPracticeContent = () => {
 
   if (isLoadingQuestions) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4">
-        <div className="max-w-3xl mx-auto">
-          <Skeleton className="h-[600px] w-full rounded-lg" />
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center">
+        <div className="max-w-4xl w-full mx-auto">
+          <Skeleton className="h-[calc(100vh-2rem)] w-full rounded-lg" />
         </div>
       </div>
     );
@@ -52,8 +52,8 @@ const QuestionPracticeContent = () => {
 
   if (error || !questions) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4">
-        <div className="max-w-3xl mx-auto text-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center">
           <h2 className="text-2xl font-bold text-white">
             Erro ao carregar questões
           </h2>
@@ -67,8 +67,8 @@ const QuestionPracticeContent = () => {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4">
-        <div className="max-w-3xl mx-auto text-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center">
           <h2 className="text-2xl font-bold text-white">
             Nenhuma questão disponível
           </h2>
@@ -83,17 +83,19 @@ const QuestionPracticeContent = () => {
   if (!currentQuestion) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4">
-      <div className="max-w-3xl mx-auto">
-        <QuestionCard
-          question={currentQuestion}
-          onNextQuestion={handleNextQuestion}
-          onPreviousQuestion={handlePreviousQuestion}
-          questionNumber={currentQuestionIndex + 1}
-          totalQuestions={questions.length}
-          studentId={studentData.id}
-          isUserBlocked={studentData.status === 'blocked'}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light flex flex-col">
+      <div className="flex-1 p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto">
+          <QuestionCard
+            question={currentQuestion}
+            onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
+            questionNumber={currentQuestionIndex + 1}
+            totalQuestions={questions.length}
+            studentId={studentData.id}
+            isUserBlocked={studentData.status === 'blocked'}
+          />
+        </div>
       </div>
     </div>
   );

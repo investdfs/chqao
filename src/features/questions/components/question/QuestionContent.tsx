@@ -1,16 +1,9 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import QuestionMetadata from "@/features/questions/components/question/QuestionMetadata";
+import QuestionMetadata from "./QuestionMetadata";
 import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
-import NavigationButtons from "@/features/questions/components/question/NavigationButtons";
-import QuestionFeedback from "@/features/questions/components/question/QuestionFeedback";
-import { SessionStatsDialog } from "@/features/questions/components/stats/SessionStatsDialog";
-
-interface SessionStats {
-  correctAnswers: number;
-  totalAnswers: number;
-  answerDistribution: Record<string, number>;
-}
+import NavigationButtons from "./NavigationButtons";
+import QuestionFeedback from "./QuestionFeedback";
 
 interface QuestionContentProps {
   question: {
@@ -32,7 +25,6 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
-  sessionStats?: SessionStats;
 }
 
 const QuestionContent = memo(({
@@ -46,15 +38,13 @@ const QuestionContent = memo(({
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
-  sessionStats,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
-  const [showStats, setShowStats] = useState(false);
 
   return (
-    <Card className="animate-fade-in dark:bg-gray-800">
-      <CardContent className="p-4 sm:p-6">
-        <div className="space-y-6">
+    <Card className="animate-fade-in dark:bg-gray-800 h-full">
+      <CardContent className="p-4 sm:p-6 h-full flex flex-col">
+        <div className="space-y-6 flex-1">
           <QuestionMetadata
             id={question.id}
             subject={question.subject}
@@ -79,7 +69,6 @@ const QuestionContent = memo(({
             onPrevious={onPreviousQuestion}
             onNext={onNextQuestion}
             onAnswer={handleAnswer}
-            onShowStats={() => setShowStats(true)}
             canAnswer={!!selectedAnswer}
             hasAnswered={hasAnswered}
             questionNumber={questionNumber}
@@ -94,19 +83,10 @@ const QuestionContent = memo(({
               explanation={question.explanation}
               onReset={handleReset}
               questionId={question.id}
-              sessionStats={sessionStats}
             />
           )}
         </div>
       </CardContent>
-
-      {sessionStats && (
-        <SessionStatsDialog
-          open={showStats}
-          onOpenChange={setShowStats}
-          sessionStats={sessionStats}
-        />
-      )}
     </Card>
   );
 });
