@@ -1,126 +1,78 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --ring: 215 20.2% 65.1%;
+ 
     --radius: 0.5rem;
   }
-
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+ 
+    --ring: 217.2 32.6% 17.5%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
   body {
-    @apply bg-gradient-to-br from-[#9b87f5]/30 via-white to-[#D6BCFA]/20 min-h-screen text-[#1A1F2C] antialiased selection:bg-[#9b87f5]/20;
+    @apply bg-background text-foreground;
   }
-
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    @apply w-2;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-[#F1F0FB] rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-[#9b87f5]/50 rounded-full hover:bg-[#9b87f5]/70 transition-colors;
-  }
-}
-
-@layer components {
-  .btn-primary {
-    @apply bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] text-white px-6 py-3 rounded-lg font-medium 
-           hover:shadow-lg hover:shadow-[#9b87f5]/20 transition-all duration-300 
-           disabled:opacity-50 disabled:cursor-not-allowed hover:translate-y-[-2px]
-           active:translate-y-0 active:shadow-md;
-  }
-
-  .btn-secondary {
-    @apply bg-[#F1F0FB] text-[#7E69AB] px-6 py-3 rounded-lg font-medium 
-           hover:bg-[#E5DEFF] transition-all shadow-sm hover:shadow-md 
-           disabled:opacity-50 disabled:cursor-not-allowed hover:translate-y-[-2px]
-           active:translate-y-0;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-3 rounded-lg border border-[#D6BCFA] 
-           focus:outline-none focus:ring-2 focus:ring-[#9b87f5] focus:border-transparent 
-           shadow-sm transition-all duration-200 bg-white/80 backdrop-blur-sm;
-  }
-
-  .card {
-    @apply bg-white/80 backdrop-blur-md rounded-xl shadow-lg 
-           hover:shadow-xl transition-all duration-300 p-6 
-           hover:translate-y-[-4px] border border-[#D6BCFA]/20;
-  }
-
-  .question-option {
-    @apply flex items-center gap-4 p-4 rounded-lg border-2 border-[#D6BCFA] 
-           hover:border-[#9b87f5] hover:bg-[#F1F0FB] cursor-pointer 
-           transition-all shadow-sm hover:translate-y-[-2px] backdrop-blur-sm;
-  }
-
-  .question-option.correct {
-    @apply border-[#10B981] bg-[#D1FAE5]/70 backdrop-blur-sm;
-  }
-
-  .question-option.incorrect {
-    @apply border-[#EF4444] bg-[#FEE2E2]/70 backdrop-blur-sm;
-  }
-
-  .table-row-hover {
-    @apply hover:bg-[#F1F0FB] transition-colors duration-150;
-  }
-
-  .status-badge {
-    @apply px-3 py-1 rounded-full text-xs font-medium transition-all duration-200;
-  }
-
-  .status-badge-active {
-    @apply bg-[#D1FAE5] text-[#10B981];
-  }
-
-  .status-badge-blocked {
-    @apply bg-[#FEE2E2] text-[#EF4444];
-  }
-
-  /* Glass effect */
-  .glass {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-lg;
-  }
-
-  /* Gradient text */
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r 
-           from-[#9b87f5] via-[#7E69AB] to-[#6E59A5] 
-           animate-shimmer bg-[length:200%_100%];
-  }
-
-  /* Shimmer effect */
-  .shimmer {
-    @apply animate-shimmer bg-gradient-to-r from-[#F1F0FB] via-[#E5DEFF] to-[#F1F0FB] 
-           bg-[length:200%_100%] rounded-lg;
-  }
-}
-
-/* Custom animations */
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
 }
