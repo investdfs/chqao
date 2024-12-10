@@ -3,30 +3,25 @@ interface QuestionMetadataProps {
   subject?: string;
   topic?: string;
   source?: string;
+  className?: string;
 }
 
-const QuestionMetadata = ({ id, subject, topic, source }: QuestionMetadataProps) => {
+const QuestionMetadata = ({ id, subject, topic, source, className = "" }: QuestionMetadataProps) => {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-        <span className="hidden sm:inline text-sm font-medium text-primary dark:text-blue-400">
+    <div className={`flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 ${className}`}>
+      <div className="flex items-center gap-2">
+        <span className="hidden sm:inline font-medium text-primary/70 dark:text-blue-400/70">
           Q.{id}
         </span>
         {subject && (
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {subject}
-          </span>
+          <span>{subject}</span>
         )}
         {topic && (
-          <span className="text-sm text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">
-            {topic}
-          </span>
+          <span className="hidden sm:inline">• {topic}</span>
         )}
       </div>
       {source && (
-        <span className="text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-0">
-          {source}
-        </span>
+        <span className="text-[10px]">{source}</span>
       )}
     </div>
   );

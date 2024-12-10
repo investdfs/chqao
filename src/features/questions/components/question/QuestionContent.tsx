@@ -42,49 +42,55 @@ const QuestionContent = memo(({
   console.log("Renderizando QuestionContent para questão:", question.id);
 
   return (
-    <Card className="animate-fade-in dark:bg-gray-800 h-full">
-      <CardContent className="p-4 sm:p-6 h-full flex flex-col">
-        <div className="space-y-6 flex-1">
-          <QuestionMetadata
-            id={question.id}
-            subject={question.subject}
-            topic={question.topic}
-            source={question.source}
-          />
+    <Card className="animate-fade-in dark:bg-gray-800 min-h-[calc(100vh-2rem)] flex flex-col">
+      <CardContent className="p-2 sm:p-4 flex-1 flex flex-col">
+        <QuestionMetadata
+          id={question.id}
+          subject={question.subject}
+          topic={question.topic}
+          source={question.source}
+          className="mb-2 text-xs"
+        />
 
-          <div className="text-base dark:text-gray-200 text-left">
+        <div className="flex-1 flex flex-col gap-4">
+          <div className="text-base dark:text-gray-200 text-left font-medium">
             {question.text}
           </div>
 
-          <QuestionOptions
-            options={question.options}
-            selectedAnswer={selectedAnswer}
-            hasAnswered={hasAnswered}
-            correctAnswer={question.correctAnswer}
-            onAnswerSelect={setSelectedAnswer}
-            questionId={question.id}
-          />
-
-          <NavigationButtons
-            onPrevious={onPreviousQuestion}
-            onNext={onNextQuestion}
-            onAnswer={handleAnswer}
-            canAnswer={!!selectedAnswer}
-            hasAnswered={hasAnswered}
-            questionNumber={questionNumber}
-            totalQuestions={totalQuestions}
-          />
-
-          {hasAnswered && (
-            <QuestionFeedback
-              isCorrect={selectedAnswer === question.correctAnswer}
+          <div className="flex-1">
+            <QuestionOptions
+              options={question.options}
               selectedAnswer={selectedAnswer}
+              hasAnswered={hasAnswered}
               correctAnswer={question.correctAnswer}
-              explanation={question.explanation}
-              onReset={handleReset}
+              onAnswerSelect={setSelectedAnswer}
               questionId={question.id}
             />
-          )}
+          </div>
+
+          <div className="mt-auto">
+            <NavigationButtons
+              onPrevious={onPreviousQuestion}
+              onNext={onNextQuestion}
+              onAnswer={handleAnswer}
+              canAnswer={!!selectedAnswer}
+              hasAnswered={hasAnswered}
+              questionNumber={questionNumber}
+              totalQuestions={totalQuestions}
+              className="text-sm"
+            />
+
+            {hasAnswered && (
+              <QuestionFeedback
+                isCorrect={selectedAnswer === question.correctAnswer}
+                selectedAnswer={selectedAnswer}
+                correctAnswer={question.correctAnswer}
+                explanation={question.explanation}
+                onReset={handleReset}
+                questionId={question.id}
+              />
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
