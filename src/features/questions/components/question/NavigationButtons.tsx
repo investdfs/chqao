@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 interface NavigationButtonsProps {
   onPrevious: () => void;
@@ -11,6 +11,7 @@ interface NavigationButtonsProps {
   questionNumber: number;
   totalQuestions: number;
   className?: string;
+  isAnswering?: boolean;
 }
 
 const NavigationButtons = memo(({
@@ -21,7 +22,8 @@ const NavigationButtons = memo(({
   hasAnswered,
   questionNumber,
   totalQuestions,
-  className = ""
+  className = "",
+  isAnswering = false
 }: NavigationButtonsProps) => {
   console.log("Renderizando NavigationButtons, questionNumber:", questionNumber);
 
@@ -31,7 +33,7 @@ const NavigationButtons = memo(({
         variant="outline"
         size="sm"
         onClick={onPrevious}
-        disabled={questionNumber <= 1}
+        disabled={questionNumber <= 1 || isAnswering}
         className="flex items-center gap-1"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -42,10 +44,17 @@ const NavigationButtons = memo(({
         <Button
           size="sm"
           onClick={onAnswer}
-          disabled={!canAnswer}
+          disabled={!canAnswer || isAnswering}
           className="px-4 sm:px-8"
         >
-          Responder
+          {isAnswering ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Verificando
+            </>
+          ) : (
+            'Responder'
+          )}
         </Button>
       )}
 
@@ -53,7 +62,7 @@ const NavigationButtons = memo(({
         variant="outline"
         size="sm"
         onClick={onNext}
-        disabled={questionNumber >= totalQuestions}
+        disabled={questionNumber >= totalQuestions || isAnswering}
         className="flex items-center gap-1"
       >
         <span className="hidden sm:inline">Próxima</span>
