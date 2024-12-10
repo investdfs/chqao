@@ -1,9 +1,11 @@
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
-import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
+import QuestionOptions from "./QuestionOptions";
 import NavigationButtons from "./NavigationButtons";
 import QuestionFeedback from "./QuestionFeedback";
+import MobileFeedbackDialog from "./MobileFeedbackDialog";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface QuestionContentProps {
   question: {
@@ -39,58 +41,72 @@ const QuestionContent = memo(({
   questionNumber,
   totalQuestions,
 }: QuestionContentProps) => {
-  console.log("Renderizando QuestionContent para questão:", question.id);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [showMobileFeedback, setShowMobileFeedback] = useState(false);
+
+  useEffect(() => {
+    if (hasAnswered && isMobile) {
+      setShowMobileFeedback(true);
+    }
+  }, [hasAnswered, isMobile]);
 
   return (
-    <Card className="animate-fade-in dark:bg-gray-800 min-h-[calc(100vh-2rem)] flex flex-col">
-      <CardContent className="p-2 sm:p-4 flex-1 flex flex-col">
-        <QuestionMetadata
-          id={question.id}
-          subject={question.subject}
-          topic={question.topic}
-          source={question.source}
-          className="mb-2 text-xs"
-        />
+    <Card className="animate-fade-in dark:bg-gray-800">
+      <CardContent className="p-4 sm:p-6">
+        <div className="space-y-4">
+          <QuestionMetadata
+            id={question.id}
+            subject={question.subject}
+            topic={question.topic}
+            source={question.source}
+          />
 
-        <div className="flex-1 flex flex-col gap-4">
-          <div className="text-base dark:text-gray-200 text-left font-medium">
+          <div className="text-base dark:text-gray-200 text-left">
             {question.text}
           </div>
 
-          <div className="flex-1">
-            <QuestionOptions
-              options={question.options}
+          <QuestionOptions
+            options={question.options}
+            selectedAnswer={selectedAnswer}
+            hasAnswered={hasAnswered}
+            correctAnswer={question.correctAnswer}
+            onAnswerSelect={setSelectedAnswer}
+            questionId={question.id}
+          />
+
+          <NavigationButtons
+            onPrevious={onPreviousQuestion}
+            onNext={onNextQuestion}
+            onAnswer={handleAnswer}
+            canAnswer={!!selectedAnswer}
+            hasAnswered={hasAnswered}
+            questionNumber={questionNumber}
+            totalQuestions={totalQuestions}
+          />
+
+          {hasAnswered && !isMobile && (
+            <QuestionFeedback
+              isCorrect={selectedAnswer === question.correctAnswer}
               selectedAnswer={selectedAnswer}
-              hasAnswered={hasAnswered}
               correctAnswer={question.correctAnswer}
-              onAnswerSelect={setSelectedAnswer}
+              explanation={question.explanation}
+              onReset={handleReset}
               questionId={question.id}
             />
-          </div>
+          )}
 
-          <div className="mt-auto">
-            <NavigationButtons
-              onPrevious={onPreviousQuestion}
-              onNext={onNextQuestion}
-              onAnswer={handleAnswer}
-              canAnswer={!!selectedAnswer}
-              hasAnswered={hasAnswered}
-              questionNumber={questionNumber}
-              totalQuestions={totalQuestions}
-              className="text-sm"
-            />
-
-            {hasAnswered && (
-              <QuestionFeedback
-                isCorrect={selectedAnswer === question.correctAnswer}
-                selectedAnswer={selectedAnswer}
-                correctAnswer={question.correctAnswer}
-                explanation={question.explanation}
-                onReset={handleReset}
-                questionId={question.id}
-              />
-            )}
-          </div>
+          <MobileFeedbackDialog
+            open={showMobileFeedback}
+            onOpenChange={setShowMobileFeedback}
+            isCorrect={selectedAnswer === question.correctAnswer}
+            selectedAnswer={selectedAnswer}
+            correctAnswer={question.correctAnswer}
+            explanation={question.explanation}
+            onNext={onNextQuestion}
+            onPrevious={onPreviousQuestion}
+            canGoNext={questionNumber < totalQuestions}
+            canGoPrevious={questionNumber > 1}
+          />
         </div>
       </CardContent>
     </Card>
