@@ -61,10 +61,7 @@ const QuestionCard = memo(({
 
   return (
     <div className="h-full flex flex-col space-y-4">
-      <QuestionHeader
-        isFocusMode={false}
-        onFocusModeToggle={() => {}}
-      />
+      <QuestionHeader />
       <div className="flex-1 overflow-y-auto">
         <QuestionContent
           question={question}
