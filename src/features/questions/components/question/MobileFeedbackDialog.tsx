@@ -27,6 +27,11 @@ const MobileFeedbackDialog = ({
   canGoNext,
   canGoPrevious,
 }: MobileFeedbackDialogProps) => {
+  const handleNext = () => {
+    onNext();
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[90%] p-0 gap-0">
@@ -42,6 +47,7 @@ const MobileFeedbackDialog = ({
                 <span className="font-medium text-success dark:text-blue-400">
                   Você acertou! 🎉
                 </span>
+                <span className="text-xl ml-1">😊</span>
               </>
             ) : (
               <>
@@ -49,6 +55,7 @@ const MobileFeedbackDialog = ({
                 <span className="font-medium text-error dark:text-red-400">
                   Você errou! ⚠️
                 </span>
+                <span className="text-xl ml-1">😔</span>
               </>
             )}
           </div>
@@ -72,10 +79,9 @@ const MobileFeedbackDialog = ({
             Anterior
           </Button>
           <Button
-            variant="outline"
-            onClick={onNext}
+            onClick={handleNext}
             disabled={!canGoNext}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-primary hover:bg-primary-hover"
           >
             Próxima
             <ChevronRight className="h-4 w-4" />
