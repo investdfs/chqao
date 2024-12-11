@@ -38,33 +38,60 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-6 max-w-[1600px]">
+        <div className="mb-8 flex justify-between items-center">
           <DashboardHeader />
           <SyncDatabaseButton onRefetch={refetch} />
         </div>
         
-        <StatisticsCards
-          totalStudents={students.length}
-          onlineUsers={onlineUsers}
-        />
+        <div className="mb-8">
+          <StatisticsCards
+            totalStudents={students.length}
+            onlineUsers={onlineUsers}
+          />
+        </div>
 
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-3">
-            <SubjectsPanel />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-3">
+            <div className="sticky top-6">
+              <SubjectsPanel />
+            </div>
           </div>
           
-          <div className="col-span-9 space-y-6">
-            <QuestionsTreeStats />
-            <AdminManager />
-            <StudentManager />
+          <div className="lg:col-span-9 space-y-8">
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-white">
+                <CardTitle>Estatísticas de Questões</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <QuestionsTreeStats />
+              </CardContent>
+            </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-white">
+                <CardTitle>Gerenciamento de Administradores</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <AdminManager />
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-white">
+                <CardTitle>Gerenciamento de Estudantes</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <StudentManager />
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-white">
                 <CardTitle>Importar Questões</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <QuestionImporter />
                 <div className="mt-4">
                   <InsertQuestionsButton />
@@ -72,15 +99,13 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            <Accordion type="single" collapsible className="space-y-4">
-              <AccordionItem value="subjects" className="bg-white">
-                <AccordionTrigger className="text-lg font-semibold px-4">
-                  Gerenciar Matérias
+            <Accordion type="single" collapsible className="bg-white rounded-lg overflow-hidden">
+              <AccordionItem value="subjects" className="border-none">
+                <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50">
+                  <span className="text-lg font-semibold">Gerenciar Matérias</span>
                 </AccordionTrigger>
-                <AccordionContent>
-                  <div className="pt-4">
-                    <SubjectManager />
-                  </div>
+                <AccordionContent className="px-6 pb-6">
+                  <SubjectManager />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
