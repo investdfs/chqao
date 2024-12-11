@@ -38,9 +38,9 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex justify-between items-center mb-8">
           <DashboardHeader />
           <SyncDatabaseButton onRefetch={refetch} />
         </div>
@@ -50,12 +50,16 @@ const AdminDashboard = () => {
           onlineUsers={onlineUsers}
         />
 
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-3">
-            <SubjectsPanel />
+        <div className="grid grid-cols-12 gap-8 mt-8">
+          {/* Painel lateral fixo */}
+          <div className="col-span-3 space-y-8">
+            <div className="sticky top-8">
+              <SubjectsPanel />
+            </div>
           </div>
           
-          <div className="col-span-9 space-y-6">
+          {/* Área principal - 50% da largura */}
+          <div className="col-span-6 space-y-8">
             <QuestionsTreeStats />
             <AdminManager />
             <StudentManager />
@@ -73,7 +77,7 @@ const AdminDashboard = () => {
             </Card>
 
             <Accordion type="single" collapsible className="space-y-4">
-              <AccordionItem value="subjects" className="bg-white">
+              <AccordionItem value="subjects" className="bg-white rounded-lg">
                 <AccordionTrigger className="text-lg font-semibold px-4">
                   Gerenciar Matérias
                 </AccordionTrigger>
@@ -84,6 +88,11 @@ const AdminDashboard = () => {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+          </div>
+
+          {/* Área lateral direita */}
+          <div className="col-span-3 space-y-8">
+            {/* Espaço reservado para conteúdo adicional */}
           </div>
         </div>
       </div>
