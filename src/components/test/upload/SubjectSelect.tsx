@@ -15,38 +15,43 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
     queryKey: ['subject-structure', type, subjectFilter],
     queryFn: async () => {
       console.log(`Buscando ${type}s do banco...`, { type, subjectFilter });
-      let query = supabase
-        .from('subject_structure')
-        .select('*')
-        .eq('level', type === 'subject' ? 1 : 2)
-        .order('display_order');
-
-      if (type === 'theme' && subjectFilter) {
-        console.log('Filtrando temas pela matéria:', subjectFilter);
-        const { data: parentNode } = await supabase
+      
+      if (type === 'subject') {
+        // Buscar todas as matérias (nível 1)
+        const { data, error } = await supabase
           .from('subject_structure')
-          .select('id')
-          .eq('name', subjectFilter)
-          .single();
+          .select('*')
+          .eq('level', 1)
+          .order('display_order');
 
-        if (parentNode) {
-          console.log('Matéria pai encontrada:', parentNode);
-          query = query.eq('parent_id', parentNode.id);
+        if (error) {
+          console.error('Erro ao buscar matérias:', error);
+          return [];
         }
+        
+        console.log('Matérias encontradas:', data);
+        return data;
+      } else if (type === 'theme' && subjectFilter) {
+        // Buscar temas relacionados à matéria selecionada
+        const { data, error } = await supabase
+          .from('subject_structure')
+          .select('*')
+          .eq('level', 2)
+          .eq('subject', subjectFilter)
+          .order('display_order');
+
+        if (error) {
+          console.error('Erro ao buscar temas:', error);
+          return [];
+        }
+
+        console.log('Temas encontrados:', data);
+        return data;
       }
 
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error('Erro ao buscar dados:', error);
-        return [];
-      }
-      
-      console.log(`${type}s encontrados:`, data);
-      return data;
+      return [];
     },
     enabled: type === 'subject' || (type === 'theme' && !!subjectFilter),
-    staleTime: 1000 * 60 * 5, // Cache por 5 minutos
   });
 
   const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema';
