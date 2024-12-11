@@ -14,7 +14,7 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
   const { data: items, isLoading } = useQuery({
     queryKey: ['subject-structure', type, subjectFilter],
     queryFn: async () => {
-      console.log(`Buscando ${type}s do banco...`);
+      console.log(`Buscando ${type}s do banco...`, { type, subjectFilter });
       let query = supabase
         .from('subject_structure')
         .select('*')
@@ -22,21 +22,28 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
         .order('display_order');
 
       if (type === 'theme' && subjectFilter) {
-        const parentNode = await supabase
+        console.log('Filtrando temas pela matéria:', subjectFilter);
+        const { data: parentNode, error: parentError } = await supabase
           .from('subject_structure')
           .select('id')
           .eq('name', subjectFilter)
           .single();
 
-        if (parentNode.data) {
-          query = query.eq('parent_id', parentNode.data.id);
+        if (parentError) {
+          console.error('Erro ao buscar matéria pai:', parentError);
+          return [];
+        }
+
+        if (parentNode) {
+          console.log('Matéria pai encontrada:', parentNode);
+          query = query.eq('parent_id', parentNode.id);
         }
       }
 
       const { data, error } = await query;
       if (error) {
         console.error('Erro ao buscar dados:', error);
-        throw error;
+        return [];
       }
       
       console.log(`${type}s encontrados:`, data);
@@ -44,7 +51,8 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
         id: item.id,
         name: item.name
       }));
-    }
+    },
+    enabled: type === 'subject' || (type === 'theme' && !!subjectFilter)
   });
 
   const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema';
