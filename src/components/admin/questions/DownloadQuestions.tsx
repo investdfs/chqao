@@ -12,15 +12,30 @@ export const DownloadQuestions = () => {
     console.log("Iniciando download de todas as questões...");
     
     try {
-      const { data: questions, error } = await supabase
+      // Buscar questões regulares
+      const { data: regularQuestions, error: regularError } = await supabase
         .from("questions")
         .select("*")
         .order('subject', { ascending: true });
 
-      if (error) throw error;
+      if (regularError) throw regularError;
 
-      // Mapear as questões para o formato da planilha
-      const questionsForExcel = questions.map(question => ({
+      // Buscar questões de provas anteriores
+      const { data: examQuestions, error: examError } = await supabase
+        .from("previous_exam_questions")
+        .select(`
+          *,
+          previous_exams (
+            year,
+            name
+          )
+        `)
+        .order('subject', { ascending: true });
+
+      if (examError) throw examError;
+
+      // Mapear questões regulares para o formato da planilha
+      const regularQuestionsForExcel = regularQuestions.map(question => ({
         "Matéria": question.subject,
         "Tema": question.theme || '',
         "Assunto": question.topic || '',
@@ -34,14 +49,37 @@ export const DownloadQuestions = () => {
         "Resposta Correta": question.correct_answer,
         "Explicação": question.explanation || '',
         "Dificuldade": question.difficulty,
-        "Questão de Concurso": question.is_from_previous_exam ? 'Sim' : 'Não',
-        "Ano do Concurso": question.exam_year || '',
-        "Nome do Concurso": question.exam_name || ''
+        "Questão de Concurso": 'Não',
+        "Ano do Concurso": '',
+        "Nome do Concurso": ''
       }));
+
+      // Mapear questões de provas anteriores
+      const examQuestionsForExcel = examQuestions.map(question => ({
+        "Matéria": question.subject,
+        "Tema": '',
+        "Assunto": question.topic || '',
+        "Questão": question.text,
+        "URL da Imagem": '',
+        "Opção A": question.option_a,
+        "Opção B": question.option_b,
+        "Opção C": question.option_c,
+        "Opção D": question.option_d,
+        "Opção E": question.option_e,
+        "Resposta Correta": question.correct_answer,
+        "Explicação": question.explanation || '',
+        "Dificuldade": '',
+        "Questão de Concurso": 'Sim',
+        "Ano do Concurso": question.previous_exams?.year || '',
+        "Nome do Concurso": question.previous_exams?.name || ''
+      }));
+
+      // Combinar todas as questões
+      const allQuestionsForExcel = [...regularQuestionsForExcel, ...examQuestionsForExcel];
 
       // Criar workbook com uma única aba
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(questionsForExcel);
+      const ws = XLSX.utils.json_to_sheet(allQuestionsForExcel);
 
       // Configurar larguras das colunas
       const colWidths = [

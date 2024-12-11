@@ -30,14 +30,13 @@ export const ResetExamDialog = ({
 
   useEffect(() => {
     const fetchExamYears = async () => {
-      const { data: examQuestions, error } = await supabase
-        .from('questions')
-        .select('exam_year')
-        .eq('is_from_previous_exam', true);
+      const { data: exams, error } = await supabase
+        .from('previous_exams')
+        .select('year');
 
-      if (!error && examQuestions) {
-        const uniqueYears = new Set(examQuestions.map(q => q.exam_year).filter(Boolean));
-        setExamYears(Array.from(uniqueYears).sort((a, b) => b - a));
+      if (!error && exams) {
+        const uniqueYears = Array.from(new Set(exams.map(exam => exam.year))).sort((a, b) => b - a);
+        setExamYears(uniqueYears);
       }
     };
 
@@ -55,13 +54,33 @@ export const ResetExamDialog = ({
     }
 
     try {
-      const { error } = await supabase
-        .from('questions')
-        .delete()
-        .eq('is_from_previous_exam', true)
-        .eq('exam_year', parseInt(selectedYear));
+      // Primeiro, encontrar todos os IDs de exames do ano selecionado
+      const { data: exams, error: examError } = await supabase
+        .from('previous_exams')
+        .select('id')
+        .eq('year', parseInt(selectedYear));
 
-      if (error) throw error;
+      if (examError) throw examError;
+
+      if (exams && exams.length > 0) {
+        const examIds = exams.map(exam => exam.id);
+        
+        // Deletar todas as questões associadas aos exames do ano selecionado
+        const { error: deleteError } = await supabase
+          .from('previous_exam_questions')
+          .delete()
+          .in('exam_id', examIds);
+
+        if (deleteError) throw deleteError;
+
+        // Deletar os exames do ano selecionado
+        const { error: deleteExamError } = await supabase
+          .from('previous_exams')
+          .delete()
+          .eq('year', parseInt(selectedYear));
+
+        if (deleteExamError) throw deleteExamError;
+      }
 
       toast({
         title: "Sucesso",

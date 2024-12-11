@@ -49,18 +49,27 @@ export const StatisticsCards = ({
         }
 
         // Fetch previous exams statistics
-        const { data: examQuestions, error: examError } = await supabase
-          .from('questions')
-          .select('exam_year')
-          .eq('is_from_previous_exam', true);
+        const { data: examStats, error: examError } = await supabase
+          .from('previous_exams')
+          .select(`
+            id,
+            year,
+            previous_exam_questions (
+              count
+            )
+          `);
 
         if (examError) {
-          console.error('Error fetching exam questions:', examError);
+          console.error('Error fetching exam stats:', examError);
         } else {
-          const uniqueYears = new Set(examQuestions?.map(q => q.exam_year).filter(Boolean));
+          const totalExams = examStats?.length || 0;
+          const totalQuestions = examStats?.reduce((sum, exam) => 
+            sum + (exam.previous_exam_questions?.[0]?.count || 0), 0
+          );
+          
           setPreviousExams({
-            total: uniqueYears.size,
-            questions: examQuestions?.length || 0
+            total: totalExams,
+            questions: totalQuestions
           });
         }
       } catch (error) {
@@ -143,23 +152,28 @@ export const StatisticsCards = ({
         <PreviousExamsCard 
           totalExams={previousExams.total}
           totalQuestions={previousExams.questions}
-          onReset={() => {
-          const fetchStatistics = async () => {
-            const { data: examQuestions, error: examError } = await supabase
-              .from('questions')
-              .select('exam_year')
-              .eq('is_from_previous_exam', true);
+          onReset={async () => {
+            const { data: examStats, error: examError } = await supabase
+              .from('previous_exams')
+              .select(`
+                id,
+                year,
+                previous_exam_questions (
+                  count
+                )
+              `);
 
-            if (!examError && examQuestions) {
-              const uniqueYears = new Set(examQuestions.map(q => q.exam_year));
+            if (!examError && examStats) {
+              const totalExams = examStats.length;
+              const totalQuestions = examStats.reduce((sum, exam) => 
+                sum + (exam.previous_exam_questions?.[0]?.count || 0), 0
+              );
+              
               setPreviousExams({
-                total: uniqueYears.size,
-                questions: examQuestions.length
+                total: totalExams,
+                questions: totalQuestions
               });
             }
-          };
-
-          fetchStatistics();
           }}
         />
       </div>
