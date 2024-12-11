@@ -22,9 +22,14 @@ export const useSubjectsStats = () => {
     queryKey: ["subjects-stats"],
     queryFn: async () => {
       console.log("Fetching subjects statistics...");
+      // Using SQL query instead of groupBy method
       const { data: stats, error } = await supabase
         .from('questions')
-        .select('subject, count(*)')
+        .select('subject, count')
+        .select(`
+          subject,
+          count:count(*)
+        `)
         .groupBy('subject');
 
       if (error) {
