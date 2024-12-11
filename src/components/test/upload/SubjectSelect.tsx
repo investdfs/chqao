@@ -10,34 +10,16 @@ interface SubjectSelectProps {
   subjectFilter?: string;
 }
 
-const availableSubjects = [
-  { id: "1", name: "Língua Portuguesa" },
-  { id: "2", name: "Geografia do Brasil" },
-  { id: "3", name: "História do Brasil" },
-  { id: "4", name: "E-1 - Estatuto dos Militares" },
-  { id: "5", name: "Licitações e Contratos" },
-  { id: "6", name: "Regulamento de Administração do Exército (RAE)" },
-  { id: "7", name: "Direito Militar e Sindicância" },
-  { id: "8", name: "Código Penal Militar" },
-  { id: "9", name: "Código de Processo Penal Militar" },
-  { id: "10", name: "Sindicância" },
-  { id: "11", name: "Conhecimentos Musicais Gerais" },
-  { id: "12", name: "Harmonia Elementar (vocal) e Funcional (instrumental)" },
-  { id: "13", name: "Períodos da História da Música" },
-  { id: "14", name: "Instrumentação" },
-  { id: "15", name: "Canto Modulante" },
-  { id: "16", name: "Transcrição" },
-];
-
 export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: SubjectSelectProps) => {
-  const { data: items } = useQuery({
+  const { data: items, isLoading } = useQuery({
     queryKey: ['subject-structure', type, subjectFilter],
     queryFn: async () => {
       console.log(`Buscando ${type}s do banco...`);
       let query = supabase
         .from('subject_structure')
         .select('*')
-        .eq('level', type === 'subject' ? 1 : 2);
+        .eq('level', type === 'subject' ? 1 : 2)
+        .order('display_order');
 
       if (type === 'theme' && subjectFilter) {
         const parentNode = await supabase
@@ -52,14 +34,30 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao buscar dados:', error);
+        throw error;
+      }
       
       console.log(`${type}s encontrados:`, data);
-      return data.map(item => item.name);
+      return data.map(item => ({
+        id: item.id,
+        name: item.name
+      }));
     }
   });
 
   const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema';
+
+  if (isLoading) {
+    return (
+      <Select disabled>
+        <SelectTrigger>
+          <SelectValue placeholder="Carregando..." />
+        </SelectTrigger>
+      </Select>
+    );
+  }
 
   return (
     <Select value={value} onValueChange={onValueChange}>
@@ -68,8 +66,8 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
       </SelectTrigger>
       <SelectContent>
         {items?.map((item) => (
-          <SelectItem key={item} value={item}>
-            {item}
+          <SelectItem key={item.id} value={item.name}>
+            {item.name}
           </SelectItem>
         ))}
       </SelectContent>
