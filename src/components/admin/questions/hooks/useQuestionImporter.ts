@@ -8,9 +8,9 @@ export const useQuestionImporter = () => {
   const [themes, setThemes] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
-  const [selectedTheme, setSelectedTheme] = useState<string>("all");
-  const [selectedSubject, setSelectedSubject] = useState<string>("all");
-  const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [selectedTheme, setSelectedTheme] = useState<string>("");
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("all");
   const [showResetDialog, setShowResetDialog] = useState(false);
   const { toast } = useToast();
@@ -67,33 +67,30 @@ export const useQuestionImporter = () => {
       console.log("Buscando questões do banco...");
       let query = supabase.from("questions").select("*");
 
-      // Aplicar filtros baseados no tipo de questão selecionado
-      switch (searchTerm) {
-        case "all":
-          // Mostrar todas as questões sem filtros adicionais
-          break;
-        case "hidden":
-          // Mostrar apenas questões ocultas
-          query = query.eq("status", "hidden");
-          break;
-        case "exam":
-          // Mostrar apenas questões de provas anteriores
-          query = query.eq("is_from_previous_exam", true);
-          break;
-        case "new":
-          // Mostrar questões inéditas (não ocultas, não excluídas, não de provas)
-          query = query
-            .neq("status", "hidden")
-            .neq("status", "deleted")
-            .eq("is_from_previous_exam", false);
-          break;
-      }
-
-      // Aplicar filtros adicionais apenas se não estiver mostrando todas as questões
+      // Se "Todas as questões" estiver selecionado, não aplica nenhum filtro
       if (searchTerm !== "all") {
-        if (selectedTheme !== "all") query = query.eq("theme", selectedTheme);
-        if (selectedSubject !== "all") query = query.eq("subject", selectedSubject);
-        if (selectedTopic !== "all") query = query.eq("topic", selectedTopic);
+        switch (searchTerm) {
+          case "hidden":
+            // Mostrar apenas questões ocultas
+            query = query.eq("status", "hidden");
+            break;
+          case "exam":
+            // Mostrar apenas questões de provas anteriores
+            query = query.eq("is_from_previous_exam", true);
+            break;
+          case "new":
+            // Mostrar questões inéditas (não ocultas, não excluídas, não de provas)
+            query = query
+              .neq("status", "hidden")
+              .neq("status", "deleted")
+              .eq("is_from_previous_exam", false);
+            break;
+        }
+
+        // Aplicar filtros adicionais apenas se não estiver vazio
+        if (selectedTheme) query = query.eq("theme", selectedTheme);
+        if (selectedSubject) query = query.eq("subject", selectedSubject);
+        if (selectedTopic) query = query.eq("topic", selectedTopic);
       }
 
       // Ordenar por data de criação

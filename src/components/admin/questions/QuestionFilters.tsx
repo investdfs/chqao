@@ -49,7 +49,7 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
             <SelectValue placeholder="Selecione a matéria" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            <SelectItem value="all">Todas</SelectItem>
+            <SelectItem value="">Todas</SelectItem>
             {availableSubjects.map((subject) => (
               <SelectItem key={subject.id} value={subject.name}>
                 {subject.name}
@@ -69,7 +69,7 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
             <SelectValue placeholder="Selecione o tópico" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="">Todos</SelectItem>
           </SelectContent>
         </Select>
       </div>
