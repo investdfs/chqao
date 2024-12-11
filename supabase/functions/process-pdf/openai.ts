@@ -3,7 +3,6 @@ const RETRY_DELAY = 2000;
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Definição da função que o modelo GPT irá "chamar"
 const questionFunction = {
   name: "generate_question",
   description: "Gera uma questão de múltipla escolha baseada no conteúdo fornecido",
@@ -12,7 +11,7 @@ const questionFunction = {
     properties: {
       text: {
         type: "string",
-        description: "O texto da questão"
+        description: "O texto completo da questão"
       },
       option_a: {
         type: "string",
@@ -51,9 +50,21 @@ const questionFunction = {
       topic: {
         type: "string",
         description: "Tópico específico abordado na questão"
+      },
+      theme: {
+        type: "string",
+        description: "Tema principal da questão"
+      },
+      subject: {
+        type: "string",
+        description: "Matéria da questão"
+      },
+      is_previous_exam: {
+        type: "boolean",
+        description: "Indica se é uma questão de prova anterior"
       }
     },
-    required: ["text", "option_a", "option_b", "option_c", "option_d", "option_e", "correct_answer", "explanation", "difficulty", "topic"]
+    required: ["text", "option_a", "option_b", "option_c", "option_d", "option_e", "correct_answer", "explanation", "difficulty", "topic", "theme", "subject", "is_previous_exam"]
   }
 };
 
@@ -82,21 +93,56 @@ export async function generateQuestionsWithAI(
           messages: [
             {
               role: 'system',
-              content: `Você é um especialista em criar questões militares objetivas. 
-              Analise o texto fornecido e gere ${questionCount} questões.
-              Use a função generate_question para cada questão.
-              
-              Regras importantes:
-              1. Use linguagem formal militar
-              2. Mantenha as questões objetivas e claras
-              3. Evite ambiguidades nas alternativas
-              4. Inclua explicações detalhadas e fundamentadas
-              5. Distribua as questões entre diferentes níveis de dificuldade
-              6. Baseie-se APENAS no conteúdo fornecido
-              7. Evite questões com "EXCETO" ou "INCORRETO"
-              8. Mantenha as alternativas com comprimento similar
-              9. Não use "todas as alternativas" ou "nenhuma das alternativas"
-              ${customInstructions ? `10. Instruções adicionais: ${customInstructions}` : ''}`
+              content: `Você é um especialista em criar questões militares objetivas de múltipla escolha. 
+              Analise o conteúdo fornecido e gere ${questionCount} questões seguindo estas regras:
+
+              1. REGRAS DE FORMATAÇÃO:
+              - Use linguagem formal militar
+              - Evite questões com "EXCETO" ou "INCORRETO"
+              - Mantenha as alternativas com comprimento similar
+              - Evite uso de "todas as alternativas" ou "nenhuma das alternativas"
+              - Não use numeração ou marcadores nas alternativas
+              - Não inclua "A)", "B)", etc. no início das alternativas
+
+              2. REGRAS DE CONTEÚDO:
+              - Baseie-se estritamente no conteúdo fornecido
+              - Distribua as questões entre diferentes níveis de dificuldade
+              - Evite questões com pegadinhas ou ambiguidades
+              - Inclua explicações detalhadas e fundamentadas
+              - Mantenha o foco em conceitos importantes
+              - Evite questões que dependam de memorização de números específicos
+
+              3. VALIDAÇÕES:
+              - Certifique-se que existe apenas uma resposta correta
+              - Verifique se todas as alternativas são plausíveis
+              - Confirme se a explicação justifica claramente a resposta correta
+              - Garanta que o tema e tópico estão alinhados com o conteúdo
+              - Verifique se o nível de dificuldade está adequado
+
+              4. DIFICULDADE:
+              Fácil:
+              - Questões diretas
+              - Conceitos básicos
+              - Pouca interpretação necessária
+
+              Médio:
+              - Questões que requerem análise
+              - Combinação de conceitos
+              - Interpretação moderada
+
+              Difícil:
+              - Questões que exigem análise profunda
+              - Múltiplos conceitos interligados
+              - Alta capacidade de interpretação
+
+              5. CAMPOS ESPECIAIS:
+              - Matéria: Use o valor fornecido no campo 'subject'
+              - Tema: Use o valor fornecido no campo 'theme' ou derive do conteúdo
+              - Nova Questão: Indique através do campo 'is_previous_exam' como false
+              - Questão de Prova Anterior: Se identificar que é uma questão de prova anterior, marque 'is_previous_exam' como true
+
+              Use a função generate_question para cada questão, garantindo que todos os campos obrigatórios sejam preenchidos corretamente.
+              ${customInstructions ? `\n\nInstruções adicionais: ${customInstructions}` : ''}`
             },
             { 
               role: 'user', 
@@ -116,7 +162,6 @@ export async function generateQuestionsWithAI(
 
       const data = await response.json();
       
-      // Processar as chamadas de função retornadas
       const generatedQuestions = data.choices.map((choice: any) => {
         if (choice.message?.function_call) {
           const functionArgs = JSON.parse(choice.message.function_call.arguments);
