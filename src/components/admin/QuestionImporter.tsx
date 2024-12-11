@@ -13,9 +13,6 @@ export const QuestionImporter = () => {
     questions,
     showQuestions,
     setShowQuestions,
-    themes,
-    subjects,
-    topics,
     selectedTheme,
     selectedSubject,
     selectedTopic,
@@ -54,9 +51,6 @@ export const QuestionImporter = () => {
         open={showQuestions}
         onOpenChange={setShowQuestions}
         questions={questions}
-        themes={themes}
-        subjects={subjects}
-        topics={topics}
         selectedTheme={selectedTheme}
         selectedSubject={selectedSubject}
         selectedTopic={selectedTopic}
