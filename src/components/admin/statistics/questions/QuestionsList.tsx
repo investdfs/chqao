@@ -2,15 +2,22 @@ import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Plus, EyeOff } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface QuestionsListProps {
   questions: any[];
   onQuestionSelect: (question: any) => void;
+  onQuestionsUpdate: () => void;
 }
 
-export const QuestionsList = ({ questions, onQuestionSelect }: QuestionsListProps) => {
+export const QuestionsList = ({ 
+  questions, 
+  onQuestionSelect,
+  onQuestionsUpdate 
+}: QuestionsListProps) => {
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
-  const [hiddenQuestions, setHiddenQuestions] = useState<string[]>([]);
+  const { toast } = useToast();
 
   const handleCheckboxChange = (questionId: string) => {
     setSelectedQuestions(prev => {
@@ -22,14 +29,32 @@ export const QuestionsList = ({ questions, onQuestionSelect }: QuestionsListProp
     });
   };
 
-  const handleHideQuestion = (questionId: string) => {
-    setHiddenQuestions(prev => [...prev, questionId]);
-  };
+  const handleStatusChange = async (questionId: string, newStatus: 'hidden' | 'deleted') => {
+    try {
+      console.log(`Changing question ${questionId} status to ${newStatus}`);
+      
+      const { error } = await supabase
+        .from('questions')
+        .update({ status: newStatus })
+        .eq('id', questionId);
 
-  useEffect(() => {
-    console.log("Questions loaded:", questions.length);
-    console.log("Selected questions:", selectedQuestions);
-  }, [questions, selectedQuestions]);
+      if (error) throw error;
+
+      toast({
+        title: "Status atualizado",
+        description: `Questão ${newStatus === 'hidden' ? 'ocultada' : 'excluída'} com sucesso.`,
+      });
+
+      onQuestionsUpdate();
+    } catch (error) {
+      console.error('Error updating question status:', error);
+      toast({
+        title: "Erro ao atualizar status",
+        description: "Não foi possível atualizar o status da questão.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="border rounded-lg p-4 space-y-4">
@@ -37,9 +62,9 @@ export const QuestionsList = ({ questions, onQuestionSelect }: QuestionsListProp
         <div 
           key={question.id} 
           className={`p-4 border rounded-lg transition-colors ${
-            hiddenQuestions.includes(question.id) 
-              ? 'bg-red-50 border-red-200' 
-              : 'hover:bg-gray-50'
+            question.status === 'hidden' ? 'bg-red-50 border-red-200' : 
+            question.status === 'deleted' ? 'bg-gray-100 border-gray-200' : 
+            'hover:bg-gray-50'
           }`}
         >
           <div className="flex items-start gap-4">
@@ -67,7 +92,7 @@ export const QuestionsList = ({ questions, onQuestionSelect }: QuestionsListProp
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => console.log('Excluir questão:', question.id)}
+                onClick={() => handleStatusChange(question.id, 'deleted')}
                 title="Excluir questão"
               >
                 <Trash className="h-4 w-4" />
@@ -75,15 +100,7 @@ export const QuestionsList = ({ questions, onQuestionSelect }: QuestionsListProp
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => console.log('Inserir nova questão')}
-                title="Inserir nova questão"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleHideQuestion(question.id)}
+                onClick={() => handleStatusChange(question.id, 'hidden')}
                 title="Ocultar questão"
               >
                 <EyeOff className="h-4 w-4" />

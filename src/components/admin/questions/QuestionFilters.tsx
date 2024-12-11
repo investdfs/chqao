@@ -1,95 +1,80 @@
-import { Search } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface QuestionFiltersProps {
-  themes: string[];
-  subjects: string[];
-  topics: string[];
-  selectedTheme: string;
-  selectedSubject: string;
-  selectedTopic: string;
-  searchTerm: string;
-  onThemeChange: (value: string) => void;
-  onSubjectChange: (value: string) => void;
-  onTopicChange: (value: string) => void;
-  onSearchChange: (value: string) => void;
-  onFilter: () => void;
+  filters: {
+    subject: string;
+    topic: string;
+    searchTerm: string;
+  };
+  onFilterChange: (field: string, value: string) => void;
 }
 
-export const QuestionFilters = ({
-  themes,
-  subjects,
-  topics,
-  selectedTheme,
-  selectedSubject,
-  selectedTopic,
-  searchTerm,
-  onThemeChange,
-  onSubjectChange,
-  onTopicChange,
-  onSearchChange,
-  onFilter,
-}: QuestionFiltersProps) => {
+const availableSubjects = [
+  { id: "1", name: "Língua Portuguesa" },
+  { id: "2", name: "Geografia do Brasil" },
+  { id: "3", name: "História do Brasil" },
+  { id: "4", name: "E-1 - Estatuto dos Militares" },
+  { id: "5", name: "Licitações e Contratos" },
+  { id: "6", name: "Regulamento de Administração do Exército (RAE)" },
+  { id: "7", name: "Direito Militar e Sindicância" },
+  { id: "8", name: "Código Penal Militar" },
+  { id: "9", name: "Código de Processo Penal Militar" },
+  { id: "10", name: "Sindicância" },
+  { id: "11", name: "Conhecimentos Musicais Gerais" },
+  { id: "12", name: "Harmonia Elementar (vocal) e Funcional (instrumental)" },
+  { id: "13", name: "Períodos da História da Música" },
+  { id: "14", name: "Instrumentação" },
+  { id: "15", name: "Canto Modulante" },
+  { id: "16", name: "Transcrição" },
+];
+
+export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProps) => {
   return (
-    <div className="space-y-4 mb-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Select value={selectedTheme} onValueChange={onThemeChange}>
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Filtrar por tema" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="space-y-2">
+        <Label>Matéria</Label>
+        <Select 
+          value={filters.subject} 
+          onValueChange={(value) => onFilterChange("subject", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione a matéria" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os temas</SelectItem>
-            {themes.map((theme) => (
-              <SelectItem key={theme} value={theme}>
-                {theme}
+          <SelectContent className="bg-white">
+            <SelectItem value="all">Todas</SelectItem>
+            {availableSubjects.map((subject) => (
+              <SelectItem key={subject.id} value={subject.name}>
+                {subject.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+      </div>
 
-        <Select value={selectedSubject} onValueChange={onSubjectChange}>
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Filtrar por matéria" />
+      <div className="space-y-2">
+        <Label>Tópico</Label>
+        <Select 
+          value={filters.topic} 
+          onValueChange={(value) => onFilterChange("topic", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o tópico" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as matérias</SelectItem>
-            {subjects.map((subject) => (
-              <SelectItem key={subject} value={subject}>
-                {subject}
-              </SelectItem>
-            ))}
+          <SelectContent className="bg-white">
+            <SelectItem value="all">Todos</SelectItem>
           </SelectContent>
         </Select>
+      </div>
 
-        <Select value={selectedTopic} onValueChange={onTopicChange}>
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Filtrar por assunto" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os assuntos</SelectItem>
-            {topics.map((topic) => (
-              <SelectItem key={topic} value={topic}>
-                {topic}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Pesquisar questões..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-
-        <Button variant="secondary" onClick={onFilter}>
-          Filtrar
-        </Button>
+      <div className="space-y-2">
+        <Label>Buscar</Label>
+        <Input
+          placeholder="Pesquisar questões..."
+          value={filters.searchTerm}
+          onChange={(e) => onFilterChange("searchTerm", e.target.value)}
+        />
       </div>
     </div>
   );

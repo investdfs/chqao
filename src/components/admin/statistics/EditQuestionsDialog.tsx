@@ -30,6 +30,7 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
       let query = supabase
         .from("questions")
         .select("*")
+        .eq('status', 'active')
         .order("created_at", { ascending: false });
 
       if (filters.subject !== "all") {
@@ -62,7 +63,6 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     }
   };
 
-  // Fetch questions when filters change
   useEffect(() => {
     if (open) {
       fetchQuestions();
@@ -122,36 +122,6 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     }
   };
 
-  const handleDeleteQuestion = async () => {
-    if (!selectedQuestion) return;
-
-    console.log("Deletando questão:", selectedQuestion.id);
-    
-    try {
-      const { error } = await supabase
-        .from("questions")
-        .delete()
-        .eq("id", selectedQuestion.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Questão removida",
-        description: "A questão foi removida com sucesso.",
-      });
-      
-      fetchQuestions();
-      setSelectedQuestion(null);
-    } catch (error) {
-      console.error("Erro ao deletar questão:", error);
-      toast({
-        title: "Erro ao remover",
-        description: "Não foi possível remover a questão. Tente novamente.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -171,6 +141,7 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
             <QuestionsList
               questions={questions}
               onQuestionSelect={setSelectedQuestion}
+              onQuestionsUpdate={fetchQuestions}
             />
           )}
 
@@ -179,7 +150,6 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
               selectedQuestion={selectedQuestion}
               onQuestionChange={handleQuestionChange}
               onSave={handleSaveQuestion}
-              onDelete={handleDeleteQuestion}
               onCancel={() => setSelectedQuestion(null)}
             />
           )}
