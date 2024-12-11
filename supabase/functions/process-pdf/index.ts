@@ -50,7 +50,33 @@ serve(async (req) => {
       .eq('id', generationId);
 
     // Gerar questões com retry logic
-    const generatedQuestions = await generateQuestionsWithAI(pdfText, questionCount, subject, theme, customInstructions);
+    let retryCount = 0;
+    const maxRetries = 3;
+    let generatedQuestions;
+
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`Tentativa ${retryCount + 1} de gerar questões...`);
+        generatedQuestions = await generateQuestionsWithAI(pdfText, questionCount, subject, theme, customInstructions);
+        break; // Se sucesso, sai do loop
+      } catch (error) {
+        retryCount++;
+        console.error(`Erro na tentativa ${retryCount}:`, error);
+        
+        if (error.message.includes('Too Many Requests')) {
+          const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+          console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          if (retryCount === maxRetries) {
+            throw new Error('Limite de tentativas excedido ao gerar questões. Por favor, tente novamente mais tarde.');
+          }
+        } else {
+          throw error; // Se não for erro de rate limit, propaga o erro
+        }
+      }
+    }
+
     const validatedQuestions = validateGeneratedQuestions(generatedQuestions, questionCount);
 
     // Inserir questões no banco
