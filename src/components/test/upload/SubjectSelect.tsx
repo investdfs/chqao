@@ -41,6 +41,7 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
       }
 
       const { data, error } = await query;
+      
       if (error) {
         console.error('Erro ao buscar dados:', error);
         return [];
@@ -52,7 +53,9 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
         name: item.name
       }));
     },
-    enabled: type === 'subject' || (type === 'theme' && !!subjectFilter)
+    enabled: type === 'subject' || (type === 'theme' && !!subjectFilter),
+    staleTime: 1000 * 60 * 5, // Cache por 5 minutos
+    retry: 2
   });
 
   const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema';
@@ -73,11 +76,17 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {items?.map((item) => (
-          <SelectItem key={item.id} value={item.name}>
-            {item.name}
+        {items && items.length > 0 ? (
+          items.map((item) => (
+            <SelectItem key={item.id} value={item.name}>
+              {item.name}
+            </SelectItem>
+          ))
+        ) : (
+          <SelectItem value="" disabled>
+            Nenhum item encontrado
           </SelectItem>
-        ))}
+        )}
       </SelectContent>
     </Select>
   );
