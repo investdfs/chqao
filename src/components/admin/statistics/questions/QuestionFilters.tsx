@@ -90,7 +90,7 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
           <SelectTrigger>
             <SelectValue placeholder="Selecione a matéria" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="all">Todas</SelectItem>
             {availableSubjects.map((subject) => (
               <SelectItem key={subject.id} value={subject.name}>
@@ -110,9 +110,8 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
           <SelectTrigger>
             <SelectValue placeholder="Selecione o tópico" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="all">Todos</SelectItem>
-            {/* We'll populate this dynamically later */}
           </SelectContent>
         </Select>
       </div>
