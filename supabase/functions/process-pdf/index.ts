@@ -24,7 +24,7 @@ serve(async (req) => {
     const { generationId, filePath, questionCount, customInstructions, subject, theme } = await req.json() as ProcessPdfRequest;
     console.log('Iniciando processamento:', { generationId, filePath });
 
-    if (!generationId || !filePath || !questionCount) {
+    if (!generationId || !filePath || !questionCount || !subject || !theme) {
       throw new Error('Parâmetros obrigatórios faltando');
     }
 
@@ -50,8 +50,17 @@ serve(async (req) => {
       .eq('id', generationId);
 
     // Gerar questões com retry logic
-    const content = await generateQuestionsWithAI(pdfText, questionCount, customInstructions);
-    const generatedQuestions = validateGeneratedQuestions(JSON.parse(content), questionCount);
+    const generatedQuestions = await generateQuestionsWithAI(pdfText, questionCount, subject, theme, customInstructions);
+    const validatedQuestions = validateGeneratedQuestions(generatedQuestions, questionCount);
+
+    // Inserir questões no banco
+    const { error: insertError } = await supabase
+      .from('questions')
+      .insert(validatedQuestions);
+
+    if (insertError) {
+      throw new Error(`Erro ao inserir questões: ${insertError.message}`);
+    }
 
     // Atualizar geração com sucesso
     await supabase
@@ -59,7 +68,7 @@ serve(async (req) => {
       .update({
         status: 'completed',
         completed_at: new Date().toISOString(),
-        generated_questions: generatedQuestions,
+        generated_questions: validatedQuestions,
       })
       .eq('id', generationId);
 
