@@ -15,29 +15,7 @@ serve(async (req) => {
 
   try {
     const { questionText } = await req.json();
-
-    if (!questionText) {
-      throw new Error('Texto da questão não fornecido');
-    }
-
-    console.log('Gerando alternativas para:', questionText);
-
-    const prompt = `
-      Com base no texto da questão abaixo, gere 5 alternativas plausíveis (A a E).
-      As alternativas devem ser coerentes com o texto e ter aproximadamente o mesmo tamanho.
-      Retorne apenas as alternativas em formato JSON, sem explicações adicionais.
-      
-      Questão: ${questionText}
-      
-      Formato esperado:
-      {
-        "a": "texto da alternativa A",
-        "b": "texto da alternativa B",
-        "c": "texto da alternativa C",
-        "d": "texto da alternativa D",
-        "e": "texto da alternativa E"
-      }
-    `;
+    console.log('Recebendo requisição para gerar alternativas para:', questionText);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -48,35 +26,51 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'Você é um especialista em criar alternativas para questões de múltipla escolha.' },
-          { role: 'user', content: prompt }
+          {
+            role: 'system',
+            content: `Você é um especialista em criar alternativas para questões militares.
+            Analise o texto da questão e gere 5 alternativas plausíveis (A, B, C, D, E).
+            
+            Regras:
+            1. Mantenha as alternativas com tamanho similar
+            2. Evite "todas as alternativas" ou "nenhuma das alternativas"
+            3. Use linguagem formal militar
+            4. Evite ambiguidades
+            5. Retorne apenas um objeto JSON com as alternativas`
+          },
+          {
+            role: 'user',
+            content: `Gere 5 alternativas plausíveis para esta questão: ${questionText}`
+          }
         ],
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: 1000,
       }),
     });
 
-    const data = await response.json();
-    console.log('Resposta da OpenAI:', data);
-
-    if (!data.choices?.[0]?.message?.content) {
-      throw new Error('Resposta inválida da API');
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`);
     }
 
-    const alternatives = JSON.parse(data.choices[0].message.content);
+    const data = await response.json();
+    const alternatives = {
+      a: data.choices[0]?.message?.content?.split('\n')[0]?.replace('A) ', '').replace('A.', '').trim(),
+      b: data.choices[0]?.message?.content?.split('\n')[1]?.replace('B) ', '').replace('B.', '').trim(),
+      c: data.choices[0]?.message?.content?.split('\n')[2]?.replace('C) ', '').replace('C.', '').trim(),
+      d: data.choices[0]?.message?.content?.split('\n')[3]?.replace('D) ', '').replace('D.', '').trim(),
+      e: data.choices[0]?.message?.content?.split('\n')[4]?.replace('E) ', '').replace('E.', '').trim(),
+    };
+
+    console.log('Alternativas geradas:', alternatives);
 
     return new Response(JSON.stringify({ alternatives }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Erro na função generate-alternatives:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Erro ao gerar alternativas. Por favor, tente novamente.' 
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    console.error('Erro ao gerar alternativas:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
