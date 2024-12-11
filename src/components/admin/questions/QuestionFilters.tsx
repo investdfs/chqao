@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 
 interface QuestionFiltersProps {
   filters: {
@@ -40,7 +41,14 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="space-y-2">
-        <Label>Matéria</Label>
+        <div className="flex items-center gap-2">
+          <Label>Matéria</Label>
+          {filters.subject ? (
+            <ToggleRight className="h-4 w-4 text-primary" />
+          ) : (
+            <ToggleLeft className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
         <Select 
           value={filters.subject} 
           onValueChange={(value) => onFilterChange("subject", value)}
@@ -60,7 +68,14 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
       </div>
 
       <div className="space-y-2">
-        <Label>Tópico</Label>
+        <div className="flex items-center gap-2">
+          <Label>Tópico</Label>
+          {filters.topic ? (
+            <ToggleRight className="h-4 w-4 text-primary" />
+          ) : (
+            <ToggleLeft className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
         <Select 
           value={filters.topic} 
           onValueChange={(value) => onFilterChange("topic", value)}
@@ -75,7 +90,14 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
       </div>
 
       <div className="space-y-2">
-        <Label>Selecionar</Label>
+        <div className="flex items-center gap-2">
+          <Label>Selecionar</Label>
+          {filters.searchTerm !== "all" ? (
+            <ToggleRight className="h-4 w-4 text-primary" />
+          ) : (
+            <ToggleLeft className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
         <Select 
           value={filters.searchTerm} 
           onValueChange={(value) => onFilterChange("searchTerm", value)}
