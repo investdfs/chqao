@@ -16,7 +16,7 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4o-mini', // Usando o modelo mais rápido
           messages: [
             {
               role: 'system',
@@ -55,7 +55,7 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
             { role: 'user', content: pdfText }
           ],
           temperature: 0.7,
-          max_tokens: 4000,
+          max_tokens: 2000, // Reduzindo o número de tokens para respostas mais rápidas
         }),
       });
 
