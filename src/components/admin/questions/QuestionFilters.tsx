@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -28,6 +27,13 @@ const availableSubjects = [
   { id: "14", name: "Instrumentação" },
   { id: "15", name: "Canto Modulante" },
   { id: "16", name: "Transcrição" },
+];
+
+const questionTypeOptions = [
+  { id: "all", name: "Todas as questões" },
+  { id: "hidden", name: "Questões ocultas" },
+  { id: "exam", name: "Questões de provas" },
+  { id: "new", name: "Questões inéditas" },
 ];
 
 export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProps) => {
@@ -69,12 +75,22 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
       </div>
 
       <div className="space-y-2">
-        <Label>Buscar</Label>
-        <Input
-          placeholder="Pesquisar questões..."
-          value={filters.searchTerm}
-          onChange={(e) => onFilterChange("searchTerm", e.target.value)}
-        />
+        <Label>Selecionar</Label>
+        <Select 
+          value={filters.searchTerm} 
+          onValueChange={(value) => onFilterChange("searchTerm", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o tipo de questão" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {questionTypeOptions.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
