@@ -9,7 +9,7 @@ export const SubjectsPanel = () => {
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">MATÉRIAS DISPONÍVEIS</CardTitle>
+        <CardTitle className="text-sm font-bold">MATÉRIAS DISPONÍVEIS</CardTitle>
         <Book className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
@@ -23,20 +23,22 @@ export const SubjectsPanel = () => {
           <div className="space-y-6">
             {subjectGroups?.map((group, groupIndex) => (
               <div key={groupIndex} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold">{group.name}</span>
-                  <span className="font-medium text-muted-foreground">
-                    {group.totalQuestions} questões
+                <div className="flex flex-col text-sm">
+                  <span className="font-bold">{group.name}</span>
+                  <span className="text-muted-foreground">
+                    ({group.totalQuestions} questões)
                   </span>
                 </div>
                 <div className="space-y-1.5 pl-4">
                   {group.subjects.map((subject, subjectIndex) => (
                     <div
                       key={subjectIndex}
-                      className="flex items-center justify-between text-sm text-muted-foreground"
+                      className="flex flex-col text-sm text-muted-foreground"
                     >
-                      <span className="truncate pr-4">{subject.subject}</span>
-                      <span className="font-medium">{subject.questionCount}</span>
+                      <span className="font-semibold truncate">{subject.subject}</span>
+                      <span className="text-xs">
+                        ({subject.questionCount} questões)
+                      </span>
                     </div>
                   ))}
                 </div>
