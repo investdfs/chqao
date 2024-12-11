@@ -80,34 +80,69 @@ export const usePdfUpload = (
 
       if (insertError) throw insertError;
 
-      const { error: functionError } = await supabase.functions.invoke('process-pdf', {
-        body: { 
-          generationId: generation.id,
-          filePath: selectedPdf.file_path,
-          questionCount: parseInt(questionCount),
-          customInstructions: instructions,
-          subject: selectedSubject,
-          theme: themeValue
+      let retryCount = 0;
+      const maxRetries = 3;
+      let success = false;
+
+      while (retryCount < maxRetries && !success) {
+        try {
+          console.log(`Tentativa ${retryCount + 1} de ${maxRetries} de processar o PDF...`);
+          
+          const { error: functionError } = await supabase.functions.invoke('process-pdf', {
+            body: { 
+              generationId: generation.id,
+              filePath: selectedPdf.file_path,
+              questionCount: parseInt(questionCount),
+              customInstructions: instructions,
+              subject: selectedSubject,
+              theme: themeValue
+            }
+          });
+
+          if (functionError) {
+            if (functionError.message.includes('Too Many Requests') || 
+                functionError.message.includes('Limite de tentativas excedido')) {
+              retryCount++;
+              if (retryCount < maxRetries) {
+                const delay = Math.pow(2, retryCount) * 2000; // 2s, 4s, 8s
+                console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                
+                toast({
+                  title: "Tentando novamente",
+                  description: `Tentativa ${retryCount + 1} de ${maxRetries}...`,
+                });
+                
+                continue;
+              }
+            }
+            throw functionError;
+          }
+
+          success = true;
+          toast({
+            title: "Processamento iniciado",
+            description: "O PDF está sendo processado. Aguarde a conclusão.",
+          });
+
+          onPdfSelect(null);
+          setInstructions("");
+          setSelectedSubject("");
+          setSelectedTheme("");
+          
+        } catch (error) {
+          console.error(`Erro na tentativa ${retryCount + 1}:`, error);
+          if (retryCount === maxRetries - 1) {
+            throw error;
+          }
         }
-      });
-
-      if (functionError) throw functionError;
-
-      toast({
-        title: "Processamento iniciado",
-        description: "O PDF está sendo processado. Aguarde a conclusão.",
-      });
-
-      onPdfSelect(null);
-      setInstructions("");
-      setSelectedSubject("");
-      setSelectedTheme("");
+      }
 
     } catch (error) {
       console.error('Erro ao processar PDF:', error);
       toast({
         title: "Erro ao processar PDF",
-        description: "Ocorreu um erro durante o processamento.",
+        description: "O serviço está temporariamente sobrecarregado. Por favor, aguarde alguns minutos e tente novamente.",
         variant: "destructive"
       });
     } finally {
