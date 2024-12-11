@@ -21,21 +21,21 @@ export const PreviousExamsCard = ({
 
   return (
     <>
-      <Card className="shadow-md hover:shadow-lg transition-shadow">
-        <CardHeader className="p-4">
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="p-3">
           <CardTitle className="flex items-center gap-2 text-primary text-sm">
             <FileText className="h-4 w-4" />
             Provas Anteriores
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 pt-0">
+        <CardContent className="p-3 pt-0">
           <div className="text-2xl font-bold text-primary">{totalExams}</div>
           <p className="text-xs text-gray-600">{totalQuestions} questões</p>
-          <div className="mt-2 space-y-2">
+          <div className="mt-2 space-y-1.5">
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full"
+              className="w-full text-xs py-1"
               onClick={() => setShowQuestionsSheet(true)}
             >
               Ver Questões
@@ -43,7 +43,7 @@ export const PreviousExamsCard = ({
             <Button 
               variant="destructive" 
               size="sm" 
-              className="w-full"
+              className="w-full text-xs py-1"
               onClick={() => setShowResetDialog(true)}
             >
               Resetar Banco
