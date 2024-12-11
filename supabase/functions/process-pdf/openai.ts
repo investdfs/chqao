@@ -1,6 +1,8 @@
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function generateQuestionsWithAI(pdfText: string, questionCount: number, subject: string, theme: string, customInstructions?: string) {
   const openaiKey = Deno.env.get('OPENAI_API_KEY')!;
   let lastError = null;
@@ -74,9 +76,9 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
       lastError = error;
       
       if (attempt < MAX_RETRIES - 1) {
-        const delay = RETRY_DELAY * Math.pow(2, attempt); // Exponential backoff
-        console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        const waitTime = RETRY_DELAY * Math.pow(2, attempt); // Exponential backoff
+        console.log(`Aguardando ${waitTime}ms antes da próxima tentativa...`);
+        await delay(waitTime);
       }
     }
   }
