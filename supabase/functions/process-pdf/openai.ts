@@ -1,9 +1,69 @@
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000; // 2 seconds
+const RETRY_DELAY = 2000;
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export async function generateQuestionsWithAI(pdfText: string, questionCount: number, subject: string, theme: string, customInstructions?: string) {
+// Definição da função que o modelo GPT irá "chamar"
+const questionFunction = {
+  name: "generate_question",
+  description: "Gera uma questão de múltipla escolha baseada no conteúdo fornecido",
+  parameters: {
+    type: "object",
+    properties: {
+      text: {
+        type: "string",
+        description: "O texto da questão"
+      },
+      option_a: {
+        type: "string",
+        description: "Texto da alternativa A"
+      },
+      option_b: {
+        type: "string",
+        description: "Texto da alternativa B"
+      },
+      option_c: {
+        type: "string",
+        description: "Texto da alternativa C"
+      },
+      option_d: {
+        type: "string",
+        description: "Texto da alternativa D"
+      },
+      option_e: {
+        type: "string",
+        description: "Texto da alternativa E"
+      },
+      correct_answer: {
+        type: "string",
+        enum: ["A", "B", "C", "D", "E"],
+        description: "A letra da alternativa correta"
+      },
+      explanation: {
+        type: "string",
+        description: "Explicação detalhada da resposta correta"
+      },
+      difficulty: {
+        type: "string",
+        enum: ["Fácil", "Médio", "Difícil"],
+        description: "Nível de dificuldade da questão"
+      },
+      topic: {
+        type: "string",
+        description: "Tópico específico abordado na questão"
+      }
+    },
+    required: ["text", "option_a", "option_b", "option_c", "option_d", "option_e", "correct_answer", "explanation", "difficulty", "topic"]
+  }
+};
+
+export async function generateQuestionsWithAI(
+  pdfText: string, 
+  questionCount: number, 
+  subject: string, 
+  theme: string, 
+  customInstructions?: string
+) {
   const openaiKey = Deno.env.get('OPENAI_API_KEY')!;
   let lastError = null;
 
@@ -18,46 +78,34 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Usando o modelo mais rápido
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
               content: `Você é um especialista em criar questões militares objetivas. 
-              Analise o texto fornecido e gere questões seguindo estas regras:
+              Analise o texto fornecido e gere ${questionCount} questões.
+              Use a função generate_question para cada questão.
               
-              1. Use este formato JSON para cada questão:
-              {
-                "text": "texto da questão",
-                "option_a": "alternativa A",
-                "option_b": "alternativa B",
-                "option_c": "alternativa C",
-                "option_d": "alternativa D",
-                "option_e": "alternativa E",
-                "correct_answer": "A|B|C|D|E",
-                "explanation": "explicação detalhada da resposta",
-                "difficulty": "Fácil|Médio|Difícil",
-                "subject": "${subject}",
-                "theme": "${theme}",
-                "topic": "tópico específico da questão",
-                "is_ai_generated": true
-              }
-              
-              2. Retorne um array com ${questionCount} objetos neste formato.
-              3. Use linguagem formal militar.
-              4. Mantenha as questões objetivas e claras.
-              5. Evite ambiguidades nas alternativas.
-              6. Inclua explicações detalhadas e fundamentadas.
-              7. Distribua as questões entre diferentes níveis de dificuldade.
-              8. Baseie-se APENAS no conteúdo fornecido.
-              9. Evite questões com "EXCETO" ou "INCORRETO".
-              10. Mantenha as alternativas com comprimento similar.
-              11. Não use "todas as alternativas" ou "nenhuma das alternativas".
-              ${customInstructions ? `12. Instruções adicionais: ${customInstructions}` : ''}`
+              Regras importantes:
+              1. Use linguagem formal militar
+              2. Mantenha as questões objetivas e claras
+              3. Evite ambiguidades nas alternativas
+              4. Inclua explicações detalhadas e fundamentadas
+              5. Distribua as questões entre diferentes níveis de dificuldade
+              6. Baseie-se APENAS no conteúdo fornecido
+              7. Evite questões com "EXCETO" ou "INCORRETO"
+              8. Mantenha as alternativas com comprimento similar
+              9. Não use "todas as alternativas" ou "nenhuma das alternativas"
+              ${customInstructions ? `10. Instruções adicionais: ${customInstructions}` : ''}`
             },
-            { role: 'user', content: pdfText }
+            { 
+              role: 'user', 
+              content: `Matéria: ${subject}\nTema: ${theme}\n\nConteúdo:\n${pdfText}` 
+            }
           ],
+          functions: [questionFunction],
+          function_call: "auto",
           temperature: 0.7,
-          max_tokens: 2000, // Reduzindo o número de tokens para respostas mais rápidas
         }),
       });
 
@@ -67,16 +115,31 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
       }
 
       const data = await response.json();
-      const generatedQuestions = JSON.parse(data.choices[0]?.message?.content || '[]');
       
+      // Processar as chamadas de função retornadas
+      const generatedQuestions = data.choices.map((choice: any) => {
+        if (choice.message?.function_call) {
+          const functionArgs = JSON.parse(choice.message.function_call.arguments);
+          return {
+            ...functionArgs,
+            subject,
+            theme,
+            is_ai_generated: true,
+            status: 'active'
+          };
+        }
+        return null;
+      }).filter(Boolean);
+
       console.log(`Geradas ${generatedQuestions.length} questões com sucesso`);
       return generatedQuestions;
+
     } catch (error) {
       console.error(`Erro na tentativa ${attempt + 1}:`, error);
       lastError = error;
       
       if (attempt < MAX_RETRIES - 1) {
-        const waitTime = RETRY_DELAY * Math.pow(2, attempt); // Exponential backoff
+        const waitTime = RETRY_DELAY * Math.pow(2, attempt);
         console.log(`Aguardando ${waitTime}ms antes da próxima tentativa...`);
         await delay(waitTime);
       }
