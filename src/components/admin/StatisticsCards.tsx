@@ -136,13 +136,14 @@ export const StatisticsCards = ({
   }, []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <StudentCard totalStudents={totalStudents} />
-      <QuestionsCard totalQuestions={totalQuestions} />
-      <PreviousExamsCard 
-        totalExams={previousExams.total}
-        totalQuestions={previousExams.questions}
-        onReset={() => {
+    <div className="max-w-5xl mx-auto px-4">
+      <div className="grid grid-cols-3 gap-6">
+        <StudentCard totalStudents={totalStudents} />
+        <QuestionsCard totalQuestions={totalQuestions} />
+        <PreviousExamsCard 
+          totalExams={previousExams.total}
+          totalQuestions={previousExams.questions}
+          onReset={() => {
           const fetchStatistics = async () => {
             const { data: examQuestions, error: examError } = await supabase
               .from('questions')
@@ -159,8 +160,9 @@ export const StatisticsCards = ({
           };
 
           fetchStatistics();
-        }}
-      />
+          }}
+        />
+      </div>
     </div>
   );
 };

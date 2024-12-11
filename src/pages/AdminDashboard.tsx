@@ -38,66 +38,33 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-6 py-8 max-w-[1600px]">
-        <div className="mb-8 flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex justify-between items-center">
           <DashboardHeader />
           <SyncDatabaseButton onRefetch={refetch} />
         </div>
         
-        <div className="mb-8">
-          <StatisticsCards
-            totalStudents={students.length}
-            onlineUsers={onlineUsers}
-          />
-        </div>
+        <StatisticsCards
+          totalStudents={students.length}
+          onlineUsers={onlineUsers}
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left sidebar */}
-          <div className="lg:col-span-3">
-            <div className="sticky top-8">
-              <SubjectsPanel />
-            </div>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-3">
+            <SubjectsPanel />
           </div>
           
-          {/* Main content */}
-          <div className="lg:col-span-9 space-y-8">
-            {/* Questions Stats Card */}
-            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-white p-6">
-                <CardTitle className="text-xl font-semibold">Estatísticas de Questões</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <QuestionsTreeStats />
-              </CardContent>
-            </Card>
+          <div className="col-span-9 space-y-6">
+            <QuestionsTreeStats />
+            <AdminManager />
+            <StudentManager />
 
-            {/* Admin Management Card */}
-            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-white p-6">
-                <CardTitle className="text-xl font-semibold">Gerenciamento de Administradores</CardTitle>
+            <Card>
+              <CardHeader>
+                <CardTitle>Importar Questões</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <AdminManager />
-              </CardContent>
-            </Card>
-
-            {/* Student Management Card */}
-            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-white p-6">
-                <CardTitle className="text-xl font-semibold">Gerenciamento de Estudantes</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <StudentManager />
-              </CardContent>
-            </Card>
-
-            {/* Question Import Card */}
-            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-white p-6">
-                <CardTitle className="text-xl font-semibold">Importar Questões</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
+              <CardContent>
                 <QuestionImporter />
                 <div className="mt-4">
                   <InsertQuestionsButton />
@@ -105,14 +72,15 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Subject Management Accordion */}
-            <Accordion type="single" collapsible className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <AccordionItem value="subjects" className="border-none">
-                <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50">
-                  <span className="text-xl font-semibold">Gerenciar Matérias</span>
+            <Accordion type="single" collapsible className="space-y-4">
+              <AccordionItem value="subjects" className="bg-white">
+                <AccordionTrigger className="text-lg font-semibold px-4">
+                  Gerenciar Matérias
                 </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6">
-                  <SubjectManager />
+                <AccordionContent>
+                  <div className="pt-4">
+                    <SubjectManager />
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
