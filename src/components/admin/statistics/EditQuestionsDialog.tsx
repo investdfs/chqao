@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { QuestionFilters } from "./questions/QuestionFilters";
@@ -24,7 +24,7 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
 
   const fetchQuestions = async () => {
     setLoading(true);
-    console.log("Buscando questões para edição...");
+    console.log("Buscando questões com filtros:", filters);
     
     try {
       let query = supabase
@@ -33,20 +33,23 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
         .order("created_at", { ascending: false });
 
       if (filters.subject !== "all") {
+        console.log("Filtrando por matéria:", filters.subject);
         query = query.eq("subject", filters.subject);
       }
       if (filters.topic !== "all") {
+        console.log("Filtrando por tópico:", filters.topic);
         query = query.eq("topic", filters.topic);
       }
       if (filters.searchTerm) {
+        console.log("Filtrando por termo:", filters.searchTerm);
         query = query.ilike("text", `%${filters.searchTerm}%`);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
+      console.log("Questões encontradas:", data?.length);
       setQuestions(data || []);
-      console.log("Questões carregadas:", data?.length);
     } catch (error) {
       console.error("Erro ao buscar questões:", error);
       toast({
@@ -59,9 +62,16 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     }
   };
 
+  // Fetch questions when filters change
+  useEffect(() => {
+    if (open) {
+      fetchQuestions();
+    }
+  }, [filters, open]);
+
   const handleFilterChange = (field: string, value: string) => {
+    console.log("Mudando filtro:", field, "para", value);
     setFilters(prev => ({ ...prev, [field]: value }));
-    fetchQuestions();
   };
 
   const handleQuestionChange = (field: string, value: string) => {
@@ -155,18 +165,24 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
             onFilterChange={handleFilterChange}
           />
 
-          <QuestionsList
-            questions={questions}
-            onQuestionSelect={setSelectedQuestion}
-          />
+          {loading ? (
+            <div className="text-center py-4">Carregando questões...</div>
+          ) : (
+            <QuestionsList
+              questions={questions}
+              onQuestionSelect={setSelectedQuestion}
+            />
+          )}
 
-          <QuestionEditForm
-            selectedQuestion={selectedQuestion}
-            onQuestionChange={handleQuestionChange}
-            onSave={handleSaveQuestion}
-            onDelete={handleDeleteQuestion}
-            onCancel={() => setSelectedQuestion(null)}
-          />
+          {selectedQuestion && (
+            <QuestionEditForm
+              selectedQuestion={selectedQuestion}
+              onQuestionChange={handleQuestionChange}
+              onSave={handleSaveQuestion}
+              onDelete={handleDeleteQuestion}
+              onCancel={() => setSelectedQuestion(null)}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>
