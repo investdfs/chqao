@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
 export const InsertPreviousExamQuestionsButton = () => {
@@ -11,13 +12,27 @@ export const InsertPreviousExamQuestionsButton = () => {
   const [questions, setQuestions] = useState("");
   const [answers, setAnswers] = useState("");
   const [examYear, setExamYear] = useState("");
+  const [examName, setExamName] = useState("");
   const { toast } = useToast();
 
-  const processQuestions = (questionsText: string, answersText: string) => {
+  const processQuestions = async (questionsText: string, answersText: string) => {
     const questionLines = questionsText.trim().split('\n');
     const answerLines = answersText.trim().split('\n');
-    const processedQuestions = [];
+    
+    // First create the exam
+    const { data: examData, error: examError } = await supabase
+      .from("previous_exams")
+      .insert({
+        year: parseInt(examYear),
+        name: examName || `Prova ${examYear}`,
+        description: `Prova do ano ${examYear}`
+      })
+      .select()
+      .single();
 
+    if (examError) throw examError;
+
+    const processedQuestions = [];
     for (let i = 0; i < questionLines.length; i++) {
       const questionText = questionLines[i].trim();
       const answer = answerLines[i]?.trim() || '';
@@ -25,10 +40,11 @@ export const InsertPreviousExamQuestionsButton = () => {
       if (questionText && answer) {
         const isValid = !answer.toLowerCase().includes('anulada');
         const explanation = isValid 
-          ? "Gabarito Oficial EsIE - Questão Válida"
-          : "Gabarito Oficial EsIE - Questão Anulada";
+          ? "Gabarito Oficial - Questão Válida"
+          : "Gabarito Oficial - Questão Anulada";
 
         processedQuestions.push({
+          exam_id: examData.id,
           text: questionText,
           option_a: "A",
           option_b: "B",
@@ -37,12 +53,8 @@ export const InsertPreviousExamQuestionsButton = () => {
           option_e: "E",
           correct_answer: answer.charAt(0).toUpperCase(),
           explanation,
-          exam_year: parseInt(examYear),
-          exam_name: "EsIE",
-          is_from_previous_exam: true,
           subject: "Prova Anterior",
-          theme: `Prova ${examYear}`,
-          topic: `EsIE ${examYear}`
+          topic: `Prova ${examYear}`
         });
       }
     }
@@ -53,7 +65,7 @@ export const InsertPreviousExamQuestionsButton = () => {
   const handleInsertQuestions = async () => {
     try {
       console.log("Processando questões de prova anterior...");
-      const processedQuestions = processQuestions(questions, answers);
+      const processedQuestions = await processQuestions(questions, answers);
 
       if (processedQuestions.length === 0) {
         throw new Error("Nenhuma questão válida encontrada");
@@ -61,7 +73,7 @@ export const InsertPreviousExamQuestionsButton = () => {
 
       console.log(`Inserindo ${processedQuestions.length} questões...`);
       const { data, error } = await supabase
-        .from("questions")
+        .from("previous_exam_questions")
         .insert(processedQuestions)
         .select();
 
@@ -76,6 +88,7 @@ export const InsertPreviousExamQuestionsButton = () => {
       setQuestions("");
       setAnswers("");
       setExamYear("");
+      setExamName("");
     } catch (error) {
       console.error("Erro ao inserir questões:", error);
       toast({
@@ -92,7 +105,7 @@ export const InsertPreviousExamQuestionsButton = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="ml-4">
+        <Button variant="outline">
           Inserir Questões de Provas Anteriores
         </Button>
       </DialogTrigger>
@@ -122,6 +135,18 @@ export const InsertPreviousExamQuestionsButton = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <label htmlFor="examName" className="text-sm font-medium">
+              Nome da Prova
+            </label>
+            <Input
+              id="examName"
+              value={examName}
+              onChange={(e) => setExamName(e.target.value)}
+              placeholder="Ex: EsIE 2024"
+            />
           </div>
 
           <div className="grid gap-2">

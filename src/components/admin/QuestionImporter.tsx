@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useQuestionImporter } from "./questions/hooks/useQuestionImporter";
 import { InsertQuestionsButton } from "./questions/InsertQuestionsButton";
 import { InsertPreviousExamQuestionsButton } from "./questions/InsertPreviousExamQuestionsButton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const QuestionImporter = () => {
   const {
@@ -30,7 +31,22 @@ export const QuestionImporter = () => {
 
   return (
     <div className="space-y-4">
-      <ExcelTemplateSection />
+      <Tabs defaultValue="regular" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="regular">Questões Regulares</TabsTrigger>
+          <TabsTrigger value="exams">Questões de Provas</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="regular" className="space-y-4">
+          <ExcelTemplateSection />
+          <FileUploadSection />
+          <InsertQuestionsButton />
+        </TabsContent>
+
+        <TabsContent value="exams" className="space-y-4">
+          <InsertPreviousExamQuestionsButton />
+        </TabsContent>
+      </Tabs>
 
       <ActionButtons
         questionsCount={questions.length}
@@ -41,11 +57,6 @@ export const QuestionImporter = () => {
         }}
         onShowResetDialog={() => setShowResetDialog(true)}
       />
-
-      <div className="flex items-center justify-start gap-4">
-        <InsertQuestionsButton />
-        <InsertPreviousExamQuestionsButton />
-      </div>
 
       <QuestionsDialog
         open={showQuestions}
@@ -80,8 +91,6 @@ export const QuestionImporter = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <FileUploadSection />
     </div>
   );
 };

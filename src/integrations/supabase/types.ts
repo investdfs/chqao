@@ -69,6 +69,86 @@ export type Database = {
         }
         Relationships: []
       }
+      previous_exam_questions: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          exam_id: string
+          explanation: string | null
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          option_e: string
+          subject: string
+          text: string
+          topic: string | null
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string
+          exam_id: string
+          explanation?: string | null
+          id?: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          option_e: string
+          subject: string
+          text: string
+          topic?: string | null
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          exam_id?: string
+          explanation?: string | null
+          id?: string
+          option_a?: string
+          option_b?: string
+          option_c?: string
+          option_d?: string
+          option_e?: string
+          subject?: string
+          text?: string
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "previous_exam_questions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "previous_exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      previous_exams: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          year?: number
+        }
+        Relationships: []
+      }
       question_answers: {
         Row: {
           created_at: string
@@ -113,13 +193,10 @@ export type Database = {
           correct_answer: string
           created_at: string
           difficulty: Database["public"]["Enums"]["question_difficulty"] | null
-          exam_name: string | null
-          exam_year: number | null
           explanation: string | null
           id: string
           image_url: string | null
           is_ai_generated: boolean | null
-          is_from_previous_exam: boolean | null
           option_a: string
           option_b: string
           option_c: string
@@ -136,13 +213,10 @@ export type Database = {
           correct_answer: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
-          exam_name?: string | null
-          exam_year?: number | null
           explanation?: string | null
           id?: string
           image_url?: string | null
           is_ai_generated?: boolean | null
-          is_from_previous_exam?: boolean | null
           option_a: string
           option_b: string
           option_c: string
@@ -159,13 +233,10 @@ export type Database = {
           correct_answer?: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
-          exam_name?: string | null
-          exam_year?: number | null
           explanation?: string | null
           id?: string
           image_url?: string | null
           is_ai_generated?: boolean | null
-          is_from_previous_exam?: boolean | null
           option_a?: string
           option_b?: string
           option_c?: string
