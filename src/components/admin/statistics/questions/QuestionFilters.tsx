@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -12,70 +11,29 @@ interface QuestionFiltersProps {
 }
 
 const availableSubjects = [
-  { 
-    id: "1", 
-    name: "Língua Portuguesa",
-  },
-  { 
-    id: "2", 
-    name: "Geografia do Brasil",
-  },
-  { 
-    id: "3", 
-    name: "História do Brasil",
-  },
-  { 
-    id: "4", 
-    name: "E-1 - Estatuto dos Militares",
-  },
-  { 
-    id: "5", 
-    name: "Licitações e Contratos",
-  },
-  { 
-    id: "6", 
-    name: "Regulamento de Administração do Exército (RAE)",
-  },
-  { 
-    id: "7", 
-    name: "Direito Militar e Sindicância",
-  },
-  { 
-    id: "8", 
-    name: "Código Penal Militar",
-  },
-  { 
-    id: "9", 
-    name: "Código de Processo Penal Militar",
-  },
-  { 
-    id: "10", 
-    name: "Sindicância",
-  },
-  { 
-    id: "11", 
-    name: "Conhecimentos Musicais Gerais",
-  },
-  { 
-    id: "12", 
-    name: "Harmonia Elementar (vocal) e Funcional (instrumental)",
-  },
-  { 
-    id: "13", 
-    name: "Períodos da História da Música",
-  },
-  { 
-    id: "14", 
-    name: "Instrumentação",
-  },
-  { 
-    id: "15", 
-    name: "Canto Modulante",
-  },
-  { 
-    id: "16", 
-    name: "Transcrição",
-  },
+  { id: "1", name: "Língua Portuguesa" },
+  { id: "2", name: "Geografia do Brasil" },
+  { id: "3", name: "História do Brasil" },
+  { id: "4", name: "E-1 - Estatuto dos Militares" },
+  { id: "5", name: "Licitações e Contratos" },
+  { id: "6", name: "Regulamento de Administração do Exército (RAE)" },
+  { id: "7", name: "Direito Militar e Sindicância" },
+  { id: "8", name: "Código Penal Militar" },
+  { id: "9", name: "Código de Processo Penal Militar" },
+  { id: "10", name: "Sindicância" },
+  { id: "11", name: "Conhecimentos Musicais Gerais" },
+  { id: "12", name: "Harmonia Elementar (vocal) e Funcional (instrumental)" },
+  { id: "13", name: "Períodos da História da Música" },
+  { id: "14", name: "Instrumentação" },
+  { id: "15", name: "Canto Modulante" },
+  { id: "16", name: "Transcrição" },
+];
+
+const questionTypeOptions = [
+  { id: "all", name: "Todas as questões" },
+  { id: "hidden", name: "Questões ocultas" },
+  { id: "exam", name: "Questões de provas" },
+  { id: "new", name: "Questões inéditas" },
 ];
 
 export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProps) => {
@@ -117,12 +75,22 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
       </div>
 
       <div className="space-y-2">
-        <Label>Buscar</Label>
-        <Input
-          placeholder="Pesquisar questões..."
-          value={filters.searchTerm}
-          onChange={(e) => onFilterChange("searchTerm", e.target.value)}
-        />
+        <Label>Selecionar</Label>
+        <Select 
+          value={filters.searchTerm} 
+          onValueChange={(value) => onFilterChange("searchTerm", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o tipo de questão" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {questionTypeOptions.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
