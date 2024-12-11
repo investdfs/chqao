@@ -1,11 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { QuestionFilters } from "./questions/QuestionFilters";
+import { QuestionsList } from "./questions/QuestionsList";
+import { QuestionEditForm } from "./questions/QuestionEditForm";
 
 interface EditQuestionsDialogProps {
   open: boolean;
@@ -17,8 +16,8 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
-    subject: "",
-    topic: "",
+    subject: "all",
+    topic: "all",
     searchTerm: ""
   });
   const { toast } = useToast();
@@ -33,10 +32,10 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (filters.subject) {
+      if (filters.subject !== "all") {
         query = query.eq("subject", filters.subject);
       }
-      if (filters.topic) {
+      if (filters.topic !== "all") {
         query = query.eq("topic", filters.topic);
       }
       if (filters.searchTerm) {
@@ -58,6 +57,18 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+    fetchQuestions();
+  };
+
+  const handleQuestionChange = (field: string, value: string) => {
+    setSelectedQuestion(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleSaveQuestion = async () => {
@@ -139,162 +150,23 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Filtros */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Matéria</Label>
-              <Select 
-                value={filters.subject} 
-                onValueChange={(value) => setFilters(prev => ({ ...prev, subject: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a matéria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
-                  {/* Adicionar matérias dinamicamente */}
-                </SelectContent>
-              </Select>
-            </div>
+          <QuestionFilters 
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
 
-            <div className="space-y-2">
-              <Label>Tópico</Label>
-              <Select 
-                value={filters.topic} 
-                onValueChange={(value) => setFilters(prev => ({ ...prev, topic: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tópico" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
-                  {/* Adicionar tópicos dinamicamente */}
-                </SelectContent>
-              </Select>
-            </div>
+          <QuestionsList
+            questions={questions}
+            onQuestionSelect={setSelectedQuestion}
+          />
 
-            <div className="space-y-2">
-              <Label>Buscar</Label>
-              <Input
-                placeholder="Pesquisar questões..."
-                value={filters.searchTerm}
-                onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
-              />
-            </div>
-          </div>
-
-          {/* Lista de Questões */}
-          <div className="border rounded-lg p-4 space-y-4">
-            {questions.map((question) => (
-              <div 
-                key={question.id} 
-                className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
-                onClick={() => setSelectedQuestion(question)}
-              >
-                <p className="font-medium">{question.text}</p>
-                <div className="text-sm text-gray-500 mt-2">
-                  <span>{question.subject}</span>
-                  {question.topic && <span> • {question.topic}</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Formulário de Edição */}
-          {selectedQuestion && (
-            <div className="border rounded-lg p-4 space-y-4">
-              <div className="space-y-2">
-                <Label>Texto da Questão</Label>
-                <Input
-                  value={selectedQuestion.text}
-                  onChange={(e) => setSelectedQuestion(prev => ({ ...prev, text: e.target.value }))}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Matéria</Label>
-                  <Input
-                    value={selectedQuestion.subject}
-                    onChange={(e) => setSelectedQuestion(prev => ({ ...prev, subject: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Tópico</Label>
-                  <Input
-                    value={selectedQuestion.topic || ""}
-                    onChange={(e) => setSelectedQuestion(prev => ({ ...prev, topic: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Opções</Label>
-                {["a", "b", "c", "d", "e"].map((option) => (
-                  <Input
-                    key={option}
-                    value={selectedQuestion[`option_${option}`]}
-                    onChange={(e) => setSelectedQuestion(prev => ({ 
-                      ...prev, 
-                      [`option_${option}`]: e.target.value 
-                    }))}
-                    placeholder={`Opção ${option.toUpperCase()}`}
-                    className="mb-2"
-                  />
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Resposta Correta</Label>
-                  <Select 
-                    value={selectedQuestion.correct_answer} 
-                    onValueChange={(value) => setSelectedQuestion(prev => ({ ...prev, correct_answer: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a resposta correta" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["A", "B", "C", "D", "E"].map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Explicação</Label>
-                  <Input
-                    value={selectedQuestion.explanation || ""}
-                    onChange={(e) => setSelectedQuestion(prev => ({ ...prev, explanation: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedQuestion(null)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDeleteQuestion}
-                >
-                  Excluir
-                </Button>
-                <Button
-                  onClick={handleSaveQuestion}
-                >
-                  Salvar Alterações
-                </Button>
-              </div>
-            </div>
-          )}
+          <QuestionEditForm
+            selectedQuestion={selectedQuestion}
+            onQuestionChange={handleQuestionChange}
+            onSave={handleSaveQuestion}
+            onDelete={handleDeleteQuestion}
+            onCancel={() => setSelectedQuestion(null)}
+          />
         </div>
       </DialogContent>
     </Dialog>
