@@ -22,15 +22,10 @@ export const useSubjectsStats = () => {
     queryKey: ["subjects-stats"],
     queryFn: async () => {
       console.log("Fetching subjects statistics...");
-      // Using SQL query instead of groupBy method
+      
       const { data: stats, error } = await supabase
-        .from('questions')
-        .select('subject, count')
-        .select(`
-          subject,
-          count:count(*)
-        `)
-        .groupBy('subject');
+        .rpc('get_subjects_count')
+        .select();
 
       if (error) {
         console.error("Error fetching subjects stats:", error);
@@ -92,7 +87,7 @@ export const useSubjectsStats = () => {
       console.log("Processed subject groups:", subjectGroups);
       return subjectGroups;
     },
-    refetchInterval: 30000, // Atualiza os dados a cada 30 segundos
-    refetchOnWindowFocus: true, // Atualiza os dados quando a janela recupera o foco
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
 };
