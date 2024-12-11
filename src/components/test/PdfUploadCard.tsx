@@ -82,12 +82,13 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Tema</label>
+            <label className="text-sm font-medium">Tema (opcional)</label>
             <SubjectSelect
               type="theme"
               value={selectedTheme}
               onValueChange={setSelectedTheme}
               subjectFilter={selectedSubject}
+              optional={true}
             />
           </div>
         </div>

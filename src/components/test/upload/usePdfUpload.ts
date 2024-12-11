@@ -41,10 +41,10 @@ export const usePdfUpload = (
       return;
     }
 
-    if (!selectedSubject || !selectedTheme) {
+    if (!selectedSubject) {
       toast({
         title: "Campos obrigatórios",
-        description: "Por favor, selecione a matéria e o tema antes de continuar.",
+        description: "Por favor, selecione a matéria antes de continuar.",
         variant: "destructive"
       });
       return;
@@ -69,7 +69,7 @@ export const usePdfUpload = (
             questionCount: parseInt(questionCount),
             customInstructions: instructions,
             subject: selectedSubject,
-            theme: selectedTheme
+            theme: selectedTheme || null
           }
         }])
         .select()
@@ -84,7 +84,7 @@ export const usePdfUpload = (
           questionCount: parseInt(questionCount),
           customInstructions: instructions,
           subject: selectedSubject,
-          theme: selectedTheme
+          theme: selectedTheme || null
         }
       });
 

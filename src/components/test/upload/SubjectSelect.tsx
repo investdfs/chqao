@@ -8,16 +8,16 @@ interface SubjectSelectProps {
   onValueChange: (value: string) => void;
   type: 'subject' | 'theme';
   subjectFilter?: string;
+  optional?: boolean;
 }
 
-export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: SubjectSelectProps) => {
+export const SubjectSelect = ({ value, onValueChange, type, subjectFilter, optional = false }: SubjectSelectProps) => {
   const { data: items, isLoading } = useQuery({
     queryKey: ['subject-structure', type, subjectFilter],
     queryFn: async () => {
       console.log(`Buscando ${type}s do banco...`, { type, subjectFilter });
       
       if (type === 'subject') {
-        // Buscar todas as matérias (nível 1)
         const { data, error } = await supabase
           .from('subject_structure')
           .select('*')
@@ -32,7 +32,6 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
         console.log('Matérias encontradas:', data);
         return data;
       } else if (type === 'theme' && subjectFilter) {
-        // Buscar temas relacionados à matéria selecionada
         const { data, error } = await supabase
           .from('subject_structure')
           .select('*')
@@ -54,7 +53,7 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
     enabled: type === 'subject' || (type === 'theme' && !!subjectFilter),
   });
 
-  const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema';
+  const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema (opcional)';
 
   if (isLoading) {
     return (
@@ -72,6 +71,11 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="bg-white">
+        {optional && (
+          <SelectItem value="" className="hover:bg-gray-100">
+            Nenhum tema selecionado
+          </SelectItem>
+        )}
         {items && items.length > 0 ? (
           items.map((item) => (
             <SelectItem key={item.id} value={item.name} className="hover:bg-gray-100">
