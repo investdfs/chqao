@@ -11,33 +11,55 @@ interface QuestionFiltersProps {
   onFilterChange: (field: string, value: string) => void;
 }
 
-const availableSubjects = [
-  { id: "1", name: "Língua Portuguesa" },
-  { id: "2", name: "Geografia do Brasil" },
-  { id: "3", name: "História do Brasil" },
-  { id: "4", name: "E-1 - Estatuto dos Militares" },
-  { id: "5", name: "Licitações e Contratos" },
-  { id: "6", name: "Regulamento de Administração do Exército (RAE)" },
-  { id: "7", name: "Direito Militar e Sindicância" },
-  { id: "8", name: "Código Penal Militar" },
-  { id: "9", name: "Código de Processo Penal Militar" },
-  { id: "10", name: "Sindicância" },
-  { id: "11", name: "Conhecimentos Musicais Gerais" },
-  { id: "12", name: "Harmonia Elementar (vocal) e Funcional (instrumental)" },
-  { id: "13", name: "Períodos da História da Música" },
-  { id: "14", name: "Instrumentação" },
-  { id: "15", name: "Canto Modulante" },
-  { id: "16", name: "Transcrição" },
-];
-
-const questionTypeOptions = [
-  { id: "all", name: "Todas as questões" },
-  { id: "hidden", name: "Questões ocultas" },
-  { id: "exam", name: "Questões de provas" },
-  { id: "new", name: "Questões inéditas" },
-];
-
 export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProps) => {
+  const { data: subjects } = useQuery({
+    queryKey: ['subject-structure-subjects'],
+    queryFn: async () => {
+      console.log('Buscando matérias do banco...');
+      const { data, error } = await supabase
+        .from('subject_structure')
+        .select('name')
+        .eq('level', 1)
+        .order('name');
+
+      if (error) throw error;
+      return data.map(item => item.name);
+    }
+  });
+
+  const { data: topics } = useQuery({
+    queryKey: ['subject-structure-topics', filters.subject],
+    queryFn: async () => {
+      if (!filters.subject) return [];
+
+      console.log('Buscando tópicos do banco...');
+      const parentNode = await supabase
+        .from('subject_structure')
+        .select('id')
+        .eq('name', filters.subject)
+        .single();
+
+      if (!parentNode.data) return [];
+
+      const { data, error } = await supabase
+        .from('subject_structure')
+        .select('name')
+        .eq('parent_id', parentNode.data.id)
+        .order('name');
+
+      if (error) throw error;
+      return data.map(item => item.name);
+    },
+    enabled: !!filters.subject
+  });
+
+  const questionTypeOptions = [
+    { id: "all", name: "Todas as questões" },
+    { id: "hidden", name: "Questões ocultas" },
+    { id: "exam", name: "Questões de provas" },
+    { id: "new", name: "Questões inéditas" },
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="space-y-2">
@@ -58,9 +80,9 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
           </SelectTrigger>
           <SelectContent className="bg-white">
             <SelectItem value="">Todas</SelectItem>
-            {availableSubjects.map((subject) => (
-              <SelectItem key={subject.id} value={subject.name}>
-                {subject.name}
+            {subjects?.map((subject) => (
+              <SelectItem key={subject} value={subject}>
+                {subject}
               </SelectItem>
             ))}
           </SelectContent>
@@ -85,6 +107,11 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
           </SelectTrigger>
           <SelectContent className="bg-white">
             <SelectItem value="">Todos</SelectItem>
+            {topics?.map((topic) => (
+              <SelectItem key={topic} value={topic}>
+                {topic}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
