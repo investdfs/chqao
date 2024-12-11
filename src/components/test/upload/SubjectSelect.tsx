@@ -83,7 +83,7 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
             </SelectItem>
           ))
         ) : (
-          <SelectItem value="" disabled>
+          <SelectItem value="no-items" disabled>
             Nenhum item encontrado
           </SelectItem>
         )}
