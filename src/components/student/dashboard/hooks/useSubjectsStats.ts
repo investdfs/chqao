@@ -23,7 +23,9 @@ export const useSubjectsStats = () => {
     queryFn: async () => {
       console.log("Fetching subjects statistics...");
       const { data: stats, error } = await supabase
-        .rpc('get_questions_stats');
+        .from('questions')
+        .select('subject, count(*)')
+        .groupBy('subject');
 
       if (error) {
         console.error("Error fetching subjects stats:", error);
@@ -71,7 +73,7 @@ export const useSubjectsStats = () => {
       ];
 
       // Update question counts from database stats
-      stats?.forEach((stat: SubjectStats) => {
+      stats?.forEach((stat: { subject: string; count: number }) => {
         for (const group of subjectGroups) {
           const subject = group.subjects.find(s => s.subject === stat.subject);
           if (subject) {
@@ -85,9 +87,7 @@ export const useSubjectsStats = () => {
       console.log("Processed subject groups:", subjectGroups);
       return subjectGroups;
     },
-    // Atualiza os dados a cada 30 segundos
-    refetchInterval: 30000,
-    // Atualiza os dados quando a janela recupera o foco
-    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Atualiza os dados a cada 30 segundos
+    refetchOnWindowFocus: true, // Atualiza os dados quando a janela recupera o foco
   });
 };
