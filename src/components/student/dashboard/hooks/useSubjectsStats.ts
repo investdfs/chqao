@@ -24,8 +24,7 @@ export const useSubjectsStats = () => {
       console.log("Fetching subjects statistics...");
       
       const { data: stats, error } = await supabase
-        .rpc('get_subjects_count')
-        .select();
+        .rpc('get_subjects_count');
 
       if (error) {
         console.error("Error fetching subjects stats:", error);

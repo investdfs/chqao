@@ -334,6 +334,13 @@ export type Database = {
           has_children: boolean
         }[]
       }
+      get_subjects_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          subject: string
+          count: number
+        }[]
+      }
       get_syllabus_progress: {
         Args: {
           student_id_param: string
