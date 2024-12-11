@@ -11,6 +11,73 @@ interface QuestionFiltersProps {
   onFilterChange: (field: string, value: string) => void;
 }
 
+const availableSubjects = [
+  { 
+    id: "1", 
+    name: "Língua Portuguesa",
+  },
+  { 
+    id: "2", 
+    name: "Geografia do Brasil",
+  },
+  { 
+    id: "3", 
+    name: "História do Brasil",
+  },
+  { 
+    id: "4", 
+    name: "E-1 - Estatuto dos Militares",
+  },
+  { 
+    id: "5", 
+    name: "Licitações e Contratos",
+  },
+  { 
+    id: "6", 
+    name: "Regulamento de Administração do Exército (RAE)",
+  },
+  { 
+    id: "7", 
+    name: "Direito Militar e Sindicância",
+  },
+  { 
+    id: "8", 
+    name: "Código Penal Militar",
+  },
+  { 
+    id: "9", 
+    name: "Código de Processo Penal Militar",
+  },
+  { 
+    id: "10", 
+    name: "Sindicância",
+  },
+  { 
+    id: "11", 
+    name: "Conhecimentos Musicais Gerais",
+  },
+  { 
+    id: "12", 
+    name: "Harmonia Elementar (vocal) e Funcional (instrumental)",
+  },
+  { 
+    id: "13", 
+    name: "Períodos da História da Música",
+  },
+  { 
+    id: "14", 
+    name: "Instrumentação",
+  },
+  { 
+    id: "15", 
+    name: "Canto Modulante",
+  },
+  { 
+    id: "16", 
+    name: "Transcrição",
+  },
+];
+
 export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -25,7 +92,11 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas</SelectItem>
-            {/* We'll populate this dynamically later */}
+            {availableSubjects.map((subject) => (
+              <SelectItem key={subject.id} value={subject.name}>
+                {subject.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
