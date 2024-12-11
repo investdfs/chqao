@@ -72,7 +72,7 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter, optio
       </SelectTrigger>
       <SelectContent className="bg-white">
         {optional && (
-          <SelectItem value="" className="hover:bg-gray-100">
+          <SelectItem value="none" className="hover:bg-gray-100">
             Nenhum tema selecionado
           </SelectItem>
         )}

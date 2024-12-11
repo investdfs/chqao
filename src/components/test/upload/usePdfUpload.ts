@@ -60,6 +60,9 @@ export const usePdfUpload = (
 
       if (updateError) throw updateError;
 
+      // Determine the theme value - if "none" is selected or empty string, use null
+      const themeValue = selectedTheme && selectedTheme !== "none" ? selectedTheme : null;
+
       const { data: generation, error: insertError } = await supabase
         .from('ai_question_generations')
         .insert([{ 
@@ -69,7 +72,7 @@ export const usePdfUpload = (
             questionCount: parseInt(questionCount),
             customInstructions: instructions,
             subject: selectedSubject,
-            theme: selectedTheme || null
+            theme: themeValue
           }
         }])
         .select()
@@ -84,7 +87,7 @@ export const usePdfUpload = (
           questionCount: parseInt(questionCount),
           customInstructions: instructions,
           subject: selectedSubject,
-          theme: selectedTheme || null
+          theme: themeValue
         }
       });
 
