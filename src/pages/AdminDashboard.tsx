@@ -39,7 +39,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-6 max-w-[1600px]">
+      <div className="container mx-auto px-6 py-8 max-w-[1600px]">
         <div className="mb-8 flex justify-between items-center">
           <DashboardHeader />
           <SyncDatabaseButton onRefetch={refetch} />
@@ -53,43 +53,49 @@ const AdminDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left sidebar */}
           <div className="lg:col-span-3">
-            <div className="sticky top-6">
+            <div className="sticky top-8">
               <SubjectsPanel />
             </div>
           </div>
           
+          {/* Main content */}
           <div className="lg:col-span-9 space-y-8">
-            <Card className="overflow-hidden">
-              <CardHeader className="bg-white">
-                <CardTitle>Estatísticas de Questões</CardTitle>
+            {/* Questions Stats Card */}
+            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="bg-white p-6">
+                <CardTitle className="text-xl font-semibold">Estatísticas de Questões</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <QuestionsTreeStats />
               </CardContent>
             </Card>
 
-            <Card className="overflow-hidden">
-              <CardHeader className="bg-white">
-                <CardTitle>Gerenciamento de Administradores</CardTitle>
+            {/* Admin Management Card */}
+            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="bg-white p-6">
+                <CardTitle className="text-xl font-semibold">Gerenciamento de Administradores</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <AdminManager />
               </CardContent>
             </Card>
 
-            <Card className="overflow-hidden">
-              <CardHeader className="bg-white">
-                <CardTitle>Gerenciamento de Estudantes</CardTitle>
+            {/* Student Management Card */}
+            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="bg-white p-6">
+                <CardTitle className="text-xl font-semibold">Gerenciamento de Estudantes</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <StudentManager />
               </CardContent>
             </Card>
 
-            <Card className="overflow-hidden">
-              <CardHeader className="bg-white">
-                <CardTitle>Importar Questões</CardTitle>
+            {/* Question Import Card */}
+            <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="bg-white p-6">
+                <CardTitle className="text-xl font-semibold">Importar Questões</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <QuestionImporter />
@@ -99,10 +105,11 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            <Accordion type="single" collapsible className="bg-white rounded-lg overflow-hidden">
+            {/* Subject Management Accordion */}
+            <Accordion type="single" collapsible className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <AccordionItem value="subjects" className="border-none">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50">
-                  <span className="text-lg font-semibold">Gerenciar Matérias</span>
+                  <span className="text-xl font-semibold">Gerenciar Matérias</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
                   <SubjectManager />
