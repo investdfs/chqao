@@ -10,7 +10,12 @@ export function validateGeneratedQuestions(questions: Question[], expectedCount:
   }
 
   questions.forEach((q, index) => {
-    const requiredFields = ['text', 'option_a', 'option_b', 'option_c', 'option_d', 'option_e', 'correct_answer', 'explanation', 'difficulty', 'theme'];
+    const requiredFields = [
+      'text', 'option_a', 'option_b', 'option_c', 'option_d', 
+      'option_e', 'correct_answer', 'explanation', 'difficulty', 
+      'subject', 'theme', 'topic'
+    ];
+    
     const missingFields = requiredFields.filter(field => !q[field]);
     
     if (missingFields.length > 0) {
@@ -33,6 +38,7 @@ export function validateGeneratedQuestions(questions: Question[], expectedCount:
       throw new Error(`Questão ${index + 1} tem explicação muito curta`);
     }
 
+    // Marca todas as questões como geradas por IA
     q.is_ai_generated = true;
   });
 

@@ -1,7 +1,7 @@
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
 
-export async function generateQuestionsWithAI(pdfText: string, questionCount: number, customInstructions?: string) {
+export async function generateQuestionsWithAI(pdfText: string, questionCount: number, subject: string, theme: string, customInstructions?: string) {
   const openaiKey = Deno.env.get('OPENAI_API_KEY')!;
   let lastError = null;
 
@@ -16,11 +16,11 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'system',
-              content: `Você é um especialista em criar questões militares objetivas.
+              content: `Você é um especialista em criar questões militares objetivas. 
               Analise o texto fornecido e gere questões seguindo estas regras:
               
               1. Use este formato JSON para cada questão:
@@ -34,7 +34,9 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
                 "correct_answer": "A|B|C|D|E",
                 "explanation": "explicação detalhada da resposta",
                 "difficulty": "Fácil|Médio|Difícil",
-                "theme": "tema principal da questão",
+                "subject": "${subject}",
+                "theme": "${theme}",
+                "topic": "tópico específico da questão",
                 "is_ai_generated": true
               }
               
@@ -44,10 +46,16 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
               5. Evite ambiguidades nas alternativas.
               6. Inclua explicações detalhadas e fundamentadas.
               7. Distribua as questões entre diferentes níveis de dificuldade.
-              ${customInstructions ? `8. Instruções adicionais: ${customInstructions}` : ''}`
+              8. Baseie-se APENAS no conteúdo fornecido.
+              9. Evite questões com "EXCETO" ou "INCORRETO".
+              10. Mantenha as alternativas com comprimento similar.
+              11. Não use "todas as alternativas" ou "nenhuma das alternativas".
+              ${customInstructions ? `12. Instruções adicionais: ${customInstructions}` : ''}`
             },
             { role: 'user', content: pdfText }
           ],
+          temperature: 0.7,
+          max_tokens: 4000,
         }),
       });
 
@@ -57,7 +65,10 @@ export async function generateQuestionsWithAI(pdfText: string, questionCount: nu
       }
 
       const data = await response.json();
-      return data.choices[0]?.message?.content;
+      const generatedQuestions = JSON.parse(data.choices[0]?.message?.content || '[]');
+      
+      console.log(`Geradas ${generatedQuestions.length} questões com sucesso`);
+      return generatedQuestions;
     } catch (error) {
       console.error(`Erro na tentativa ${attempt + 1}:`, error);
       lastError = error;
