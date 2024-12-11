@@ -68,13 +68,13 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
 
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger>
+      <SelectTrigger className="bg-white">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="bg-white">
         {items && items.length > 0 ? (
           items.map((item) => (
-            <SelectItem key={item.id} value={item.name}>
+            <SelectItem key={item.id} value={item.name} className="hover:bg-gray-100">
               {item.name}
             </SelectItem>
           ))
