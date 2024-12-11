@@ -24,8 +24,8 @@ serve(async (req) => {
     const { generationId, filePath, questionCount, customInstructions, subject, theme } = await req.json() as ProcessPdfRequest;
     console.log('Iniciando processamento:', { generationId, filePath });
 
-    if (!generationId || !filePath || !questionCount || !subject || !theme) {
-      throw new Error('Parâmetros obrigatórios faltando');
+    if (!generationId || !filePath || !questionCount || !subject) {
+      throw new Error('Parâmetros obrigatórios faltando: generationId, filePath, questionCount e subject são necessários');
     }
 
     // Buscar arquivo do storage

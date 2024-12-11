@@ -8,7 +8,7 @@ export interface Question {
   correct_answer: string;
   explanation: string;
   difficulty: "Fácil" | "Médio" | "Difícil";
-  theme: string;
+  theme: string | null;
   is_ai_generated: boolean;
 }
 
@@ -17,4 +17,6 @@ export interface ProcessPdfRequest {
   filePath: string;
   questionCount: number;
   customInstructions?: string;
+  subject: string;
+  theme?: string | null;
 }
