@@ -122,6 +122,36 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     }
   };
 
+  const handleDeleteQuestion = async () => {
+    if (!selectedQuestion) return;
+
+    console.log("Excluindo questão:", selectedQuestion.id);
+    
+    try {
+      const { error } = await supabase
+        .from("questions")
+        .update({ status: 'deleted' })
+        .eq("id", selectedQuestion.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Questão excluída",
+        description: "A questão foi excluída com sucesso.",
+      });
+      
+      fetchQuestions();
+      setSelectedQuestion(null);
+    } catch (error) {
+      console.error("Erro ao excluir questão:", error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir a questão. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -150,6 +180,7 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
               selectedQuestion={selectedQuestion}
               onQuestionChange={handleQuestionChange}
               onSave={handleSaveQuestion}
+              onDelete={handleDeleteQuestion}
               onCancel={() => setSelectedQuestion(null)}
             />
           )}

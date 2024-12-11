@@ -6,9 +6,6 @@ interface QuestionsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   questions: any[];
-  themes: string[];
-  subjects: string[];
-  topics: string[];
   selectedTheme: string;
   selectedSubject: string;
   selectedTopic: string;
@@ -24,9 +21,6 @@ export const QuestionsDialog = ({
   open,
   onOpenChange,
   questions,
-  themes,
-  subjects,
-  topics,
   selectedTheme,
   selectedSubject,
   selectedTopic,
@@ -37,6 +31,27 @@ export const QuestionsDialog = ({
   onSearchChange,
   onFilter,
 }: QuestionsDialogProps) => {
+  const filters = {
+    subject: selectedSubject,
+    topic: selectedTopic,
+    searchTerm: searchTerm,
+  };
+
+  const handleFilterChange = (field: string, value: string) => {
+    switch (field) {
+      case "subject":
+        onSubjectChange(value);
+        break;
+      case "topic":
+        onTopicChange(value);
+        break;
+      case "searchTerm":
+        onSearchChange(value);
+        break;
+    }
+    onFilter();
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -45,18 +60,8 @@ export const QuestionsDialog = ({
         </DialogHeader>
 
         <QuestionFilters
-          themes={themes}
-          subjects={subjects}
-          topics={topics}
-          selectedTheme={selectedTheme}
-          selectedSubject={selectedSubject}
-          selectedTopic={selectedTopic}
-          searchTerm={searchTerm}
-          onThemeChange={onThemeChange}
-          onSubjectChange={onSubjectChange}
-          onTopicChange={onTopicChange}
-          onSearchChange={onSearchChange}
-          onFilter={onFilter}
+          filters={filters}
+          onFilterChange={handleFilterChange}
         />
 
         <QuestionsTable questions={questions} />
