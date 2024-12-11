@@ -23,16 +23,11 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
 
       if (type === 'theme' && subjectFilter) {
         console.log('Filtrando temas pela matéria:', subjectFilter);
-        const { data: parentNode, error: parentError } = await supabase
+        const { data: parentNode } = await supabase
           .from('subject_structure')
           .select('id')
           .eq('name', subjectFilter)
           .single();
-
-        if (parentError) {
-          console.error('Erro ao buscar matéria pai:', parentError);
-          return [];
-        }
 
         if (parentNode) {
           console.log('Matéria pai encontrada:', parentNode);
@@ -48,14 +43,10 @@ export const SubjectSelect = ({ value, onValueChange, type, subjectFilter }: Sub
       }
       
       console.log(`${type}s encontrados:`, data);
-      return data.map(item => ({
-        id: item.id,
-        name: item.name
-      }));
+      return data;
     },
     enabled: type === 'subject' || (type === 'theme' && !!subjectFilter),
     staleTime: 1000 * 60 * 5, // Cache por 5 minutos
-    retry: 2
   });
 
   const placeholder = type === 'subject' ? 'Selecione a matéria' : 'Selecione o tema';
