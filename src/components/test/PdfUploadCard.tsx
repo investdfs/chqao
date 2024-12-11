@@ -81,17 +81,15 @@ export const PdfUploadCard = ({ selectedPdf, onPdfSelect }: PdfUploadCardProps) 
             />
           </div>
 
-          {selectedSubject && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Tema</label>
-              <SubjectSelect
-                type="theme"
-                value={selectedTheme}
-                onValueChange={setSelectedTheme}
-                subjectFilter={selectedSubject}
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Tema</label>
+            <SubjectSelect
+              type="theme"
+              value={selectedTheme}
+              onValueChange={setSelectedTheme}
+              subjectFilter={selectedSubject}
+            />
+          </div>
         </div>
 
         <GenerationForm
