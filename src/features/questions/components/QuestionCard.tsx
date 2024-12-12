@@ -1,7 +1,8 @@
-import React from "react";
+import { useEffect, memo } from "react";
+import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
-import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
+import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
 
 interface QuestionCardProps {
   question: {
@@ -22,11 +23,11 @@ interface QuestionCardProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
-  studentId: string;
   isUserBlocked?: boolean;
+  studentId?: string;
 }
 
-const QuestionCard = ({
+const QuestionCard = memo(({
   question,
   onNextQuestion,
   onPreviousQuestion,
@@ -35,7 +36,7 @@ const QuestionCard = ({
   isUserBlocked = false,
   studentId,
 }: QuestionCardProps) => {
-  console.log("Renderizando QuestionCard para questão:", question.id);
+  console.log("Renderizando QuestionCard para questão:", question);
 
   const {
     selectedAnswer,
@@ -43,26 +44,41 @@ const QuestionCard = ({
     hasAnswered,
     handleAnswer,
     handleReset
-  } = useQuestionAnswer({ questionId: question.id, studentId });
+  } = useQuestionAnswer({
+    questionId: question.id,
+    studentId
+  });
+
+  useEffect(() => {
+    console.log("Question ID mudou, resetando estado");
+    handleReset();
+  }, [question.id]);
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
   }
 
   return (
-    <QuestionContent
-      question={question}
-      selectedAnswer={selectedAnswer}
-      setSelectedAnswer={setSelectedAnswer}
-      hasAnswered={hasAnswered}
-      handleAnswer={handleAnswer}
-      handleReset={handleReset}
-      onNextQuestion={onNextQuestion}
-      onPreviousQuestion={onPreviousQuestion}
-      questionNumber={questionNumber}
-      totalQuestions={totalQuestions}
-    />
+    <div className="h-full flex flex-col space-y-4">
+      <QuestionHeader />
+      <div className="flex-1 overflow-y-auto">
+        <QuestionContent
+          question={question}
+          selectedAnswer={selectedAnswer}
+          setSelectedAnswer={setSelectedAnswer}
+          hasAnswered={hasAnswered}
+          handleAnswer={handleAnswer}
+          handleReset={handleReset}
+          onNextQuestion={onNextQuestion}
+          onPreviousQuestion={onPreviousQuestion}
+          questionNumber={questionNumber}
+          totalQuestions={totalQuestions}
+        />
+      </div>
+    </div>
   );
-};
+});
+
+QuestionCard.displayName = 'QuestionCard';
 
 export default QuestionCard;

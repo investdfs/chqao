@@ -6,7 +6,6 @@ interface QuestionMetadataProps {
   className?: string;
   examYear?: number;
   isFromPreviousExam?: boolean;
-  examQuestionNumber?: number;
 }
 
 const QuestionMetadata = ({ 
@@ -16,16 +15,10 @@ const QuestionMetadata = ({
   source, 
   className = "",
   examYear,
-  isFromPreviousExam,
-  examQuestionNumber
+  isFromPreviousExam
 }: QuestionMetadataProps) => {
-  const formatExamQuestionNumber = (num?: number) => {
-    if (!num) return '0000';
-    return num.toString().padStart(4, '0');
-  };
-
   const examInfo = isFromPreviousExam && examYear 
-    ? `EIPS/CHQAO ${examYear} (Q${formatExamQuestionNumber(examQuestionNumber)})`
+    ? `Prova EIPS/CHQAO ${examYear}`
     : `Q.${id}`;
 
   return (
