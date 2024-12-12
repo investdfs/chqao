@@ -22,18 +22,28 @@ export const useQuestionsStats = () => {
     try {
       console.log('Fetching questions statistics...');
       
-      // Fetch total questions
-      const { count: questionsCount, error: questionsError } = await supabase
+      // Fetch total regular questions
+      const { count: regularQuestionsCount, error: regularError } = await supabase
         .from('questions')
         .select('*', { count: 'exact', head: true });
 
-      if (questionsError) {
-        console.error('Error fetching questions:', questionsError);
+      if (regularError) {
+        console.error('Error fetching regular questions:', regularError);
+        return;
+      }
+
+      // Fetch previous exam questions count
+      const { count: examQuestionsCount, error: examError } = await supabase
+        .from('previous_exam_questions')
+        .select('*', { count: 'exact', head: true });
+
+      if (examError) {
+        console.error('Error fetching exam questions:', examError);
         return;
       }
 
       // Fetch previous exams statistics
-      const { data: examStats, error: examError } = await supabase
+      const { data: examStats, error: examStatsError } = await supabase
         .from('previous_exams')
         .select(`
           id,
@@ -43,21 +53,18 @@ export const useQuestionsStats = () => {
           )
         `);
 
-      if (examError) {
-        console.error('Error fetching exam stats:', examError);
+      if (examStatsError) {
+        console.error('Error fetching exam stats:', examStatsError);
         return;
       }
 
       const totalExams = examStats?.length || 0;
-      const totalExamQuestions = examStats?.reduce((sum, exam) => 
-        sum + (exam.previous_exam_questions?.[0]?.count || 0), 0
-      );
 
       setStats({
-        totalQuestions: questionsCount || 0,
+        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
         previousExams: {
           total: totalExams,
-          questions: totalExamQuestions
+          questions: examQuestionsCount || 0
         }
       });
     } catch (error) {
