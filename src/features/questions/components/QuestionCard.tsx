@@ -4,17 +4,16 @@ import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
 
-interface QuestionOption {
-  id: string;
-  text: string;
-}
-
 interface QuestionCardProps {
   question: {
     id: string;
     text: string;
-    options: QuestionOption[];
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
     source?: string;
     subject?: string;
@@ -37,7 +36,7 @@ const QuestionCard = memo(({
   isUserBlocked = false,
   studentId,
 }: QuestionCardProps) => {
-  console.log("Renderizando QuestionCard para questão:", question.id);
+  console.log("Renderizando QuestionCard para questão:", question);
 
   const {
     selectedAnswer,
