@@ -2,6 +2,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import QuestionCard from "@/features/questions/components/QuestionCard";
 import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
 
+const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
+
+// Mock student data for preview mode
+const previewStudentData = {
+  id: '00000000-0000-0000-0000-000000000000',
+  email: 'preview@example.com',
+  name: 'Preview User',
+  status: 'active'
+};
+
 const PreviousExamsContent = () => {
   const {
     currentQuestionIndex,
@@ -15,7 +25,7 @@ const PreviousExamsContent = () => {
     currentQuestion
   } = useQuestion();
 
-  if (isLoadingStudent) {
+  if (isLoadingStudent && !isPreviewMode) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
         <div className="max-w-3xl mx-auto">
@@ -25,7 +35,10 @@ const PreviousExamsContent = () => {
     );
   }
 
-  if (!studentData) {
+  // In preview mode, we'll use mock data instead of requiring authentication
+  const effectiveStudentData = isPreviewMode ? previewStudentData : studentData;
+
+  if (!effectiveStudentData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
         <div className="max-w-3xl mx-auto text-center">
@@ -91,8 +104,8 @@ const PreviousExamsContent = () => {
           onPreviousQuestion={handlePreviousQuestion}
           questionNumber={currentQuestionIndex + 1}
           totalQuestions={questions.length}
-          studentId={studentData.id}
-          isUserBlocked={studentData.status === 'blocked'}
+          studentId={effectiveStudentData.id}
+          isUserBlocked={effectiveStudentData.status === 'blocked'}
         />
       </div>
     </div>
