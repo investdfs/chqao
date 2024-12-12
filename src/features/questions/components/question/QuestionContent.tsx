@@ -1,19 +1,13 @@
-import { memo, useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import React from "react";
 import QuestionMetadata from "./QuestionMetadata";
 import QuestionOptions from "./QuestionOptions";
-import NavigationButtons from "./NavigationButtons";
 import QuestionFeedback from "./QuestionFeedback";
-import MobileFeedbackDialog from "./MobileFeedbackDialog";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import NavigationButtons from "./NavigationButtons";
 
 interface QuestionContentProps {
   question: {
     id: string;
     text: string;
-    subject?: string;
-    topic?: string;
-    source?: string;
     option_a: string;
     option_b: string;
     option_c: string;
@@ -21,128 +15,85 @@ interface QuestionContentProps {
     option_e: string;
     correct_answer: string;
     explanation: string;
+    source?: string;
+    subject?: string;
+    topic?: string;
+    exam_year?: number;
+    is_from_previous_exam?: boolean;
+    exam_question_number?: number;
   };
-  selectedAnswer: string;
-  setSelectedAnswer: (value: string) => void;
-  hasAnswered: boolean;
-  handleAnswer: () => void;
-  handleReset: () => void;
+  selectedAnswer: string | null;
+  isAnswered: boolean;
+  isCorrect: boolean | null;
+  onOptionSelect: (option: string) => void;
+  showExplanation: boolean;
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
 }
 
-const QuestionContent = memo(({
+const QuestionContent = ({
   question,
   selectedAnswer,
-  setSelectedAnswer,
-  hasAnswered,
-  handleAnswer,
-  handleReset,
+  isAnswered,
+  isCorrect,
+  onOptionSelect,
+  showExplanation,
   onNextQuestion,
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
 }: QuestionContentProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const [showMobileFeedback, setShowMobileFeedback] = useState(false);
-  const [isAnswering, setIsAnswering] = useState(false);
-
-  console.log("Rendering QuestionContent with question:", question);
-
-  const options = [
-    { id: "A", text: question.option_a },
-    { id: "B", text: question.option_b },
-    { id: "C", text: question.option_c },
-    { id: "D", text: question.option_d },
-    { id: "E", text: question.option_e },
-  ];
-
-  const handleAnswerWithDelay = async () => {
-    console.log("Iniciando processo de resposta com delay");
-    setIsAnswering(true);
-    handleAnswer();
-    
-    if (isMobile) {
-      console.log("Aguardando 3 segundos antes de mostrar feedback");
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      setShowMobileFeedback(true);
-    }
-    setIsAnswering(false);
-  };
-
-  useEffect(() => {
-    if (hasAnswered && isMobile && !isAnswering) {
-      console.log("Mostrando feedback após delay");
-      setShowMobileFeedback(true);
-    }
-  }, [hasAnswered, isMobile, isAnswering]);
+  console.log("Renderizando QuestionContent:", { question, selectedAnswer, isAnswered });
 
   return (
-    <Card className="animate-fade-in dark:bg-gray-800">
-      <CardContent className="p-4 sm:p-6">
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div className="p-6 space-y-4">
+        <QuestionMetadata
+          id={question.id}
+          subject={question.subject}
+          topic={question.topic}
+          source={question.source}
+          examYear={question.exam_year}
+          isFromPreviousExam={question.is_from_previous_exam}
+          examQuestionNumber={question.exam_question_number}
+        />
+        
         <div className="space-y-4">
-          <QuestionMetadata
-            id={question.id}
-            subject={question.subject}
-            topic={question.topic}
-            source={question.source}
-          />
-
-          <div className="text-base dark:text-gray-200 text-left">
-            {question.text}
-          </div>
-
+          <p className="text-base/relaxed">{question.text}</p>
+          
           <QuestionOptions
-            options={options}
-            selectedAnswer={selectedAnswer}
-            hasAnswered={hasAnswered}
+            options={[
+              { id: 'A', text: question.option_a },
+              { id: 'B', text: question.option_b },
+              { id: 'C', text: question.option_c },
+              { id: 'D', text: question.option_d },
+              { id: 'E', text: question.option_e },
+            ]}
+            selectedOption={selectedAnswer}
+            onOptionSelect={onOptionSelect}
+            isAnswered={isAnswered}
             correctAnswer={question.correct_answer}
-            onAnswerSelect={setSelectedAnswer}
-            questionId={question.id}
           />
 
-          <NavigationButtons
-            onPrevious={onPreviousQuestion}
-            onNext={onNextQuestion}
-            onAnswer={handleAnswerWithDelay}
-            canAnswer={!!selectedAnswer}
-            hasAnswered={hasAnswered}
-            questionNumber={questionNumber}
-            totalQuestions={totalQuestions}
-            isAnswering={isAnswering}
-          />
-
-          {hasAnswered && !isMobile && (
+          {showExplanation && (
             <QuestionFeedback
-              isCorrect={selectedAnswer === question.correct_answer}
-              selectedAnswer={selectedAnswer}
-              correctAnswer={question.correct_answer}
+              isCorrect={isCorrect}
               explanation={question.explanation}
-              onReset={handleReset}
-              questionId={question.id}
             />
           )}
-
-          <MobileFeedbackDialog
-            open={showMobileFeedback}
-            onOpenChange={setShowMobileFeedback}
-            isCorrect={selectedAnswer === question.correct_answer}
-            selectedAnswer={selectedAnswer}
-            correctAnswer={question.correct_answer}
-            explanation={question.explanation}
-            onNext={onNextQuestion}
-            onPrevious={onPreviousQuestion}
-            canGoNext={questionNumber < totalQuestions}
-            canGoPrevious={questionNumber > 1}
-          />
         </div>
-      </CardContent>
-    </Card>
-  );
-});
+      </div>
 
-QuestionContent.displayName = 'QuestionContent';
+      <NavigationButtons
+        onPrevious={onPreviousQuestion}
+        onNext={onNextQuestion}
+        currentQuestion={questionNumber}
+        totalQuestions={totalQuestions}
+      />
+    </div>
+  );
+};
 
 export default QuestionContent;
