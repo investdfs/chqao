@@ -8,12 +8,21 @@ interface LoginFormData {
   password: string;
 }
 
+const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
+
 export const useAuthLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (formData: LoginFormData, isAdmin: boolean) => {
+    // Se estiver no modo preview, redireciona direto sem autenticação
+    if (isPreviewMode) {
+      console.log("Preview mode: bypassing authentication");
+      navigate(isAdmin ? "/admin-dashboard" : "/student-dashboard");
+      return;
+    }
+
     setLoading(true);
     const normalizedEmail = formData.email.toLowerCase().trim();
     
