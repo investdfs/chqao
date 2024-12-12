@@ -1,7 +1,7 @@
 import React from "react";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
-import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
+import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
 interface QuestionCardProps {
   question: {
@@ -17,9 +17,6 @@ interface QuestionCardProps {
     source?: string;
     subject?: string;
     topic?: string;
-    exam_year?: number;
-    is_from_previous_exam?: boolean;
-    exam_question_number?: number;
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
@@ -38,15 +35,15 @@ const QuestionCard = ({
   isUserBlocked = false,
   studentId,
 }: QuestionCardProps) => {
-  console.log("Renderizando QuestionCard para questão:", question);
+  console.log("Renderizando QuestionCard para questão:", question.id);
 
   const {
     selectedAnswer,
-    isAnswered,
-    isCorrect,
-    handleOptionSelect,
-    showExplanation,
-  } = useQuestionAnswer(question.id, question.correct_answer, studentId);
+    setSelectedAnswer,
+    hasAnswered,
+    handleAnswer,
+    handleReset
+  } = useQuestionAnswer({ questionId: question.id, studentId });
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
@@ -56,10 +53,10 @@ const QuestionCard = ({
     <QuestionContent
       question={question}
       selectedAnswer={selectedAnswer}
-      isAnswered={isAnswered}
-      isCorrect={isCorrect}
-      onOptionSelect={handleOptionSelect}
-      showExplanation={showExplanation}
+      setSelectedAnswer={setSelectedAnswer}
+      hasAnswered={hasAnswered}
+      handleAnswer={handleAnswer}
+      handleReset={handleReset}
       onNextQuestion={onNextQuestion}
       onPreviousQuestion={onPreviousQuestion}
       questionNumber={questionNumber}

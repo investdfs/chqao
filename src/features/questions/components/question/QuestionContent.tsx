@@ -1,8 +1,9 @@
-import React from "react";
+import { memo } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
 import QuestionOptions from "./QuestionOptions";
-import QuestionFeedback from "./QuestionFeedback";
 import NavigationButtons from "./NavigationButtons";
+import QuestionFeedback from "./QuestionFeedback";
 
 interface QuestionContentProps {
   question: {
@@ -15,85 +16,94 @@ interface QuestionContentProps {
     option_e: string;
     correct_answer: string;
     explanation: string;
-    source?: string;
     subject?: string;
     topic?: string;
-    exam_year?: number;
-    is_from_previous_exam?: boolean;
-    exam_question_number?: number;
+    source?: string;
   };
-  selectedAnswer: string | null;
-  isAnswered: boolean;
-  isCorrect: boolean | null;
-  onOptionSelect: (option: string) => void;
-  showExplanation: boolean;
+  selectedAnswer: string;
+  setSelectedAnswer: (value: string) => void;
+  hasAnswered: boolean;
+  handleAnswer: () => void;
+  handleReset: () => void;
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
 }
 
-const QuestionContent = ({
+const QuestionContent = memo(({
   question,
   selectedAnswer,
-  isAnswered,
-  isCorrect,
-  onOptionSelect,
-  showExplanation,
+  setSelectedAnswer,
+  hasAnswered,
+  handleAnswer,
+  handleReset,
   onNextQuestion,
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
 }: QuestionContentProps) => {
-  console.log("Renderizando QuestionContent:", { question, selectedAnswer, isAnswered });
+  console.log("Renderizando QuestionContent para questão:", question.id);
+
+  const options = [
+    { id: 'A', text: question.option_a },
+    { id: 'B', text: question.option_b },
+    { id: 'C', text: question.option_c },
+    { id: 'D', text: question.option_d },
+    { id: 'E', text: question.option_e },
+  ];
 
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-      <div className="p-6 space-y-4">
-        <QuestionMetadata
-          id={question.id}
-          subject={question.subject}
-          topic={question.topic}
-          source={question.source}
-          examYear={question.exam_year}
-          isFromPreviousExam={question.is_from_previous_exam}
-          examQuestionNumber={question.exam_question_number}
-        />
-        
-        <div className="space-y-4">
-          <p className="text-base/relaxed">{question.text}</p>
-          
-          <QuestionOptions
-            options={[
-              { id: 'A', text: question.option_a },
-              { id: 'B', text: question.option_b },
-              { id: 'C', text: question.option_c },
-              { id: 'D', text: question.option_d },
-              { id: 'E', text: question.option_e },
-            ]}
-            selectedOption={selectedAnswer}
-            onOptionSelect={onOptionSelect}
-            isAnswered={isAnswered}
-            correctAnswer={question.correct_answer}
+    <Card className="animate-fade-in dark:bg-gray-800">
+      <CardContent className="p-4 sm:p-6">
+        <div className="space-y-6">
+          <QuestionMetadata
+            id={question.id}
+            subject={question.subject}
+            topic={question.topic}
+            source={question.source}
           />
 
-          {showExplanation && (
+          <div className="text-base dark:text-gray-200 text-left">
+            {question.text}
+          </div>
+
+          <QuestionOptions
+            options={options}
+            selectedAnswer={selectedAnswer}
+            hasAnswered={hasAnswered}
+            correctAnswer={question.correct_answer}
+            onAnswerSelect={setSelectedAnswer}
+            questionId={question.id}
+            onAutoAnswer={handleAnswer}
+          />
+
+          <NavigationButtons
+            onPrevious={onPreviousQuestion}
+            onNext={onNextQuestion}
+            onAnswer={handleAnswer}
+            canAnswer={!!selectedAnswer}
+            hasAnswered={hasAnswered}
+            questionNumber={questionNumber}
+            totalQuestions={totalQuestions}
+          />
+
+          {hasAnswered && (
             <QuestionFeedback
-              isCorrect={isCorrect}
+              isCorrect={selectedAnswer === question.correct_answer}
+              selectedAnswer={selectedAnswer}
+              correctAnswer={question.correct_answer}
               explanation={question.explanation}
+              onReset={handleReset}
+              questionId={question.id}
             />
           )}
         </div>
-      </div>
-
-      <NavigationButtons
-        onPrevious={onPreviousQuestion}
-        onNext={onNextQuestion}
-        currentQuestion={questionNumber}
-        totalQuestions={totalQuestions}
-      />
-    </div>
+      </CardContent>
+    </Card>
   );
-};
+});
+
+QuestionContent.displayName = 'QuestionContent';
 
 export default QuestionContent;
