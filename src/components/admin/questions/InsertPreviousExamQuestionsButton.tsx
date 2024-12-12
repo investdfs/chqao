@@ -7,65 +7,77 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
+interface QuestionInput {
+  text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  option_e: string;
+  correct_answer: string;
+  explanation: string;
+  difficulty: string;
+  theme: string;
+  subject: string;
+  topic: string;
+}
+
 export const InsertPreviousExamQuestionsButton = () => {
   const [open, setOpen] = useState(false);
   const [questions, setQuestions] = useState("");
-  const [answers, setAnswers] = useState("");
   const [examYear, setExamYear] = useState("");
   const [examName, setExamName] = useState("");
   const { toast } = useToast();
 
-  const processQuestions = async (questionsText: string, answersText: string) => {
-    const questionLines = questionsText.trim().split('\n');
-    const answerLines = answersText.trim().split('\n');
-    
-    // First create the exam
-    const { data: examData, error: examError } = await supabase
-      .from("previous_exams")
-      .insert({
-        year: parseInt(examYear),
-        name: examName || `Prova ${examYear}`,
-        description: `Prova do ano ${examYear}`
-      })
-      .select()
-      .single();
+  const processQuestions = async (questionsText: string) => {
+    try {
+      // Transformar o texto em um array de objetos JSON
+      const questionsArray = questionsText
+        .split('\n')
+        .filter(line => line.trim())
+        .map(line => JSON.parse(line));
 
-    if (examError) throw examError;
-
-    const processedQuestions = [];
-    for (let i = 0; i < questionLines.length; i++) {
-      const questionText = questionLines[i].trim();
-      const answer = answerLines[i]?.trim() || '';
+      console.log(`Processando ${questionsArray.length} questões...`);
       
-      if (questionText && answer) {
-        const isValid = !answer.toLowerCase().includes('anulada');
-        const explanation = isValid 
-          ? "Gabarito Oficial - Questão Válida"
-          : "Gabarito Oficial - Questão Anulada";
+      // Primeiro criar a prova
+      const { data: examData, error: examError } = await supabase
+        .from("previous_exams")
+        .insert({
+          year: parseInt(examYear),
+          name: examName || `Prova ${examYear}`,
+          description: `Prova do ano ${examYear}`
+        })
+        .select()
+        .single();
 
-        processedQuestions.push({
-          exam_id: examData.id,
-          text: questionText,
-          option_a: "A",
-          option_b: "B",
-          option_c: "C",
-          option_d: "D",
-          option_e: "E",
-          correct_answer: answer.charAt(0).toUpperCase(),
-          explanation,
-          subject: "Prova Anterior",
-          topic: `Prova ${examYear}`
-        });
-      }
+      if (examError) throw examError;
+
+      const processedQuestions = questionsArray.map((q: QuestionInput) => ({
+        exam_id: examData.id,
+        text: q.text,
+        option_a: q.option_a,
+        option_b: q.option_b,
+        option_c: q.option_c,
+        option_d: q.option_d,
+        option_e: q.option_e,
+        correct_answer: q.correct_answer,
+        explanation: q.explanation || "Gabarito Oficial",
+        subject: q.subject,
+        topic: q.topic,
+        theme: q.theme
+      }));
+
+      return processedQuestions;
+    } catch (error) {
+      console.error("Erro ao processar JSON das questões:", error);
+      throw new Error("Formato JSON inválido. Verifique se cada linha contém um objeto JSON válido.");
     }
-
-    return processedQuestions;
   };
 
   const handleInsertQuestions = async () => {
     try {
       console.log("Processando questões de prova anterior...");
-      const processedQuestions = await processQuestions(questions, answers);
+      const processedQuestions = await processQuestions(questions);
 
       if (processedQuestions.length === 0) {
         throw new Error("Nenhuma questão válida encontrada");
@@ -86,14 +98,13 @@ export const InsertPreviousExamQuestionsButton = () => {
       
       setOpen(false);
       setQuestions("");
-      setAnswers("");
       setExamYear("");
       setExamName("");
     } catch (error) {
       console.error("Erro ao inserir questões:", error);
       toast({
         title: "Erro ao inserir questões",
-        description: "Ocorreu um erro ao tentar inserir as questões. Tente novamente.",
+        description: error.message || "Ocorreu um erro ao tentar inserir as questões. Tente novamente.",
         variant: "destructive",
       });
     }
@@ -114,7 +125,7 @@ export const InsertPreviousExamQuestionsButton = () => {
         <DialogHeader>
           <DialogTitle>Inserir Questões de Provas Anteriores</DialogTitle>
           <DialogDescription>
-            Insira as questões e o gabarito oficial da prova. Cada questão e resposta deve estar em uma nova linha.
+            Cole as questões no formato JSON, uma por linha. Cada questão deve conter os campos: text, options_a até option_e, correct_answer, explanation, difficulty, theme, subject e topic.
           </DialogDescription>
         </DialogHeader>
 
@@ -151,27 +162,14 @@ export const InsertPreviousExamQuestionsButton = () => {
 
           <div className="grid gap-2">
             <label htmlFor="questions" className="text-sm font-medium">
-              Questões
+              Questões (formato JSON)
             </label>
             <Textarea
               id="questions"
               value={questions}
               onChange={(e) => setQuestions(e.target.value)}
-              placeholder="Cole aqui o texto das questões, uma por linha..."
-              className="min-h-[200px]"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <label htmlFor="answers" className="text-sm font-medium">
-              Gabarito Oficial
-            </label>
-            <Textarea
-              id="answers"
-              value={answers}
-              onChange={(e) => setAnswers(e.target.value)}
-              placeholder="Cole aqui o gabarito oficial, uma resposta por linha..."
-              className="min-h-[100px]"
+              placeholder='Cole aqui as questões no formato JSON, uma por linha...'
+              className="min-h-[300px] font-mono text-sm"
             />
           </div>
         </div>
@@ -182,7 +180,7 @@ export const InsertPreviousExamQuestionsButton = () => {
           </Button>
           <Button 
             onClick={handleInsertQuestions}
-            disabled={!examYear || !questions.trim() || !answers.trim()}
+            disabled={!examYear || !questions.trim()}
           >
             Inserir
           </Button>
