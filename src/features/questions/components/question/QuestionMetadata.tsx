@@ -4,14 +4,28 @@ interface QuestionMetadataProps {
   topic?: string;
   source?: string;
   className?: string;
+  examYear?: number;
+  isFromPreviousExam?: boolean;
 }
 
-const QuestionMetadata = ({ id, subject, topic, source, className = "" }: QuestionMetadataProps) => {
+const QuestionMetadata = ({ 
+  id, 
+  subject, 
+  topic, 
+  source, 
+  className = "",
+  examYear,
+  isFromPreviousExam
+}: QuestionMetadataProps) => {
+  const examInfo = isFromPreviousExam && examYear 
+    ? `Prova EIPS/CHQAO ${examYear}`
+    : `Q.${id}`;
+
   return (
     <div className={`flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 ${className}`}>
       <div className="flex items-center gap-2">
         <span className="hidden sm:inline font-medium text-primary/70 dark:text-blue-400/70">
-          Q.{id}
+          {examInfo}
         </span>
         {subject && (
           <span>{subject}</span>
