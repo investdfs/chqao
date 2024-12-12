@@ -25,6 +25,14 @@ const queryClient = new QueryClient({
 
 const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
 
+// Mock student data for preview mode
+const previewStudentData = {
+  id: '00000000-0000-0000-0000-000000000000',
+  email: 'preview@example.com',
+  name: 'Preview User',
+  status: 'active'
+};
+
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -34,7 +42,9 @@ const App: React.FC = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/register" element={
+              isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Register />
+            } />
             <Route path="/login" element={
               isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Login />
             } />

@@ -1,81 +1,99 @@
-import React, { createContext, useContext, ReactNode } from 'react';
-import { useQuestionPractice } from '@/features/questions/hooks/useQuestionPractice';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-interface Question {
-  id: string;
-  text: string;
-  subject?: string;
-  topic?: string;
-  options: Array<{ id: string; text: string }>;
-  correctAnswer: string;
-  explanation: string;
-}
+const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
 
-interface QuestionContextData {
-  currentQuestionIndex: number;
-  studentData: any;
-  questions: any[];
-  isLoadingStudent: boolean;
-  isLoadingQuestions: boolean;
-  error: Error | null;
-  handleNextQuestion: () => void;
-  handlePreviousQuestion: () => void;
-  currentQuestion: Question | null;
-}
+// Mock student data for preview mode
+const previewStudentData = {
+  id: '00000000-0000-0000-0000-000000000000',
+  email: 'preview@example.com',
+  name: 'Preview User',
+  status: 'active'
+};
 
-const QuestionContext = createContext<QuestionContextData | undefined>(undefined);
+const QuestionContext = createContext<any>(null);
 
-export function QuestionProvider({ children }: { children: ReactNode }) {
-  const {
-    currentQuestionIndex,
-    studentData,
-    questions,
-    isLoadingStudent,
-    isLoadingQuestions,
-    error,
-    handleNextQuestion,
-    handlePreviousQuestion
-  } = useQuestionPractice();
+export const useQuestion = () => {
+  const context = useContext(QuestionContext);
+  if (!context) {
+    throw new Error('useQuestion must be used within a QuestionProvider');
+  }
+  return context;
+};
 
-  const currentQuestion = questions?.[currentQuestionIndex] ? {
-    id: questions[currentQuestionIndex].id,
-    text: questions[currentQuestionIndex].text,
-    subject: questions[currentQuestionIndex].subject,
-    topic: questions[currentQuestionIndex].topic || undefined,
-    options: [
-      { id: "A", text: questions[currentQuestionIndex].option_a },
-      { id: "B", text: questions[currentQuestionIndex].option_b },
-      { id: "C", text: questions[currentQuestionIndex].option_c },
-      { id: "D", text: questions[currentQuestionIndex].option_d },
-      { id: "E", text: questions[currentQuestionIndex].option_e },
-    ],
-    correctAnswer: questions[currentQuestionIndex].correct_answer,
-    explanation: questions[currentQuestionIndex].explanation || "",
-  } : null;
+export const QuestionProvider = ({ children }: { children: React.ReactNode }) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  // Fetch student data (bypassed in preview mode)
+  const { data: studentData, isLoading: isLoadingStudent } = useQuery({
+    queryKey: ['student'],
+    queryFn: async () => {
+      if (isPreviewMode) {
+        console.log("Preview mode: using mock student data");
+        return previewStudentData;
+      }
+
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session?.user) {
+        return null;
+      }
+
+      const { data: student } = await supabase
+        .from('students')
+        .select('*')
+        .eq('email', session.session.user.email)
+        .single();
+
+      return student;
+    },
+  });
+
+  // Fetch questions
+  const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
+    queryKey: ['questions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at');
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: isPreviewMode || !!studentData,
+  });
+
+  const currentQuestion = questions?.[currentQuestionIndex];
+
+  const handleNextQuestion = () => {
+    if (questions && currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
 
   return (
     <QuestionContext.Provider
       value={{
         currentQuestionIndex,
-        studentData,
+        studentData: isPreviewMode ? previewStudentData : studentData,
         questions,
         isLoadingStudent,
         isLoadingQuestions,
         error,
         handleNextQuestion,
         handlePreviousQuestion,
-        currentQuestion
+        currentQuestion,
       }}
     >
       {children}
     </QuestionContext.Provider>
   );
-}
-
-export function useQuestion() {
-  const context = useContext(QuestionContext);
-  if (context === undefined) {
-    throw new Error('useQuestion must be used within a QuestionProvider');
-  }
-  return context;
-}
+};
