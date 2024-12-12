@@ -20,7 +20,7 @@ interface QuestionOptionsProps {
 }
 
 const QuestionOptions = ({
-  options,
+  options = [],
   selectedAnswer,
   hasAnswered,
   correctAnswer,
@@ -28,6 +28,7 @@ const QuestionOptions = ({
   questionId,
   onAutoAnswer,
 }: QuestionOptionsProps) => {
+  console.log("Rendering QuestionOptions with options:", options);
   const { isAutoAnswerEnabled } = useAutoAnswer();
   
   const { data: answerCounts } = useQuery({
@@ -60,6 +61,11 @@ const QuestionOptions = ({
       onAutoAnswer();
     }
   };
+
+  if (!Array.isArray(options) || options.length === 0) {
+    console.warn("No options provided to QuestionOptions component");
+    return null;
+  }
 
   return (
     <RadioGroup

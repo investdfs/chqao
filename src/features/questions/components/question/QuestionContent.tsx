@@ -14,8 +14,12 @@ interface QuestionContentProps {
     subject?: string;
     topic?: string;
     source?: string;
-    options: Array<{ id: string; text: string }>;
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
   };
   selectedAnswer: string;
@@ -44,6 +48,16 @@ const QuestionContent = memo(({
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [showMobileFeedback, setShowMobileFeedback] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
+
+  console.log("Rendering QuestionContent with question:", question);
+
+  const options = [
+    { id: "A", text: question.option_a },
+    { id: "B", text: question.option_b },
+    { id: "C", text: question.option_c },
+    { id: "D", text: question.option_d },
+    { id: "E", text: question.option_e },
+  ];
 
   const handleAnswerWithDelay = async () => {
     console.log("Iniciando processo de resposta com delay");
@@ -81,10 +95,10 @@ const QuestionContent = memo(({
           </div>
 
           <QuestionOptions
-            options={question.options}
+            options={options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}
-            correctAnswer={question.correctAnswer}
+            correctAnswer={question.correct_answer}
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
           />
@@ -102,9 +116,9 @@ const QuestionContent = memo(({
 
           {hasAnswered && !isMobile && (
             <QuestionFeedback
-              isCorrect={selectedAnswer === question.correctAnswer}
+              isCorrect={selectedAnswer === question.correct_answer}
               selectedAnswer={selectedAnswer}
-              correctAnswer={question.correctAnswer}
+              correctAnswer={question.correct_answer}
               explanation={question.explanation}
               onReset={handleReset}
               questionId={question.id}
@@ -114,9 +128,9 @@ const QuestionContent = memo(({
           <MobileFeedbackDialog
             open={showMobileFeedback}
             onOpenChange={setShowMobileFeedback}
-            isCorrect={selectedAnswer === question.correctAnswer}
+            isCorrect={selectedAnswer === question.correct_answer}
             selectedAnswer={selectedAnswer}
-            correctAnswer={question.correctAnswer}
+            correctAnswer={question.correct_answer}
             explanation={question.explanation}
             onNext={onNextQuestion}
             onPrevious={onPreviousQuestion}
