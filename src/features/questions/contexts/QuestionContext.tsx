@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
+const isPreviewMode = window.location.hostname.includes('lovable');
 
 // Mock student data for preview mode
 const previewStudentData = {
@@ -53,13 +53,19 @@ export const QuestionProvider = ({ children }: { children: React.ReactNode }) =>
   const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
+      console.log("Fetching questions...");
       const { data, error } = await supabase
         .from('questions')
         .select('*')
         .eq('status', 'active')
         .order('created_at');
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching questions:", error);
+        throw error;
+      }
+      
+      console.log("Questions fetched successfully:", data?.length, "questions");
       return data;
     },
     enabled: isPreviewMode || !!studentData,
