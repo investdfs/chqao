@@ -18,16 +18,6 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
       return;
     }
 
-    if (!studentId) {
-      console.log("ID do estudante não fornecido");
-      toast({
-        title: "Erro ao salvar resposta",
-        description: "Você precisa estar logado para responder questões.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     console.log("Tentando salvar resposta:", {
       questionId,
       selectedAnswer,
@@ -35,6 +25,12 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
     });
     
     setHasAnswered(true);
+
+    // Se não houver studentId válido, apenas mostra a resposta sem salvar
+    if (!studentId || studentId === "00000000-0000-0000-0000-000000000000") {
+      console.log("Modo preview: mostrando resposta sem salvar no banco");
+      return;
+    }
     
     try {
       const { error } = await supabase
