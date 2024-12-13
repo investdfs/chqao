@@ -9,7 +9,7 @@ const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
 
 // Mock student data for preview mode
 const previewStudentData = {
-  id: 'preview-user',
+  id: '00000000-0000-0000-0000-000000000000',
   email: 'preview@example.com',
   name: 'Preview User',
   status: 'active'
@@ -52,7 +52,8 @@ const PreviousExamsContent = () => {
         correct_answer: q.correct_answer,
         explanation: q.explanation,
         exam_year: q.previous_exams?.year,
-        exam_name: q.previous_exams?.name
+        exam_name: q.previous_exams?.name,
+        is_from_previous_exam: true
       }));
 
       console.log(`Fetched ${formattedQuestions.length} previous exam questions`);
@@ -110,6 +111,7 @@ const PreviousExamsContent = () => {
           totalQuestions={questions.length}
           studentId={isPreviewMode ? previewStudentData.id : undefined}
           isUserBlocked={false}
+          showQuestionId={true}
         />
       </div>
     </div>
