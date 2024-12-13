@@ -20,11 +20,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
 
     if (!studentId) {
       console.log("ID do estudante não fornecido");
-      toast({
-        title: "Erro ao salvar resposta",
-        description: "Você precisa estar logado para responder questões.",
-        variant: "destructive",
-      });
+      setHasAnswered(true); // Allow preview mode to see the answer without saving
       return;
     }
 

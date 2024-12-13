@@ -9,7 +9,7 @@ const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
 
 // Mock student data for preview mode
 const previewStudentData = {
-  id: '00000000-0000-0000-0000-000000000000',
+  id: 'preview-user',
   email: 'preview@example.com',
   name: 'Preview User',
   status: 'active'
