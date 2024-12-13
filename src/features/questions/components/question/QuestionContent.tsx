@@ -21,6 +21,8 @@ interface QuestionContentProps {
     option_e: string;
     correct_answer: string;
     explanation: string;
+    exam_year?: number;
+    is_from_previous_exam?: boolean;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -31,6 +33,7 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
+  showQuestionId?: boolean;
 }
 
 const QuestionContent = memo(({
@@ -44,6 +47,7 @@ const QuestionContent = memo(({
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
+  showQuestionId = false,
 }: QuestionContentProps) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [showMobileFeedback, setShowMobileFeedback] = useState(false);
@@ -88,6 +92,9 @@ const QuestionContent = memo(({
             subject={question.subject}
             topic={question.topic}
             source={question.source}
+            examYear={question.exam_year}
+            isFromPreviousExam={question.is_from_previous_exam}
+            showId={showQuestionId}
           />
 
           <div className="text-base dark:text-gray-200 text-left">
