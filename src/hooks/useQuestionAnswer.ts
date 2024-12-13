@@ -24,11 +24,10 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
       studentId,
     });
     
-    setHasAnswered(true);
-
-    // Se não houver studentId válido, apenas mostra a resposta sem salvar
+    // Se não houver studentId válido ou for o ID padrão, apenas mostra a resposta
     if (!studentId || studentId === "00000000-0000-0000-0000-000000000000") {
       console.log("Modo preview: mostrando resposta sem salvar no banco");
+      setHasAnswered(true);
       return;
     }
     
@@ -52,6 +51,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
         });
       } else {
         console.log("Resposta salva com sucesso!");
+        setHasAnswered(true);
       }
     } catch (error) {
       console.error("Erro ao salvar resposta:", error);
