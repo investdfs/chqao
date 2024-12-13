@@ -18,8 +18,6 @@ interface QuestionCardProps {
     source?: string;
     subject?: string;
     topic?: string;
-    exam_year?: number;
-    is_from_previous_exam?: boolean;
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
@@ -27,7 +25,6 @@ interface QuestionCardProps {
   totalQuestions: number;
   isUserBlocked?: boolean;
   studentId?: string;
-  showQuestionId?: boolean;
 }
 
 const QuestionCard = memo(({
@@ -38,7 +35,6 @@ const QuestionCard = memo(({
   totalQuestions,
   isUserBlocked = false,
   studentId,
-  showQuestionId = false,
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question);
 
@@ -77,7 +73,6 @@ const QuestionCard = memo(({
           onPreviousQuestion={onPreviousQuestion}
           questionNumber={questionNumber}
           totalQuestions={totalQuestions}
-          showQuestionId={showQuestionId}
         />
       </div>
     </div>

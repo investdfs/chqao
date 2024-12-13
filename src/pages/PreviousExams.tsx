@@ -52,8 +52,7 @@ const PreviousExamsContent = () => {
         correct_answer: q.correct_answer,
         explanation: q.explanation,
         exam_year: q.previous_exams?.year,
-        exam_name: q.previous_exams?.name,
-        is_from_previous_exam: true
+        exam_name: q.previous_exams?.name
       }));
 
       console.log(`Fetched ${formattedQuestions.length} previous exam questions`);
@@ -111,7 +110,6 @@ const PreviousExamsContent = () => {
           totalQuestions={questions.length}
           studentId={isPreviewMode ? previewStudentData.id : undefined}
           isUserBlocked={false}
-          showQuestionId={true}
         />
       </div>
     </div>
