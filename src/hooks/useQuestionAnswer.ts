@@ -10,6 +10,7 @@ interface UseQuestionAnswerProps {
 export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
+  const [isAnswering, setIsAnswering] = useState(false);
   const { toast } = useToast();
 
   const handleAnswer = useCallback(async () => {
@@ -18,28 +19,28 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
       return;
     }
 
+    setIsAnswering(true);
+
     console.log("Tentando salvar resposta:", {
       questionId,
       selectedAnswer,
       studentId,
     });
     
-    // Se não houver studentId válido ou for o ID padrão, apenas mostra a resposta
-    if (!studentId || studentId === "00000000-0000-0000-0000-000000000000") {
-      console.log("Modo preview: mostrando resposta sem salvar no banco");
-      setHasAnswered(true);
-      return;
-    }
-    
     try {
+      // Se não houver studentId válido ou for o ID padrão, apenas mostra a resposta
+      if (!studentId || studentId === "00000000-0000-0000-0000-000000000000") {
+        console.log("Modo preview: mostrando resposta sem salvar no banco");
+        setHasAnswered(true);
+        return;
+      }
+
       const { error } = await supabase
         .from('question_answers')
-        .upsert({
+        .insert({
           question_id: questionId,
           selected_option: selectedAnswer,
           student_id: studentId
-        }, {
-          onConflict: 'question_id,student_id'
         });
 
       if (error) {
@@ -60,12 +61,15 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
         description: "Ocorreu um erro inesperado. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsAnswering(false);
     }
   }, [questionId, selectedAnswer, studentId, toast]);
 
   const handleReset = useCallback(() => {
     setSelectedAnswer("");
     setHasAnswered(false);
+    setIsAnswering(false);
   }, []);
 
   return {
@@ -73,6 +77,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
     setSelectedAnswer,
     hasAnswered,
     handleAnswer,
-    handleReset
+    handleReset,
+    isAnswering
   };
 };
