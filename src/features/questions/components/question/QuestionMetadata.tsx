@@ -6,7 +6,7 @@ interface QuestionMetadataProps {
   className?: string;
   examYear?: number;
   isFromPreviousExam?: boolean;
-  showId?: boolean; // New prop to control ID visibility
+  showId?: boolean;
 }
 
 const QuestionMetadata = ({ 
@@ -17,17 +17,19 @@ const QuestionMetadata = ({
   className = "",
   examYear,
   isFromPreviousExam,
-  showId = true // Default to true to maintain existing behavior
+  showId = true
 }: QuestionMetadataProps) => {
+  console.log("Rendering QuestionMetadata with showId:", showId);
+  
   const examInfo = isFromPreviousExam && examYear 
-    ? `EIPS/CHQAO ${examYear} (Q${id.toString().padStart(4, '0')})`
+    ? `EIPS/CHQAO ${examYear}`
     : `Q.${id}`;
 
   return (
     <div className={`flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 ${className}`}>
       <div className="flex items-center gap-2">
         {showId && (
-          <span className="hidden sm:inline font-medium text-primary/70 dark:text-blue-400/70">
+          <span className="font-medium text-primary/70 dark:text-blue-400/70">
             {examInfo}
           </span>
         )}
@@ -35,7 +37,10 @@ const QuestionMetadata = ({
           <span>{subject}</span>
         )}
         {topic && (
-          <span className="hidden sm:inline">• {topic}</span>
+          <>
+            <span className="text-gray-400">•</span>
+            <span>{topic}</span>
+          </>
         )}
       </div>
       {source && (
