@@ -21,39 +21,57 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
 
     setIsAnswering(true);
 
-    console.log("Tentando salvar resposta:", {
-      questionId,
-      selectedAnswer,
-      studentId,
-    });
-    
     try {
-      // Se não houver studentId válido ou for o ID padrão, apenas mostra a resposta
+      // Verificar se é modo preview ou se não há studentId válido
       if (!studentId || studentId === "00000000-0000-0000-0000-000000000000") {
         console.log("Modo preview: mostrando resposta sem salvar no banco");
         setHasAnswered(true);
         return;
       }
 
-      const { error } = await supabase
-        .from('question_answers')
-        .insert({
-          question_id: questionId,
-          selected_option: selectedAnswer,
-          student_id: studentId
-        });
+      console.log("Tentando salvar resposta:", {
+        questionId,
+        selectedAnswer,
+        studentId,
+      });
 
-      if (error) {
-        console.error("Erro ao salvar resposta:", error);
-        toast({
-          title: "Erro ao salvar resposta",
-          description: "Não foi possível salvar sua resposta. Tente novamente.",
-          variant: "destructive",
-        });
+      // Primeiro verifica se já existe uma resposta
+      const { data: existingAnswer } = await supabase
+        .from('question_answers')
+        .select()
+        .eq('question_id', questionId)
+        .eq('student_id', studentId)
+        .single();
+
+      if (existingAnswer) {
+        // Se existe, atualiza
+        const { error: updateError } = await supabase
+          .from('question_answers')
+          .update({ selected_option: selectedAnswer })
+          .eq('question_id', questionId)
+          .eq('student_id', studentId);
+
+        if (updateError) {
+          throw updateError;
+        }
       } else {
-        console.log("Resposta salva com sucesso!");
-        setHasAnswered(true);
+        // Se não existe, insere
+        const { error: insertError } = await supabase
+          .from('question_answers')
+          .insert({
+            question_id: questionId,
+            selected_option: selectedAnswer,
+            student_id: studentId
+          });
+
+        if (insertError) {
+          throw insertError;
+        }
       }
+
+      console.log("Resposta salva com sucesso!");
+      setHasAnswered(true);
+
     } catch (error) {
       console.error("Erro ao salvar resposta:", error);
       toast({
