@@ -7,6 +7,8 @@ interface UseQuestionAnswerProps {
   studentId?: string;
 }
 
+const PREVIEW_USER_ID = '00000000-0000-0000-0000-000000000000';
+
 export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
@@ -22,25 +24,16 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
     setIsAnswering(true);
 
     try {
-      // Verificar se é modo preview ou se não há studentId válido
-      if (!studentId || studentId === "00000000-0000-0000-0000-000000000000") {
-        console.log("Modo preview: mostrando resposta sem salvar no banco");
-        setHasAnswered(true);
-        return;
-      }
-
-      console.log("Tentando salvar resposta:", {
-        questionId,
-        selectedAnswer,
-        studentId,
-      });
+      // Se não houver studentId, usar o ID do usuário visitante
+      const effectiveStudentId = studentId || PREVIEW_USER_ID;
+      console.log("Usando ID do estudante:", effectiveStudentId);
 
       // Primeiro verifica se já existe uma resposta
       const { data: existingAnswer } = await supabase
         .from('question_answers')
         .select()
         .eq('question_id', questionId)
-        .eq('student_id', studentId)
+        .eq('student_id', effectiveStudentId)
         .single();
 
       if (existingAnswer) {
@@ -49,7 +42,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
           .from('question_answers')
           .update({ selected_option: selectedAnswer })
           .eq('question_id', questionId)
-          .eq('student_id', studentId);
+          .eq('student_id', effectiveStudentId);
 
         if (updateError) {
           throw updateError;
@@ -61,7 +54,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
           .insert({
             question_id: questionId,
             selected_option: selectedAnswer,
-            student_id: studentId
+            student_id: effectiveStudentId
           });
 
         if (insertError) {
