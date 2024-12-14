@@ -73,7 +73,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
   const userId = previewUser?.id || session?.user?.id;
   const isPreviewMode = !!previewUser;
 
-  // Use mock data in preview mode, otherwise use real data
   const { 
     studyStats = isPreviewMode ? previewData.studyStats : undefined, 
     syllabusProgress = isPreviewMode ? previewData.syllabusProgress : undefined, 
@@ -104,7 +103,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
         </div>
       </header>
 
-      {/* Novo quadro destacado com botões */}
+      {/* Quadro destacado com botões */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-gradient-primary rounded-xl shadow-lg p-8 mb-8 animate-fade-up">
           <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
