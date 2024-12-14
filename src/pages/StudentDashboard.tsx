@@ -46,9 +46,47 @@ const StudentDashboard = ({ previewUser }: StudentDashboardProps) => {
     },
   });
 
+  // Mock data for preview mode
+  const previewData = {
+    studyStats: {
+      total_study_time: '10h',
+      consecutive_study_days: 5,
+      weekly_study_hours: 20,
+      weekly_questions_target: 250,
+      weekly_questions_completed: 150
+    },
+    syllabusProgress: {
+      completed_topics: 15,
+      pending_topics: 25,
+      progress_percentage: 37.5
+    },
+    weeklyStudyData: Array.from({ length: 7 }, (_, i) => ({
+      study_day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
+      question_count: Math.floor(Math.random() * 50),
+      study_time: '2h'
+    })),
+    performance: {
+      totalCorrect: 75,
+      totalQuestions: 100,
+      performancePercentage: 75
+    }
+  };
+
   const userId = previewUser?.id || session?.user?.id;
-  const { studyStats, syllabusProgress, weeklyStudyData } = useStudentStats(userId);
-  const { totalCorrect, totalQuestions, performancePercentage } = useStudentPerformance(userId);
+  const isPreviewMode = !!previewUser;
+
+  // Use mock data in preview mode, otherwise use real data
+  const { 
+    studyStats = isPreviewMode ? previewData.studyStats : undefined, 
+    syllabusProgress = isPreviewMode ? previewData.syllabusProgress : undefined, 
+    weeklyStudyData = isPreviewMode ? previewData.weeklyStudyData : undefined 
+  } = useStudentStats(isPreviewMode ? undefined : userId);
+
+  const { 
+    totalCorrect = isPreviewMode ? previewData.performance.totalCorrect : 0,
+    totalQuestions = isPreviewMode ? previewData.performance.totalQuestions : 0,
+    performancePercentage = isPreviewMode ? previewData.performance.performancePercentage : 0
+  } = useStudentPerformance(isPreviewMode ? undefined : userId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-white">
