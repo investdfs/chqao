@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -43,8 +44,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   // Verifica se há uma sessão ativa
   const checkSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    } catch (error) {
+      console.error("Error checking session:", error);
+      return null;
+    }
   };
 
   const session = checkSession();
