@@ -9,7 +9,6 @@ import Index from "./pages/Index";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/StudentDashboard";
-import PreviewDashboard from "./pages/PreviewDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import QuestionPractice from "./pages/QuestionPractice";
 import TestDashboard from "./pages/TestDashboard";
@@ -26,6 +25,14 @@ const queryClient = new QueryClient({
 });
 
 const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
+
+// Mock student data for preview mode
+const previewStudentData = {
+  id: '00000000-0000-0000-0000-000000000000',
+  email: 'preview@example.com',
+  name: 'Usuário Visitante',
+  status: 'active'
+};
 
 // Componente de proteção de rota que considera o modo preview
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -66,27 +73,17 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/register" element={
-              isPreviewMode ? <Navigate to="/preview-dashboard" replace /> : <Register />
+              isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Register />
             } />
             <Route path="/login" element={
-              isPreviewMode ? <Navigate to="/preview-dashboard" replace /> : <Login />
+              isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Login />
             } />
             <Route
               path="/student-dashboard"
               element={
-                isPreviewMode ? (
-                  <Navigate to="/preview-dashboard" replace />
-                ) : (
-                  <ProtectedRoute>
-                    <StudentDashboard />
-                  </ProtectedRoute>
-                )
-              }
-            />
-            <Route
-              path="/preview-dashboard"
-              element={
-                isPreviewMode ? <PreviewDashboard /> : <Navigate to="/login" replace />
+                <ProtectedRoute>
+                  <StudentDashboard />
+                </ProtectedRoute>
               }
             />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
