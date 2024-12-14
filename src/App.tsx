@@ -36,38 +36,45 @@ const previewUser = {
   status: 'active'
 };
 
-// Componente de proteção de rota simplificado
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  // Em modo preview, renderiza diretamente o conteúdo
-  if (isPreviewMode) {
-    console.log("Modo preview ativo: bypass de autenticação");
-    return <>{children}</>;
-  }
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiresAuth?: boolean;
+}
 
-  // Em modo normal, verifica autenticação
+// Componente de proteção de rota atualizado
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresAuth = true }) => {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const checkAuth = async () => {
       try {
+        if (isPreviewMode) {
+          console.log("Modo preview ativo: bypass de autenticação");
+          setIsAuthenticated(true);
+          setIsLoading(false);
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("Verificando autenticação:", !!session);
         setIsAuthenticated(!!session);
+        setIsLoading(false);
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
         setIsAuthenticated(false);
+        setIsLoading(false);
       }
     };
 
     checkAuth();
   }, []);
 
-  // Aguarda verificação inicial
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return null; // ou um componente de loading
   }
 
-  // Redireciona se não estiver autenticado
-  if (!isAuthenticated) {
+  if (requiresAuth && !isAuthenticated) {
     console.log("Usuário não autenticado, redirecionando para login");
     return <Navigate to="/login" replace />;
   }
@@ -97,50 +104,34 @@ const App: React.FC = () => {
             <Route
               path="/student-dashboard"
               element={
-                isPreviewMode ? (
-                  <StudentDashboard previewUser={previewUser} />
-                ) : (
-                  <ProtectedRoute>
-                    <StudentDashboard />
-                  </ProtectedRoute>
-                )
+                <ProtectedRoute>
+                  <StudentDashboard previewUser={isPreviewMode ? previewUser : undefined} />
+                </ProtectedRoute>
               }
             />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route
               path="/question-practice"
               element={
-                isPreviewMode ? (
-                  <QuestionPractice previewUser={previewUser} />
-                ) : (
-                  <ProtectedRoute>
-                    <QuestionPractice />
-                  </ProtectedRoute>
-                )
+                <ProtectedRoute requiresAuth={false}>
+                  <QuestionPractice previewUser={isPreviewMode ? previewUser : undefined} />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/test-dashboard"
               element={
-                isPreviewMode ? (
-                  <TestDashboard previewUser={previewUser} />
-                ) : (
-                  <ProtectedRoute>
-                    <TestDashboard />
-                  </ProtectedRoute>
-                )
+                <ProtectedRoute requiresAuth={false}>
+                  <TestDashboard previewUser={isPreviewMode ? previewUser : undefined} />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/previous-exams"
               element={
-                isPreviewMode ? (
-                  <PreviousExams previewUser={previewUser} />
-                ) : (
-                  <ProtectedRoute>
-                    <PreviousExams />
-                  </ProtectedRoute>
-                )
+                <ProtectedRoute requiresAuth={false}>
+                  <PreviousExams previewUser={isPreviewMode ? previewUser : undefined} />
+                </ProtectedRoute>
               }
             />
           </Routes>
