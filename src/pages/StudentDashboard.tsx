@@ -1,9 +1,9 @@
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { LogOut, BookOpen, History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { StudyTimeCard } from "@/components/student/dashboard/StudyTimeCard";
 import { PerformanceCard } from "@/components/student/dashboard/PerformanceCard";
 import { SyllabusProgressCard } from "@/components/student/dashboard/SyllabusProgressCard";
@@ -25,11 +25,9 @@ interface StudentDashboardProps {
   previewUser?: PreviewUser;
 }
 
-const StudentDashboard = ({ previewUser }: StudentDashboardProps) => {
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  // Se estiver em preview, use os dados mockados
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -106,7 +104,30 @@ const StudentDashboard = ({ previewUser }: StudentDashboardProps) => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      {/* Novo quadro destacado com botões */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-gradient-primary rounded-xl shadow-lg p-8 mb-8 animate-fade-up">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
+            Escolha seu modo de estudo
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button
+              onClick={() => navigate("/question-practice")}
+              className="w-full sm:w-64 h-20 text-lg font-semibold bg-white hover:bg-gray-100 text-primary hover:text-primary-dark transition-all duration-300 flex items-center justify-center gap-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1"
+            >
+              <BookOpen className="w-6 h-6" />
+              Praticar Questões
+            </Button>
+            <Button
+              onClick={() => navigate("/previous-exams")}
+              className="w-full sm:w-64 h-20 text-lg font-semibold bg-white hover:bg-gray-100 text-primary hover:text-primary-dark transition-all duration-300 flex items-center justify-center gap-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1"
+            >
+              <History className="w-6 h-6" />
+              Provas Anteriores
+            </Button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
           <PerformanceCard
@@ -147,7 +168,7 @@ const StudentDashboard = ({ previewUser }: StudentDashboardProps) => {
             <WeeklyStudyChart data={weeklyStudyData || []} />
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
