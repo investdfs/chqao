@@ -1,6 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import QuestionCard from "@/features/questions/components/QuestionCard";
 import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
+import { PreviewUser } from "@/types/user";
+
+interface QuestionPracticeProps {
+  previewUser?: PreviewUser;
+}
 
 const QuestionPracticeContent = () => {
   const {
@@ -101,7 +106,7 @@ const QuestionPracticeContent = () => {
   );
 };
 
-const QuestionPractice = () => {
+const QuestionPractice = ({ previewUser }: QuestionPracticeProps) => {
   return (
     <QuestionProvider>
       <QuestionPracticeContent />

@@ -1,108 +1,117 @@
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { PdfUploadCard } from '@/components/test/PdfUploadCard';
-import { GenerationsList } from '@/components/test/GenerationsList';
-import { QuestionsStats } from '@/components/test/QuestionsStats';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { UploadedPdfsList } from '@/components/test/UploadedPdfsList';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, FileText } from "lucide-react";
+import React from 'react';
+import { PreviewUser } from '@/types/user';
+import { Skeleton } from "@/components/ui/skeleton";
+import QuestionCard from "@/features/questions/components/QuestionCard";
+import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
 
-type SelectedPdf = {
-  id: string;
-  filename: string;
-  file_path: string;
-  subject: string | null;
-  theme: string | null;
-};
+interface TestDashboardProps {
+  previewUser?: PreviewUser;
+}
 
-const TestDashboard = () => {
-  const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
-  const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
+const TestDashboardContent = () => {
+  const {
+    currentQuestionIndex,
+    studentData,
+    questions,
+    isLoadingStudent,
+    isLoadingQuestions,
+    error,
+    handleNextQuestion,
+    handlePreviousQuestion,
+    currentQuestion
+  } = useQuestion();
 
-  console.log('TestDashboard - Selected PDF:', selectedPdf);
+  if (isLoadingStudent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center">
+        <div className="max-w-4xl w-full mx-auto">
+          <Skeleton className="h-[calc(100vh-2rem)] w-full rounded-lg" />
+        </div>
+      </div>
+    );
+  }
 
-  const handlePdfSelect = (pdf: SelectedPdf | null) => {
-    console.log('PDF selecionado:', pdf);
-    setSelectedPdf(pdf);
-  };
+  if (!studentData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center">
+          <h2 className="text-2xl font-bold text-white">
+            Acesso não autorizado
+          </h2>
+          <p className="mt-2 text-white/80">
+            Faça login como estudante para acessar as questões
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoadingQuestions) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center">
+        <div className="max-w-4xl w-full mx-auto">
+          <Skeleton className="h-[calc(100vh-2rem)] w-full rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !questions) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center">
+          <h2 className="text-2xl font-bold text-white">
+            Erro ao carregar questões
+          </h2>
+          <p className="mt-2 text-white/80">
+            Tente novamente mais tarde
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center">
+          <h2 className="text-2xl font-bold text-white">
+            Nenhuma questão disponível
+          </h2>
+          <p className="mt-2 text-white/80">
+            Aguarde até que novas questões sejam adicionadas
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/admin-dashboard")}
-              className="hover:bg-gray-100"
-            >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              Voltar
-            </Button>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Gerador de Questões - IA
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-gray-500" />
-            <span className="text-sm text-gray-500">
-              {selectedPdf ? selectedPdf.filename : 'Nenhum PDF selecionado'}
-            </span>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="space-y-6">
-          {/* PDF Upload and List Section */}
-          <div className="grid gap-6 lg:grid-cols-2">
-            <PdfUploadCard selectedPdf={selectedPdf} onPdfSelect={handlePdfSelect} />
-            <UploadedPdfsList onSelectPdf={handlePdfSelect} />
-          </div>
-          
-          {/* Statistics and History Section */}
-          <div className="grid gap-6 lg:grid-cols-2">
-            <QuestionsStats />
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle>Histórico de Gerações</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-                  <CollapsibleTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg"
-                    >
-                      <span className="text-sm font-medium">
-                        {isOpen ? 'Ocultar histórico' : 'Mostrar histórico'}
-                      </span>
-                      <svg
-                        className={`h-4 w-4 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <GenerationsList 
-                      generations={[]} 
-                      onViewQuestions={() => {}}
-                    />
-                  </CollapsibleContent>
-                </Collapsible>
-              </CardContent>
-            </Card>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light flex flex-col">
+      <div className="flex-1 p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto">
+          <QuestionCard
+            question={currentQuestion}
+            onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
+            questionNumber={currentQuestionIndex + 1}
+            totalQuestions={questions.length}
+            studentId={studentData.id}
+            isUserBlocked={studentData.status === 'blocked'}
+          />
         </div>
       </div>
     </div>
+  );
+};
+
+const TestDashboard: React.FC<TestDashboardProps> = ({ previewUser }) => {
+  return (
+    <QuestionProvider>
+      <TestDashboardContent />
+    </QuestionProvider>
   );
 };
 
