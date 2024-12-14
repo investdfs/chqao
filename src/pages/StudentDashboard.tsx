@@ -14,13 +14,29 @@ import { WeeklyStudyChart } from "@/components/student/dashboard/WeeklyStudyChar
 import { useStudentStats } from "@/components/student/dashboard/hooks/useStudentStats";
 import { useStudentPerformance } from "@/components/student/dashboard/hooks/useStudentPerformance";
 
-const StudentDashboard = () => {
+interface PreviewUser {
+  id: string;
+  email: string;
+  name: string;
+  status: string;
+}
+
+interface StudentDashboardProps {
+  previewUser?: PreviewUser;
+}
+
+const StudentDashboard = ({ previewUser }: StudentDashboardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Se estiver em preview, use os dados mockados
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
+      if (previewUser) {
+        console.log("Usando dados de preview para sessão");
+        return { user: previewUser };
+      }
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error || !session) {
         navigate('/login');
@@ -30,8 +46,9 @@ const StudentDashboard = () => {
     },
   });
 
-  const { studyStats, syllabusProgress, weeklyStudyData } = useStudentStats(session?.user?.id);
-  const { totalCorrect, totalQuestions, performancePercentage } = useStudentPerformance(session?.user?.id);
+  const userId = previewUser?.id || session?.user?.id;
+  const { studyStats, syllabusProgress, weeklyStudyData } = useStudentStats(userId);
+  const { totalCorrect, totalQuestions, performancePercentage } = useStudentPerformance(userId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-white">

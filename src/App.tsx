@@ -24,39 +24,51 @@ const queryClient = new QueryClient({
   },
 });
 
-const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
+// Verifica se está em modo preview baseado no hostname
+const isPreviewMode = window.location.hostname === 'preview.lovable.dev' || 
+                     window.location.hostname.includes('lovableproject.com');
 
-// Mock student data for preview mode
-const previewStudentData = {
-  id: '00000000-0000-0000-0000-000000000000',
+// Dados mockados para preview
+const previewUser = {
+  id: 'preview-user-id',
   email: 'preview@example.com',
-  name: 'Usuário Visitante',
+  name: 'Usuário Preview',
   status: 'active'
 };
 
-// Componente de proteção de rota que considera o modo preview
+// Componente de proteção de rota simplificado
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  // Em modo preview, considera o usuário como autenticado
+  // Em modo preview, renderiza diretamente o conteúdo
   if (isPreviewMode) {
-    console.log("Preview mode: bypassing authentication check");
+    console.log("Modo preview ativo: bypass de autenticação");
     return <>{children}</>;
   }
 
-  // Verifica se há uma sessão ativa
-  const checkSession = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      return session;
-    } catch (error) {
-      console.error("Error checking session:", error);
-      return null;
-    }
-  };
+  // Em modo normal, verifica autenticação
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
 
-  const session = checkSession();
-  
-  if (!session) {
-    console.log("No session found, redirecting to login");
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session);
+      } catch (error) {
+        console.error("Erro ao verificar autenticação:", error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  // Aguarda verificação inicial
+  if (isAuthenticated === null) {
+    return null; // ou um componente de loading
+  }
+
+  // Redireciona se não estiver autenticado
+  if (!isAuthenticated) {
+    console.log("Usuário não autenticado, redirecionando para login");
     return <Navigate to="/login" replace />;
   }
 
@@ -64,6 +76,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App: React.FC = () => {
+  console.log("App renderizando, modo preview:", isPreviewMode);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -72,43 +86,61 @@ const App: React.FC = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/register" element={
-              isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Register />
-            } />
-            <Route path="/login" element={
-              isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Login />
-            } />
+            <Route 
+              path="/register" 
+              element={isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Register />} 
+            />
+            <Route 
+              path="/login" 
+              element={isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Login />} 
+            />
             <Route
               path="/student-dashboard"
               element={
-                <ProtectedRoute>
-                  <StudentDashboard />
-                </ProtectedRoute>
+                isPreviewMode ? (
+                  <StudentDashboard previewUser={previewUser} />
+                ) : (
+                  <ProtectedRoute>
+                    <StudentDashboard />
+                  </ProtectedRoute>
+                )
               }
             />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route
               path="/question-practice"
               element={
-                <ProtectedRoute>
-                  <QuestionPractice />
-                </ProtectedRoute>
+                isPreviewMode ? (
+                  <QuestionPractice previewUser={previewUser} />
+                ) : (
+                  <ProtectedRoute>
+                    <QuestionPractice />
+                  </ProtectedRoute>
+                )
               }
             />
             <Route
               path="/test-dashboard"
               element={
-                <ProtectedRoute>
-                  <TestDashboard />
-                </ProtectedRoute>
+                isPreviewMode ? (
+                  <TestDashboard previewUser={previewUser} />
+                ) : (
+                  <ProtectedRoute>
+                    <TestDashboard />
+                  </ProtectedRoute>
+                )
               }
             />
             <Route
               path="/previous-exams"
               element={
-                <ProtectedRoute>
-                  <PreviousExams />
-                </ProtectedRoute>
+                isPreviewMode ? (
+                  <PreviousExams previewUser={previewUser} />
+                ) : (
+                  <ProtectedRoute>
+                    <PreviousExams />
+                  </ProtectedRoute>
+                )
               }
             />
           </Routes>
