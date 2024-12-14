@@ -8,6 +8,7 @@ import { QuestionImporter } from "@/components/admin/QuestionImporter";
 import { InsertQuestionsButton } from "@/components/admin/questions/InsertQuestionsButton";
 import { QuestionsTreeStats } from "@/components/admin/questions/QuestionsTreeStats";
 import { SubjectsPanel } from "@/components/admin/statistics/SubjectsPanel";
+import { AuthToggleCard } from "@/components/admin/AuthToggleCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
@@ -56,6 +57,7 @@ const AdminDashboard = () => {
           </div>
           
           <div className="col-span-9 space-y-6">
+            <AuthToggleCard />
             <QuestionsTreeStats />
             <AdminManager />
             <StudentManager />
