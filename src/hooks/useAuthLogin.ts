@@ -63,16 +63,18 @@ export const useAuthLogin = () => {
         return;
       }
 
-      // Tenta fazer login no Supabase Auth
-      console.log("Tentando fazer login no Supabase Auth...");
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: normalizedEmail,
-        password: formData.password,
-      });
+      // Se não estiver em modo preview, tenta fazer login no Supabase Auth
+      if (!isPreviewMode) {
+        console.log("Tentando fazer login no Supabase Auth...");
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password: formData.password,
+        });
 
-      if (signInError) {
-        console.error('Erro no login:', signInError);
-        throw signInError;
+        if (signInError) {
+          console.error('Erro no login:', signInError);
+          throw signInError;
+        }
       }
 
       console.log("Login realizado com sucesso!");
