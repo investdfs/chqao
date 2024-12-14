@@ -1,14 +1,14 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-const isPreviewMode = window.location.hostname.includes('lovable');
+const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
 
 // Mock student data for preview mode
 const previewStudentData = {
   id: '00000000-0000-0000-0000-000000000000',
   email: 'preview@example.com',
-  name: 'Preview User',
+  name: 'Usuário Visitante',
   status: 'active'
 };
 

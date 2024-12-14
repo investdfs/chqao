@@ -29,8 +29,32 @@ const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
 const previewStudentData = {
   id: '00000000-0000-0000-0000-000000000000',
   email: 'preview@example.com',
-  name: 'Preview User',
+  name: 'Usuário Visitante',
   status: 'active'
+};
+
+// Componente de proteção de rota que considera o modo preview
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  // Em modo preview, considera o usuário como autenticado
+  if (isPreviewMode) {
+    console.log("Preview mode: bypassing authentication check");
+    return <>{children}</>;
+  }
+
+  // Verifica se há uma sessão ativa
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session;
+  };
+
+  const session = checkSession();
+  
+  if (!session) {
+    console.log("No session found, redirecting to login");
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 const App: React.FC = () => {
@@ -48,11 +72,39 @@ const App: React.FC = () => {
             <Route path="/login" element={
               isPreviewMode ? <Navigate to="/student-dashboard" replace /> : <Login />
             } />
-            <Route path="/student-dashboard" element={<StudentDashboard />} />
+            <Route
+              path="/student-dashboard"
+              element={
+                <ProtectedRoute>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/question-practice" element={<QuestionPractice />} />
-            <Route path="/test-dashboard" element={<TestDashboard />} />
-            <Route path="/previous-exams" element={<PreviousExams />} />
+            <Route
+              path="/question-practice"
+              element={
+                <ProtectedRoute>
+                  <QuestionPractice />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/test-dashboard"
+              element={
+                <ProtectedRoute>
+                  <TestDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/previous-exams"
+              element={
+                <ProtectedRoute>
+                  <PreviousExams />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
