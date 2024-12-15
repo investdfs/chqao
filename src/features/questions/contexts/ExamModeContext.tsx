@@ -1,27 +1,30 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-interface ExamModeContextData {
+interface ExamModeContextType {
   isExamMode: boolean;
-  toggleExamMode: () => void;
   examStartTime: Date | null;
   examAnswers: Record<string, string>;
+  setExamMode: (value: boolean) => void;
   addAnswer: (questionId: string, answer: string) => void;
   resetExamMode: () => void;
 }
 
-const ExamModeContext = createContext<ExamModeContextData | undefined>(undefined);
+const ExamModeContext = createContext<ExamModeContextType | undefined>(undefined);
 
-export function ExamModeProvider({ children }: { children: ReactNode }) {
+export const ExamModeProvider = ({ children }: { children: React.ReactNode }) => {
   const [isExamMode, setIsExamMode] = useState(false);
   const [examStartTime, setExamStartTime] = useState<Date | null>(null);
   const [examAnswers, setExamAnswers] = useState<Record<string, string>>({});
 
-  const toggleExamMode = () => {
-    if (!isExamMode) {
+  const setExamMode = (value: boolean) => {
+    setIsExamMode(value);
+    if (value) {
       setExamStartTime(new Date());
       setExamAnswers({});
+    } else {
+      setExamStartTime(null);
+      setExamAnswers({});
     }
-    setIsExamMode(!isExamMode);
   };
 
   const addAnswer = (questionId: string, answer: string) => {
@@ -40,21 +43,21 @@ export function ExamModeProvider({ children }: { children: ReactNode }) {
   return (
     <ExamModeContext.Provider value={{
       isExamMode,
-      toggleExamMode,
       examStartTime,
       examAnswers,
+      setExamMode,
       addAnswer,
       resetExamMode
     }}>
       {children}
     </ExamModeContext.Provider>
   );
-}
+};
 
-export function useExamMode() {
+export const useExamMode = () => {
   const context = useContext(ExamModeContext);
   if (context === undefined) {
-    throw new Error('useExamMode must be used within a ExamModeProvider');
+    throw new Error('useExamMode must be used within an ExamModeProvider');
   }
   return context;
-}
+};
