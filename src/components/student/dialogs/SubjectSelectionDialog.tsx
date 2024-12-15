@@ -35,26 +35,30 @@ export const SubjectSelectionDialog = ({
     queryFn: async () => {
       console.log("Buscando contagem de questões por matéria...");
       
-      // Primeiro, buscamos todas as questões ativas
       const { data, error } = await supabase
-        .from('questions')
-        .select('subject')
-        .eq('status', 'active');
+        .rpc('get_subjects_count');
 
       if (error) {
-        console.error("Erro ao buscar questões:", error);
+        console.error("Erro ao buscar contagem de questões:", error);
+        toast({
+          title: "Erro ao carregar questões",
+          description: "Houve um problema ao buscar as questões. Por favor, tente novamente mais tarde.",
+          variant: "destructive"
+        });
         return {};
       }
 
-      // Depois, contamos manualmente por matéria
-      const counts = data.reduce((acc: Record<string, number>, question) => {
-        acc[question.subject] = (acc[question.subject] || 0) + 1;
+      // Convertemos o array de objetos para um objeto chave-valor
+      const counts = data?.reduce((acc: Record<string, number>, curr: { subject: string, count: number }) => {
+        acc[curr.subject] = Number(curr.count);
         return acc;
       }, {});
 
       console.log("Contagem de questões por matéria:", counts);
-      return counts;
-    }
+      return counts || {};
+    },
+    retry: 1,
+    staleTime: 1000 * 60 * 5, // 5 minutos
   });
 
   const handleSubjectSelect = (subject: string) => {
