@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react';
+import { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
 import QuestionOptions from "./QuestionOptions";
@@ -23,6 +23,7 @@ interface QuestionContentProps {
     explanation: string;
     exam_year?: number;
     is_from_previous_exam?: boolean;
+    image_url?: string;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -76,13 +77,6 @@ const QuestionContent = memo(({
     setIsAnswering(false);
   };
 
-  useEffect(() => {
-    if (hasAnswered && isMobile && !isAnswering) {
-      console.log("Mostrando feedback após delay");
-      setShowMobileFeedback(true);
-    }
-  }, [hasAnswered, isMobile, isAnswering]);
-
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
@@ -97,8 +91,18 @@ const QuestionContent = memo(({
             showId={showQuestionId}
           />
 
-          <div className="text-base dark:text-gray-200 text-left">
+          <div className="text-base dark:text-gray-200 text-left space-y-4">
             {question.text}
+            {question.image_url && (
+              <div className="flex justify-center my-4">
+                <img 
+                  src={question.image_url} 
+                  alt="Questão" 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                  loading="lazy"
+                />
+              </div>
+            )}
           </div>
 
           <QuestionOptions
