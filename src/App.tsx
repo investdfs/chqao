@@ -65,13 +65,7 @@ const App: React.FC = () => {
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route
               path="/question-practice"
-              element={
-                authRequired ? (
-                  <Navigate to="/login" replace />
-                ) : (
-                  <QuestionPractice previewUser={previewUser} />
-                )
-              }
+              element={<QuestionPractice previewUser={previewUser} />}
             />
             <Route
               path="/test-dashboard"
