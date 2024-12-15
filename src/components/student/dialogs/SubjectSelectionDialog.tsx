@@ -34,23 +34,26 @@ export const SubjectSelectionDialog = ({
     queryKey: ['questions-count-by-subject'],
     queryFn: async () => {
       console.log("Buscando contagem de questões por matéria...");
+      
+      // Primeiro, buscamos todas as questões ativas
       const { data, error } = await supabase
         .from('questions')
-        .select('subject, count', { count: 'exact', head: false })
-        .eq('status', 'active')
-        .select('subject, count(*)')
-        .groupBy('subject');
+        .select('subject')
+        .eq('status', 'active');
 
       if (error) {
-        console.error("Erro ao buscar contagem de questões:", error);
+        console.error("Erro ao buscar questões:", error);
         return {};
       }
 
-      console.log("Contagem de questões por matéria:", data);
-      return data.reduce((acc, curr) => {
-        acc[curr.subject] = parseInt(curr.count);
+      // Depois, contamos manualmente por matéria
+      const counts = data.reduce((acc: Record<string, number>, question) => {
+        acc[question.subject] = (acc[question.subject] || 0) + 1;
         return acc;
-      }, {} as Record<string, number>);
+      }, {});
+
+      console.log("Contagem de questões por matéria:", counts);
+      return counts;
     }
   });
 
