@@ -75,7 +75,7 @@ export const JsonQuestionInput = () => {
           <DialogHeader>
             <DialogTitle>Inserir Questão via JSON</DialogTitle>
             <DialogDescription>
-              Cole o JSON da questão no formato especificado abaixo.
+              Cole o JSON da questão contendo os campos obrigatórios (*) e opcionais conforme exemplo abaixo.
             </DialogDescription>
           </DialogHeader>
 
@@ -84,18 +84,21 @@ export const JsonQuestionInput = () => {
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
               placeholder={`{
-  "text": "Texto da questão",
-  "option_a": "Alternativa A",
-  "option_b": "Alternativa B",
-  "option_c": "Alternativa C",
-  "option_d": "Alternativa D",
-  "option_e": "Alternativa E",
-  "correct_answer": "A",
+  "text": "Texto da questão", // * obrigatório
+  "option_a": "Alternativa A", // * obrigatório
+  "option_b": "Alternativa B", // * obrigatório
+  "option_c": "Alternativa C", // * obrigatório
+  "option_d": "Alternativa D", // * obrigatório
+  "option_e": "Alternativa E", // * obrigatório
+  "correct_answer": "A", // * obrigatório (A, B, C, D ou E)
+
+  // Campos opcionais abaixo
   "explanation": "Explicação da resposta",
   "difficulty": "Fácil",
-  "theme": "Tema",
+  "theme": "Tema da questão",
   "subject": "Matéria",
-  "topic": "Tópico"
+  "topic": "Tópico específico",
+  "subject_matter": "Conteúdo específico"
 }`}
               className="min-h-[300px] font-mono"
             />
