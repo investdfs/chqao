@@ -1,38 +1,14 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useJsonQuestions = () => {
-  const [open, setOpen] = useState(false);
-  const [jsonInput, setJsonInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [subject, setSubject] = useState("");
-  const [topic, setTopic] = useState("");
+  const [questions, setQuestions] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const validateInputs = () => {
-    if (!subject || !topic) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, selecione a matéria e o tópico antes de continuar.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!jsonInput.trim()) {
-      toast({
-        title: "JSON vazio",
-        description: "Por favor, insira o JSON das questões.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const parseAndValidateJSON = (input: string) => {
+  const validateQuestions = (input: string) => {
     try {
       // Remove possíveis caracteres inválidos
       const cleanInput = input.trim();
@@ -48,9 +24,9 @@ export const useJsonQuestions = () => {
       questionsArray.forEach((q, index) => {
         const requiredFields = [
           'text', 'option_a', 'option_b', 'option_c', 
-          'option_d', 'option_e', 'correct_answer'
+          'option_d', 'option_e', 'correct_answer', 'subject'
         ];
-        
+
         requiredFields.forEach(field => {
           if (!q[field]) {
             throw new Error(`Campo obrigatório '${field}' ausente na questão ${index + 1}`);
@@ -65,29 +41,24 @@ export const useJsonQuestions = () => {
 
       return questionsArray;
     } catch (error) {
-      console.error("Erro ao processar JSON:", error);
-      throw new Error(error.message || "Formato JSON inválido");
+      if (error instanceof SyntaxError) {
+        throw new Error("JSON inválido. Verifique a formatação.");
+      }
+      throw error;
     }
   };
 
-  const handleSubmit = async () => {
-    if (!validateInputs()) return;
-
-    setIsLoading(true);
-    console.log("Processando JSON de questões...");
-
+  const handleInsertQuestions = async () => {
     try {
-      const questions = parseAndValidateJSON(jsonInput);
-      console.log("Questões validadas:", questions);
+      const validatedQuestions = validateQuestions(questions);
+      console.log("Questões validadas:", validatedQuestions);
 
-      const questionsWithMetadata = questions.map(q => ({
+      // Prepara os dados para inserção, marcando questões com exam_year como provas anteriores
+      const questionsWithMetadata = validatedQuestions.map(q => ({
         ...q,
-        subject: q.subject || subject,
-        topic: q.topic || topic,
-        status: 'active',
-        is_from_previous_exam: q.is_from_previous_exam || false,
-        exam_year: q.exam_year || null,
-        difficulty: q.difficulty || 'Médio'
+        difficulty: q.difficulty || 'Médio',
+        is_from_previous_exam: q.exam_year ? true : false, // Marca como prova anterior se tiver exam_year
+        status: 'active'
       }));
 
       console.log("Inserindo questões:", questionsWithMetadata);
@@ -101,42 +72,29 @@ export const useJsonQuestions = () => {
         throw error;
       }
 
+      // Invalida o cache para atualizar as estatísticas
+      queryClient.invalidateQueries({ queryKey: ['questions'] });
+      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+
       toast({
         title: "Sucesso!",
-        description: `${questions.length} questão(ões) inserida(s) com sucesso.`,
+        description: `${questionsWithMetadata.length} questões inseridas com sucesso.`,
       });
-      
-      resetForm();
+
+      setQuestions("");
     } catch (error) {
-      console.error("Erro ao processar JSON:", error);
+      console.error("Erro ao processar questões:", error);
       toast({
-        title: "Erro ao processar JSON",
-        description: error.message || "Verifique se o formato do JSON está correto.",
+        title: "Erro ao inserir questões",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const resetForm = () => {
-    setOpen(false);
-    setJsonInput("");
-    setSubject("");
-    setTopic("");
-  };
-
   return {
-    open,
-    setOpen,
-    jsonInput,
-    setJsonInput,
-    isLoading,
-    subject,
-    setSubject,
-    topic,
-    setTopic,
-    handleSubmit,
-    resetForm
+    questions,
+    setQuestions,
+    handleInsertQuestions
   };
 };
