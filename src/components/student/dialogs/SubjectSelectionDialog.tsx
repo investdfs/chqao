@@ -43,7 +43,8 @@ export const SubjectSelectionDialog = ({
         toast({
           title: "Erro ao carregar questões",
           description: "Houve um problema ao buscar as questões. Por favor, tente novamente mais tarde.",
-          variant: "destructive"
+          variant: "destructive",
+          className: "bg-white border-red-500"
         });
         return {};
       }
@@ -68,7 +69,8 @@ export const SubjectSelectionDialog = ({
       toast({
         title: "Desculpe, não há questões disponíveis",
         description: "Estamos trabalhando para adicionar milhares de novas questões. Por favor, tente outra matéria ou volte mais tarde.",
-        variant: "destructive"
+        variant: "destructive",
+        className: "bg-white border-red-500"
       });
       return;
     }
