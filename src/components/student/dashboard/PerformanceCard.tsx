@@ -8,7 +8,11 @@ interface PerformanceCardProps {
   percentage: number;
 }
 
-export const PerformanceCard = ({ correctAnswers, incorrectAnswers, percentage }: PerformanceCardProps) => {
+export const PerformanceCard = ({ 
+  correctAnswers = 0, 
+  incorrectAnswers = 0, 
+  percentage = 0 
+}: PerformanceCardProps) => {
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">

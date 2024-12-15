@@ -5,7 +5,7 @@ interface StudyTimeCardProps {
   totalTime: string;
 }
 
-export const StudyTimeCard = ({ totalTime }: StudyTimeCardProps) => {
+export const StudyTimeCard = ({ totalTime = "0h 0min" }: StudyTimeCardProps) => {
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">

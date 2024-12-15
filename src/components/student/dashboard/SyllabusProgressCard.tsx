@@ -8,7 +8,11 @@ interface SyllabusProgressCardProps {
   percentage: number;
 }
 
-export const SyllabusProgressCard = ({ completedTopics, pendingTopics, percentage }: SyllabusProgressCardProps) => {
+export const SyllabusProgressCard = ({ 
+  completedTopics = 0, 
+  pendingTopics = 0, 
+  percentage = 0 
+}: SyllabusProgressCardProps) => {
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
