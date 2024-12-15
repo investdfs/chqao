@@ -17,40 +17,45 @@ export const JsonQuestionInput = () => {
       setIsLoading(true);
       console.log("Processando entrada JSON:", jsonInput);
 
-      // Parse JSON input
-      const questionData = JSON.parse(jsonInput);
+      // Parse JSON input - agora esperando um array
+      const questionsData = JSON.parse(jsonInput);
+      const questions = Array.isArray(questionsData) ? questionsData : [questionsData];
 
-      // Validate required fields
+      console.log(`Processando ${questions.length} questões...`);
+
+      // Validar cada questão
       const requiredFields = ['text', 'option_a', 'option_b', 'option_c', 'option_d', 'option_e', 'correct_answer'];
-      const missingFields = requiredFields.filter(field => !questionData[field]);
+      
+      questions.forEach((question, index) => {
+        const missingFields = requiredFields.filter(field => !question[field]);
+        if (missingFields.length > 0) {
+          throw new Error(`Questão ${index + 1}: Campos obrigatórios faltando: ${missingFields.join(', ')}`);
+        }
+      });
 
-      if (missingFields.length > 0) {
-        throw new Error(`Campos obrigatórios faltando: ${missingFields.join(', ')}`);
-      }
+      console.log("Questões validadas, inserindo no banco...");
 
-      console.log("Dados da questão validados:", questionData);
-
-      // Insert into database
+      // Inserir todas as questões
       const { error } = await supabase
         .from('questions')
-        .insert([{
-          ...questionData,
+        .insert(questions.map(q => ({
+          ...q,
           status: 'active'
-        }]);
+        })));
 
       if (error) throw error;
 
       toast({
         title: "Sucesso!",
-        description: "Questão inserida com sucesso.",
+        description: `${questions.length} questões foram inseridas com sucesso.`,
       });
 
       setOpen(false);
       setJsonInput("");
     } catch (error) {
-      console.error("Erro ao processar questão:", error);
+      console.error("Erro ao processar questões:", error);
       toast({
-        title: "Erro ao inserir questão",
+        title: "Erro ao inserir questões",
         description: error.message || "Verifique o formato JSON e tente novamente.",
         variant: "destructive",
       });
@@ -67,15 +72,15 @@ export const JsonQuestionInput = () => {
         className="w-full bg-primary hover:bg-primary/90"
         onClick={() => setOpen(true)}
       >
-        Inserir Questão via JSON
+        Inserir Questões via JSON
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Inserir Questão via JSON</DialogTitle>
+            <DialogTitle>Inserir Questões via JSON</DialogTitle>
             <DialogDescription>
-              Cole o JSON da questão contendo os campos obrigatórios (*) e opcionais conforme exemplo abaixo.
+              Cole o JSON das questões em formato de array. Cada questão deve conter os campos obrigatórios (*) conforme exemplo abaixo.
             </DialogDescription>
           </DialogHeader>
 
@@ -83,23 +88,28 @@ export const JsonQuestionInput = () => {
             <Textarea
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
-              placeholder={`{
-  "text": "Texto da questão", // * obrigatório
-  "option_a": "Alternativa A", // * obrigatório
-  "option_b": "Alternativa B", // * obrigatório
-  "option_c": "Alternativa C", // * obrigatório
-  "option_d": "Alternativa D", // * obrigatório
-  "option_e": "Alternativa E", // * obrigatório
-  "correct_answer": "A", // * obrigatório (A, B, C, D ou E)
+              placeholder={`[
+  {
+    "text": "Texto da questão", // * obrigatório
+    "option_a": "Alternativa A", // * obrigatório
+    "option_b": "Alternativa B", // * obrigatório
+    "option_c": "Alternativa C", // * obrigatório
+    "option_d": "Alternativa D", // * obrigatório
+    "option_e": "Alternativa E", // * obrigatório
+    "correct_answer": "A", // * obrigatório (A, B, C, D ou E)
 
-  // Campos opcionais abaixo
-  "explanation": "Explicação da resposta",
-  "difficulty": "Fácil",
-  "theme": "Tema da questão",
-  "subject": "Matéria",
-  "topic": "Tópico específico",
-  "subject_matter": "Conteúdo específico"
-}`}
+    // Campos opcionais abaixo
+    "explanation": "Explicação da resposta",
+    "difficulty": "Fácil",
+    "theme": "Tema da questão",
+    "subject": "Matéria",
+    "topic": "Tópico específico",
+    "subject_matter": "Conteúdo específico"
+  },
+  {
+    // Segunda questão...
+  }
+]`}
               className="min-h-[300px] font-mono"
             />
           </div>
@@ -115,7 +125,7 @@ export const JsonQuestionInput = () => {
                   Processando...
                 </>
               ) : (
-                "Inserir Questão"
+                "Inserir Questões"
               )}
             </Button>
           </DialogFooter>
