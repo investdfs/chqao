@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QuestionFilters } from "./questions/QuestionFilters";
 import { QuestionsList } from "./questions/QuestionsList";
 import { QuestionEditForm } from "./questions/QuestionEditForm";
+import { QuestionsCounter } from "./questions/QuestionsCounter";
 
 interface EditQuestionsDialogProps {
   open: boolean;
@@ -162,17 +163,10 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Questões</DialogTitle>
-          <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-4 py-2 rounded-lg shadow-md animate-pulse">
-            {selectedQuestions.length > 0 ? (
-              <p className="text-center font-medium">
-                {selectedQuestions.length} questão(ões) selecionada(s) de {questions.length} questões encontradas
-              </p>
-            ) : (
-              <p className="text-center font-medium">
-                {questions.length} questões encontradas
-              </p>
-            )}
-          </div>
+          <QuestionsCounter 
+            selectedCount={selectedQuestions.length}
+            totalCount={questions.length}
+          />
         </DialogHeader>
 
         <div className="space-y-6">
