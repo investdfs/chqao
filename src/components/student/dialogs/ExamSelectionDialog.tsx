@@ -24,30 +24,22 @@ export const ExamSelectionDialog = ({
     queryKey: ['questions-count-by-exam'],
     queryFn: async () => {
       console.log("Buscando contagem de questões por ano de prova...");
-      const { data: exams, error: examsError } = await supabase
-        .from('previous_exams')
-        .select('id, year');
+      const { data: questions, error } = await supabase
+        .from('questions')
+        .select('exam_year, count', { count: 'exact', head: true })
+        .eq('is_from_previous_exam', true)
+        .neq('exam_year', null)
+        .group_by('exam_year');
 
-      if (examsError) {
-        console.error("Erro ao buscar provas:", examsError);
+      if (error) {
+        console.error("Erro ao buscar questões:", error);
         return {};
       }
 
       const examCounts: Record<number, number> = {};
-      
-      for (const exam of exams) {
-        const { count, error: questionsError } = await supabase
-          .from('previous_exam_questions')
-          .select('*', { count: 'exact' })
-          .eq('exam_id', exam.id);
-
-        if (questionsError) {
-          console.error("Erro ao buscar questões da prova:", questionsError);
-          continue;
-        }
-
-        examCounts[exam.year] = count || 0;
-      }
+      questions?.forEach((item: any) => {
+        examCounts[item.exam_year] = item.count;
+      });
 
       console.log("Contagem de questões por ano:", examCounts);
       return examCounts;
@@ -60,7 +52,7 @@ export const ExamSelectionDialog = ({
     if (count === 0) {
       toast({
         title: "Desculpe, não há questões disponíveis",
-        description: "Estamos trabalhando para adicionar milhares de novas questões de provas anteriores. Por favor, tente outro ano ou volte mais tarde.",
+        description: "Estamos trabalhando para adicionar mais questões de provas anteriores. Por favor, tente outro ano ou volte mais tarde.",
         variant: "destructive"
       });
       return;
@@ -74,7 +66,7 @@ export const ExamSelectionDialog = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
-            Selecione qual prova você deseja refazer
+            Selecione qual prova EIPS/CHQAO você deseja refazer
           </DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[400px] mt-4">
@@ -87,7 +79,7 @@ export const ExamSelectionDialog = ({
                 onClick={() => handleExamSelect(year)}
               >
                 <span className="mr-2">{index + 1}.</span>
-                EI PS/CHQAO {year}
+                EIPS/CHQAO {year}
               </Button>
             ))}
           </div>

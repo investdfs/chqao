@@ -21,6 +21,8 @@ interface QuestionContextData {
   handleNextQuestion: () => void;
   handlePreviousQuestion: () => void;
   currentQuestion: Question | null;
+  selectedExamYear?: number;
+  setSelectedExamYear: (year: number) => void;
 }
 
 const QuestionContext = createContext<QuestionContextData | undefined>(undefined);
@@ -34,7 +36,9 @@ export function QuestionProvider({ children }: { children: ReactNode }) {
     isLoadingQuestions,
     error,
     handleNextQuestion,
-    handlePreviousQuestion
+    handlePreviousQuestion,
+    selectedExamYear,
+    setSelectedExamYear
   } = useQuestionPractice();
 
   const currentQuestion = questions?.[currentQuestionIndex] ? {
@@ -64,7 +68,9 @@ export function QuestionProvider({ children }: { children: ReactNode }) {
         error,
         handleNextQuestion,
         handlePreviousQuestion,
-        currentQuestion
+        currentQuestion,
+        selectedExamYear,
+        setSelectedExamYear
       }}
     >
       {children}

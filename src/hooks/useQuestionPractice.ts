@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 export const useQuestionPractice = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedExamYear, setSelectedExamYear] = useState<number>();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -51,13 +52,19 @@ export const useQuestionPractice = () => {
   });
 
   const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
-    queryKey: ['questions'],
+    queryKey: ['questions', selectedExamYear],
     queryFn: async () => {
       console.log("Buscando questões do Supabase...");
-      const { data, error } = await supabase
+      let query = supabase
         .from('questions')
         .select('*')
-        .order('created_at', { ascending: true });
+        .eq('is_from_previous_exam', true);
+
+      if (selectedExamYear) {
+        query = query.eq('exam_year', selectedExamYear);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -69,7 +76,7 @@ export const useQuestionPractice = () => {
         throw error;
       }
 
-      console.log("Questões buscadas com sucesso:", data?.length, "questões");
+      console.log(`Questões buscadas com sucesso para o ano ${selectedExamYear}:`, data?.length, "questões");
       return data || [];
     },
     enabled: !!studentData
@@ -95,6 +102,8 @@ export const useQuestionPractice = () => {
     isLoadingQuestions,
     error,
     handleNextQuestion,
-    handlePreviousQuestion
+    handlePreviousQuestion,
+    selectedExamYear,
+    setSelectedExamYear
   };
 };
