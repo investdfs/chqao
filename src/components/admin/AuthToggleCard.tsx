@@ -86,7 +86,6 @@ export const AuthToggleCard = () => {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleToggle}
-              variant="destructive"
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Sim, desativar autenticação
