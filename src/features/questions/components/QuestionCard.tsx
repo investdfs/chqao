@@ -1,4 +1,4 @@
-import { useEffect, memo } from "react";
+import { useEffect, memo, useState } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
@@ -47,6 +47,8 @@ const QuestionCard = memo(({
   showQuestionId = false,
   questions = [],
 }: QuestionCardProps) => {
+  console.log("Renderizando QuestionCard para questão:", question.id);
+
   const {
     selectedAnswer,
     setSelectedAnswer,
