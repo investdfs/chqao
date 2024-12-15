@@ -4,6 +4,7 @@ import { StudentCard } from "./statistics/StudentCard";
 import { QuestionsCard } from "./statistics/QuestionsCard";
 import { PreviousExamsCard } from "./statistics/PreviousExamsCard";
 import { useQuestionsStats } from "./statistics/questions/QuestionsStats";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface StatisticsCardsProps {
   totalStudents: number;
@@ -16,6 +17,20 @@ export const StatisticsCards = ({
 }: StatisticsCardsProps) => {
   const { stats, fetchStats } = useQuestionsStats();
   const channelRef = useRef<any>(null);
+  const queryClient = useQueryClient();
+
+  // Subscribe to query cache updates
+  useEffect(() => {
+    // Refetch stats when queries are invalidated
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      console.log('Query cache updated, refreshing statistics...');
+      fetchStats();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [queryClient, fetchStats]);
 
   useEffect(() => {
     fetchStats();

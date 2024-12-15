@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionsStatsData {
@@ -18,7 +18,7 @@ export const useQuestionsStats = () => {
     }
   });
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       console.log('Fetching questions statistics...');
       
@@ -60,6 +60,14 @@ export const useQuestionsStats = () => {
 
       const totalExams = examStats?.length || 0;
 
+      console.log('Statistics updated:', {
+        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
+        previousExams: {
+          total: totalExams,
+          questions: examQuestionsCount || 0
+        }
+      });
+
       setStats({
         totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
         previousExams: {
@@ -70,7 +78,7 @@ export const useQuestionsStats = () => {
     } catch (error) {
       console.error('Error fetching statistics:', error);
     }
-  };
+  }, []);
 
   return {
     stats,
