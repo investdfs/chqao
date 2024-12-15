@@ -22,7 +22,8 @@ export const InsertQuestionsButton = () => {
     option_d: "",
     option_e: "",
     correct_answer: "",
-    explanation: ""
+    explanation: "",
+    image_url: ""
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -121,7 +122,8 @@ export const InsertQuestionsButton = () => {
         option_d: "",
         option_e: "",
         correct_answer: "",
-        explanation: ""
+        explanation: "",
+        image_url: ""
       });
     } catch (error) {
       console.error("Erro ao inserir questão:", error);
