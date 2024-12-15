@@ -1,11 +1,8 @@
-import { useEffect, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Edit, Trash, Plus, EyeOff, Eye } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import QuestionCard from "@/features/questions/components/QuestionCard";
+import { supabase } from "@/integrations/supabase/client";
+import { QuestionItem } from "./QuestionItem";
+import { PreviewDialog } from "./PreviewDialog";
 
 interface QuestionsListProps {
   questions: any[];
@@ -70,94 +67,23 @@ export const QuestionsList = ({
     <>
       <div className="border rounded-lg p-4 space-y-4">
         {questions.map((question) => (
-          <div 
-            key={question.id} 
-            className={`p-4 border rounded-lg transition-colors ${
-              question.status === 'hidden' ? 'bg-red-50 border-red-200' : 
-              question.status === 'deleted' ? 'bg-gray-100 border-gray-200' : 
-              'hover:bg-gray-50'
-            }`}
-          >
-            <div className="flex items-start gap-4">
-              <Checkbox
-                checked={selectedQuestions.includes(question.id)}
-                onCheckedChange={() => handleCheckboxChange(question.id)}
-                className="mt-1"
-              />
-              <div className="flex-1">
-                <p className="font-medium">{question.text}</p>
-                <div className="text-sm text-gray-500 mt-2">
-                  <span>{question.subject}</span>
-                  {question.topic && <span> • {question.topic}</span>}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handlePreview(question)}
-                  title="Visualizar questão"
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onQuestionSelect(question)}
-                  title="Editar questão"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleStatusChange(question.id, 'deleted')}
-                  title="Excluir questão"
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleStatusChange(question.id, 'hidden')}
-                  title="Ocultar questão"
-                >
-                  <EyeOff className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+          <QuestionItem
+            key={question.id}
+            question={question}
+            isSelected={selectedQuestions.includes(question.id)}
+            onSelect={handleCheckboxChange}
+            onStatusChange={handleStatusChange}
+            onEdit={onQuestionSelect}
+            onPreview={handlePreview}
+          />
         ))}
       </div>
 
-      <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent className="max-w-4xl h-[80vh] overflow-y-auto">
-          {previewQuestion && (
-            <QuestionCard
-              question={{
-                id: previewQuestion.id,
-                text: previewQuestion.text,
-                option_a: previewQuestion.option_a,
-                option_b: previewQuestion.option_b,
-                option_c: previewQuestion.option_c,
-                option_d: previewQuestion.option_d,
-                option_e: previewQuestion.option_e,
-                correct_answer: previewQuestion.correct_answer,
-                explanation: previewQuestion.explanation,
-                subject: previewQuestion.subject,
-                topic: previewQuestion.topic,
-                exam_year: previewQuestion.exam_year,
-                is_from_previous_exam: previewQuestion.is_from_previous_exam,
-              }}
-              onNextQuestion={() => {}}
-              onPreviousQuestion={() => {}}
-              questionNumber={1}
-              totalQuestions={1}
-              showQuestionId={true}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      <PreviewDialog
+        question={previewQuestion}
+        open={showPreview}
+        onOpenChange={setShowPreview}
+      />
     </>
   );
 };
