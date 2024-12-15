@@ -32,6 +32,36 @@ export const useJsonQuestions = () => {
     return true;
   };
 
+  const parseAndValidateJSON = (input: string) => {
+    try {
+      // Remove possíveis caracteres inválidos
+      const cleanInput = input.trim();
+      const parsedData = JSON.parse(cleanInput);
+      
+      // Se for um objeto único, converte para array
+      const questionsArray = Array.isArray(parsedData) ? parsedData : [parsedData];
+      
+      // Valida cada questão
+      questionsArray.forEach((q, index) => {
+        const requiredFields = [
+          'text', 'option_a', 'option_b', 'option_c', 
+          'option_d', 'option_e', 'correct_answer'
+        ];
+        
+        requiredFields.forEach(field => {
+          if (!q[field]) {
+            throw new Error(`Campo obrigatório '${field}' ausente na questão ${index + 1}`);
+          }
+        });
+      });
+
+      return questionsArray;
+    } catch (error) {
+      console.error("Erro ao processar JSON:", error);
+      throw new Error(error.message || "Formato JSON inválido");
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateInputs()) return;
 
@@ -39,20 +69,18 @@ export const useJsonQuestions = () => {
     console.log("Processando JSON de questões...");
 
     try {
-      const questions = JSON.parse(jsonInput);
-      const questionsWithMetadata = Array.isArray(questions) 
-        ? questions.map(q => ({
-            ...q,
-            subject,
-            topic,
-            status: 'active'
-          }))
-        : [{
-            ...questions,
-            subject,
-            topic,
-            status: 'active'
-          }];
+      const questions = parseAndValidateJSON(jsonInput);
+      console.log("Questões validadas:", questions);
+
+      const questionsWithMetadata = questions.map(q => ({
+        ...q,
+        subject: q.subject || subject,
+        topic: q.topic || topic,
+        status: 'active',
+        is_from_previous_exam: q.is_from_previous_exam || false,
+        exam_year: q.exam_year || null,
+        difficulty: q.difficulty || 'Médio'
+      }));
 
       const { error } = await supabase
         .from('questions')
@@ -62,7 +90,7 @@ export const useJsonQuestions = () => {
 
       toast({
         title: "Sucesso!",
-        description: "Questões inseridas com sucesso.",
+        description: `${questions.length} questão(ões) inserida(s) com sucesso.`,
       });
       
       resetForm();
@@ -70,7 +98,7 @@ export const useJsonQuestions = () => {
       console.error("Erro ao processar JSON:", error);
       toast({
         title: "Erro ao processar JSON",
-        description: "Verifique se o formato do JSON está correto.",
+        description: error.message || "Verifique se o formato do JSON está correto.",
         variant: "destructive",
       });
     } finally {
