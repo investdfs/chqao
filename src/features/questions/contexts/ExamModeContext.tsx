@@ -5,6 +5,7 @@ interface ExamModeContextType {
   examStartTime: Date | null;
   examAnswers: Record<string, string>;
   setExamMode: (value: boolean) => void;
+  toggleExamMode: () => void;  // Added this function type
   addAnswer: (questionId: string, answer: string) => void;
   resetExamMode: () => void;
 }
@@ -27,6 +28,10 @@ export const ExamModeProvider = ({ children }: { children: React.ReactNode }) =>
     }
   };
 
+  const toggleExamMode = () => {  // Added this function implementation
+    setExamMode(!isExamMode);
+  };
+
   const addAnswer = (questionId: string, answer: string) => {
     setExamAnswers(prev => ({
       ...prev,
@@ -46,6 +51,7 @@ export const ExamModeProvider = ({ children }: { children: React.ReactNode }) =>
       examStartTime,
       examAnswers,
       setExamMode,
+      toggleExamMode,  // Added this to the provider value
       addAnswer,
       resetExamMode
     }}>
