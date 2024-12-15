@@ -51,12 +51,16 @@ export const SubjectManager = () => {
 
             <div className="space-y-2">
               <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white dark:bg-gray-800">
                   <SelectValue placeholder="Selecione uma matéria" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white dark:bg-gray-800">
                   {availableSubjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.name}>
+                    <SelectItem 
+                      key={subject.id} 
+                      value={subject.name}
+                      className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       {subject.name}
                     </SelectItem>
                   ))}
@@ -82,17 +86,56 @@ export const SubjectManager = () => {
 const availableSubjects = [
   { 
     id: "1", 
-    name: "Matemática",
-    topics: ["Álgebra", "Geometria", "Trigonometria"]
+    name: "Língua Portuguesa",
+    theme: "Conhecimentos Gerais",
+    topics: []
   },
   { 
     id: "2", 
-    name: "Português",
-    topics: ["Gramática", "Literatura", "Redação"]
+    name: "Geografia do Brasil",
+    theme: "Conhecimentos Gerais",
+    topics: []
   },
   { 
     id: "3", 
-    name: "História",
+    name: "História do Brasil",
+    theme: "Conhecimentos Gerais",
     topics: []
   },
+  { 
+    id: "4", 
+    name: "Estatuto dos Militares",
+    theme: "Conhecimentos Profissionais",
+    topics: []
+  },
+  { 
+    id: "5", 
+    name: "Licitações e Contratos",
+    theme: "Conhecimentos Profissionais",
+    topics: []
+  },
+  { 
+    id: "6", 
+    name: "Regulamento de Administração do Exército (RAE)",
+    theme: "Conhecimentos Profissionais",
+    topics: []
+  },
+  { 
+    id: "7", 
+    name: "Direito Militar e Sindicância no Âmbito do Exército Brasileiro",
+    theme: "Conhecimentos Profissionais",
+    topics: []
+  },
+  { 
+    id: "8", 
+    name: "Código Penal Militar",
+    theme: "Conhecimentos Profissionais",
+    topics: []
+  },
+  { 
+    id: "9", 
+    name: "Código de Processo Penal Militar",
+    theme: "Conhecimentos Profissionais",
+    topics: []
+  }
 ];
