@@ -5,6 +5,8 @@ import EnhancedQuestionOptions from "./EnhancedQuestionOptions";
 import NavigationButtons from "./NavigationButtons";
 import QuestionFeedback from "./QuestionFeedback";
 import ThemeSelector from "@/components/theme/ThemeSelector";
+import QuestionCounter from "./QuestionCounter";
+import PreviousAnswerInfo from "./PreviousAnswerInfo";
 
 interface QuestionContentProps {
   question: {
@@ -26,6 +28,7 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
+  studentId?: string;
 }
 
 const QuestionContent = memo(({
@@ -39,6 +42,7 @@ const QuestionContent = memo(({
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
+  studentId,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
@@ -49,6 +53,17 @@ const QuestionContent = memo(({
           <ThemeSelector />
         </div>
         <div className="space-y-6">
+          <div className="flex flex-col gap-4">
+            <QuestionCounter 
+              current={questionNumber} 
+              total={totalQuestions} 
+            />
+            <PreviousAnswerInfo 
+              questionId={question.id}
+              studentId={studentId}
+            />
+          </div>
+
           <QuestionMetadata
             id={question.id}
             subject={question.subject}

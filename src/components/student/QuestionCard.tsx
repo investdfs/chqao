@@ -76,6 +76,7 @@ const QuestionCard = memo(({
         onPreviousQuestion={onPreviousQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
+        studentId={studentId}
       />
     </div>
   );
