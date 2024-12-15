@@ -193,6 +193,7 @@ export type Database = {
           correct_answer: string
           created_at: string
           difficulty: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_year: number | null
           explanation: string | null
           id: string
           image_url: string | null
@@ -214,6 +215,7 @@ export type Database = {
           correct_answer: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_year?: number | null
           explanation?: string | null
           id?: string
           image_url?: string | null
@@ -235,6 +237,7 @@ export type Database = {
           correct_answer?: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_year?: number | null
           explanation?: string | null
           id?: string
           image_url?: string | null

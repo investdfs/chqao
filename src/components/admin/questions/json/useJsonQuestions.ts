@@ -36,10 +36,13 @@ export const useJsonQuestions = () => {
     try {
       // Remove possíveis caracteres inválidos
       const cleanInput = input.trim();
+      console.log("Processando JSON:", cleanInput);
+      
       const parsedData = JSON.parse(cleanInput);
       
       // Se for um objeto único, converte para array
       const questionsArray = Array.isArray(parsedData) ? parsedData : [parsedData];
+      console.log("Questões convertidas para array:", questionsArray);
       
       // Valida cada questão
       questionsArray.forEach((q, index) => {
@@ -53,6 +56,11 @@ export const useJsonQuestions = () => {
             throw new Error(`Campo obrigatório '${field}' ausente na questão ${index + 1}`);
           }
         });
+
+        // Valida o exam_year se presente
+        if (q.exam_year && !Number.isInteger(q.exam_year)) {
+          throw new Error(`Campo 'exam_year' deve ser um número inteiro na questão ${index + 1}`);
+        }
       });
 
       return questionsArray;
@@ -82,11 +90,16 @@ export const useJsonQuestions = () => {
         difficulty: q.difficulty || 'Médio'
       }));
 
+      console.log("Inserindo questões:", questionsWithMetadata);
+
       const { error } = await supabase
         .from('questions')
         .insert(questionsWithMetadata);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro ao inserir questões:", error);
+        throw error;
+      }
 
       toast({
         title: "Sucesso!",
