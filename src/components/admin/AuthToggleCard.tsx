@@ -82,11 +82,12 @@ export const AuthToggleCard = () => {
               Tem certeza que deseja continuar?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex justify-end gap-2">
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleToggle}
-              className="bg-destructive hover:bg-destructive/90"
+              variant="destructive"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Sim, desativar autenticação
             </AlertDialogAction>
