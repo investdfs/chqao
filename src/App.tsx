@@ -46,44 +46,50 @@ const App: React.FC = () => {
             <Route path="/" element={<Index />} />
             <Route 
               path="/register" 
-              element={!authRequired ? <Navigate to="/student-dashboard" replace /> : <Register />} 
+              element={authRequired ? <Register /> : <Navigate to="/student-dashboard" replace />} 
             />
             <Route 
               path="/login" 
-              element={!authRequired ? <Navigate to="/student-dashboard" replace /> : <Login />} 
+              element={authRequired ? <Login /> : <Navigate to="/student-dashboard" replace />} 
             />
             <Route
               path="/student-dashboard"
               element={
-                authRequired ? (
-                  <Navigate to="/login" replace />
-                ) : (
+                !authRequired ? (
                   <StudentDashboard previewUser={previewUser} />
+                ) : (
+                  <Navigate to="/login" replace />
                 )
               }
             />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route
               path="/question-practice"
-              element={<QuestionPractice previewUser={previewUser} />}
+              element={
+                !authRequired ? (
+                  <QuestionPractice previewUser={previewUser} />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
             />
             <Route
               path="/test-dashboard"
               element={
-                authRequired ? (
-                  <Navigate to="/login" replace />
-                ) : (
+                !authRequired ? (
                   <TestDashboard previewUser={previewUser} />
+                ) : (
+                  <Navigate to="/login" replace />
                 )
               }
             />
             <Route
               path="/previous-exams"
               element={
-                authRequired ? (
-                  <Navigate to="/login" replace />
-                ) : (
+                !authRequired ? (
                   <PreviousExams previewUser={previewUser} />
+                ) : (
+                  <Navigate to="/login" replace />
                 )
               }
             />
