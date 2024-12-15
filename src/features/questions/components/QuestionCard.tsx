@@ -20,6 +20,7 @@ interface QuestionCardProps {
     topic?: string;
     exam_year?: number;
     is_from_previous_exam?: boolean;
+    image_url?: string;  // Added this property
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
