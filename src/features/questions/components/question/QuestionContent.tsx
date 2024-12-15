@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
 import QuestionOptions from "./QuestionOptions";
