@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { QuestionFormFields } from "./form/QuestionFormFields";
 
 export const InsertQuestionsButton = () => {
   const [open, setOpen] = useState(false);
@@ -86,11 +83,10 @@ export const InsertQuestionsButton = () => {
   };
 
   const handleInsertQuestion = async () => {
-    // Validação básica
-    if (!questionData.subject || !questionData.text || !questionData.correct_answer) {
+    if (!questionData.subject || !questionData.topic || !questionData.text || !questionData.correct_answer) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha todos os campos obrigatórios.",
+        description: "Preencha todos os campos obrigatórios (matéria, tópico, texto da questão e resposta correta).",
         variant: "destructive",
       });
       return;
@@ -151,103 +147,16 @@ export const InsertQuestionsButton = () => {
         <DialogHeader>
           <DialogTitle>Inserir Nova Questão</DialogTitle>
           <DialogDescription>
-            Preencha os campos abaixo para inserir uma nova questão. Use o botão de sugestões para gerar alternativas automaticamente.
+            Preencha os campos obrigatórios (*) abaixo para inserir uma nova questão.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="subject">Matéria</Label>
-              <Input
-                id="subject"
-                value={questionData.subject}
-                onChange={(e) => handleInputChange("subject", e.target.value)}
-                placeholder="Ex: História do Brasil"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="topic">Tópico (opcional)</Label>
-              <Input
-                id="topic"
-                value={questionData.topic}
-                onChange={(e) => handleInputChange("topic", e.target.value)}
-                placeholder="Ex: Era Vargas"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="text">Texto da Questão</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="text"
-                value={questionData.text}
-                onChange={(e) => handleInputChange("text", e.target.value)}
-                placeholder="Digite o texto da questão aqui..."
-                className="min-h-[100px]"
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={generateAlternatives}
-                disabled={isGenerating || !questionData.text}
-                className="h-10 w-10 shrink-0"
-                title="Gerar sugestões de alternativas"
-              >
-                {isGenerating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Wand2 className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Label>Alternativas</Label>
-            {['a', 'b', 'c', 'd', 'e'].map((option) => (
-              <div key={option} className="flex gap-2 items-center">
-                <span className="w-6 text-center font-medium">{option.toUpperCase()}</span>
-                <Input
-                  value={questionData[`option_${option}` as keyof typeof questionData]}
-                  onChange={(e) => handleInputChange(`option_${option}`, e.target.value)}
-                  placeholder={`Digite a alternativa ${option.toUpperCase()}`}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="correct_answer">Resposta Correta</Label>
-            <Select
-              value={questionData.correct_answer}
-              onValueChange={(value) => handleInputChange("correct_answer", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a alternativa correta" />
-              </SelectTrigger>
-              <SelectContent>
-                {['A', 'B', 'C', 'D', 'E'].map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="explanation">Explicação (opcional)</Label>
-            <Textarea
-              id="explanation"
-              value={questionData.explanation}
-              onChange={(e) => handleInputChange("explanation", e.target.value)}
-              placeholder="Digite a explicação da resposta correta..."
-              className="min-h-[100px]"
-            />
-          </div>
-        </div>
+        <QuestionFormFields
+          questionData={questionData}
+          onInputChange={handleInputChange}
+          isGenerating={isGenerating}
+          onGenerateAlternatives={generateAlternatives}
+        />
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>

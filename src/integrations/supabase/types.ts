@@ -197,6 +197,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_ai_generated: boolean | null
+          is_from_previous_exam: boolean | null
           option_a: string
           option_b: string
           option_c: string
@@ -217,6 +218,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_ai_generated?: boolean | null
+          is_from_previous_exam?: boolean | null
           option_a: string
           option_b: string
           option_c: string
@@ -237,6 +239,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_ai_generated?: boolean | null
+          is_from_previous_exam?: boolean | null
           option_a?: string
           option_b?: string
           option_c?: string
