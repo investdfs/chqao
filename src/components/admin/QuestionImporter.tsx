@@ -8,6 +8,7 @@ import { useQuestionImporter } from "./questions/hooks/useQuestionImporter";
 import { InsertQuestionsButton } from "./questions/InsertQuestionsButton";
 import { InsertPreviousExamQuestionsButton } from "./questions/InsertPreviousExamQuestionsButton";
 import { JsonQuestionInput } from "./questions/JsonQuestionInput";
+import { JsonImageQuestionInput } from "./questions/JsonImageQuestionInput";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const QuestionImporter = () => {
@@ -32,7 +33,10 @@ export const QuestionImporter = () => {
 
   return (
     <div className="space-y-4">
-      <JsonQuestionInput />
+      <div className="grid grid-cols-2 gap-4">
+        <JsonQuestionInput />
+        <JsonImageQuestionInput />
+      </div>
       
       <Tabs defaultValue="regular" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
