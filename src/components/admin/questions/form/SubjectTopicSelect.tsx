@@ -17,27 +17,34 @@ export const SubjectTopicSelect = ({
   onSubjectChange,
   onTopicChange
 }: SubjectTopicSelectProps) => {
+  // Fetch all level 1 items (subjects)
   const { data: subjects } = useQuery({
-    queryKey: ['subject-structure-subjects'],
+    queryKey: ['subjects'],
     queryFn: async () => {
       console.log('Buscando matérias do banco...');
       const { data, error } = await supabase
         .from('subject_structure')
-        .select('name')
+        .select('id, name')
         .eq('level', 1)
         .order('name');
 
-      if (error) throw error;
-      return data.map(item => item.name);
+      if (error) {
+        console.error('Erro ao buscar matérias:', error);
+        throw error;
+      }
+      return data;
     }
   });
 
+  // Fetch topics for selected subject
   const { data: topics } = useQuery({
-    queryKey: ['subject-structure-topics', subject],
+    queryKey: ['topics', subject],
     queryFn: async () => {
       if (!subject) return [];
 
       console.log('Buscando tópicos para a matéria:', subject);
+      
+      // First, get the subject's ID
       const { data: subjectData, error: subjectError } = await supabase
         .from('subject_structure')
         .select('id')
@@ -45,24 +52,26 @@ export const SubjectTopicSelect = ({
         .eq('name', subject)
         .single();
 
-      if (subjectError || !subjectData) {
-        console.error('Erro ao buscar matéria:', subjectError);
+      if (subjectError) {
+        console.error('Erro ao buscar ID da matéria:', subjectError);
         return [];
       }
 
+      // Then, get all descendant topics using recursive CTE
       const { data: topicsData, error: topicsError } = await supabase
-        .from('subject_structure')
-        .select('name')
-        .eq('level', 2)
-        .eq('parent_id', subjectData.id)
-        .order('name');
+        .rpc('get_subject_hierarchy')
+        .eq('parent_id', subjectData.id);
 
       if (topicsError) {
         console.error('Erro ao buscar tópicos:', topicsError);
         return [];
       }
 
-      return topicsData?.map(item => item.name) || [];
+      // Filter to get only leaf nodes (actual topics)
+      const leafTopics = topicsData.filter(item => !item.has_children);
+      console.log('Tópicos encontrados:', leafTopics);
+      
+      return leafTopics;
     },
     enabled: !!subject
   });
@@ -78,11 +87,11 @@ export const SubjectTopicSelect = ({
           <SelectContent className="bg-white dark:bg-gray-800">
             {subjects?.map((subject) => (
               <SelectItem 
-                key={subject} 
-                value={subject}
+                key={subject.id} 
+                value={subject.name}
                 className="hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                {subject}
+                {subject.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -92,27 +101,27 @@ export const SubjectTopicSelect = ({
         <Label htmlFor="topic">Tópico *</Label>
         <div className="flex gap-2">
           <Select
-            value={topics?.includes(topic) ? topic : ""}
+            value={topics?.some(t => t.name === topic) ? topic : ""}
             onValueChange={onTopicChange}
           >
             <SelectTrigger className="flex-1 bg-white dark:bg-gray-800">
               <SelectValue placeholder="Selecione o tópico" />
             </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-gray-800">
+            <SelectContent className="bg-white dark:bg-gray-800 max-h-[300px]">
               {topics?.map((topic) => (
                 <SelectItem 
-                  key={topic} 
-                  value={topic}
+                  key={topic.id} 
+                  value={topic.name}
                   className="hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  {topic}
+                  {topic.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Input
             placeholder="Ou digite um novo tópico"
-            value={!topics?.includes(topic) ? topic : ""}
+            value={!topics?.some(t => t.name === topic) ? topic : ""}
             onChange={(e) => onTopicChange(e.target.value)}
             className="flex-1"
           />
