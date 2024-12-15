@@ -9,24 +9,25 @@ interface QuestionsListProps {
   questions: any[];
   onQuestionSelect: (question: any) => void;
   onQuestionsUpdate: () => void;
+  onQuestionsSelect: (questionIds: string[]) => void;
+  selectedQuestions: string[];
 }
 
 export const QuestionsList = ({ 
   questions, 
   onQuestionSelect,
-  onQuestionsUpdate 
+  onQuestionsUpdate,
+  onQuestionsSelect,
+  selectedQuestions
 }: QuestionsListProps) => {
-  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const { toast } = useToast();
 
   const handleCheckboxChange = (questionId: string) => {
-    setSelectedQuestions(prev => {
-      if (prev.includes(questionId)) {
-        return prev.filter(id => id !== questionId);
-      } else {
-        return [...prev, questionId];
-      }
-    });
+    const newSelectedQuestions = selectedQuestions.includes(questionId)
+      ? selectedQuestions.filter(id => id !== questionId)
+      : [...selectedQuestions, questionId];
+    
+    onQuestionsSelect(newSelectedQuestions);
   };
 
   const handleStatusChange = async (questionId: string, newStatus: 'hidden' | 'deleted') => {

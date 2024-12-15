@@ -20,6 +20,7 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     topic: "all",
     searchTerm: ""
   });
+  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const { toast } = useToast();
 
   const fetchQuestions = async () => {
@@ -152,11 +153,26 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     }
   };
 
+  const handleQuestionsSelect = (questionIds: string[]) => {
+    setSelectedQuestions(questionIds);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Questões</DialogTitle>
+          <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-4 py-2 rounded-lg shadow-md animate-pulse">
+            {selectedQuestions.length > 0 ? (
+              <p className="text-center font-medium">
+                {selectedQuestions.length} questão(ões) selecionada(s) de {questions.length} questões encontradas
+              </p>
+            ) : (
+              <p className="text-center font-medium">
+                {questions.length} questões encontradas
+              </p>
+            )}
+          </div>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -172,6 +188,8 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
               questions={questions}
               onQuestionSelect={setSelectedQuestion}
               onQuestionsUpdate={fetchQuestions}
+              onQuestionsSelect={handleQuestionsSelect}
+              selectedQuestions={selectedQuestions}
             />
           )}
 
