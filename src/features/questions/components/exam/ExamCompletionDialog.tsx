@@ -32,7 +32,11 @@ export function ExamCompletionDialog({
   const correctAnswers = questions.filter(q => answers[q.id] === q.correctAnswer).length;
   const totalQuestions = questions.length;
   const percentage = Math.round((correctAnswers / totalQuestions) * 100);
-  const examDuration = formatDistanceToNow(startTime, { locale: ptBR });
+  
+  // Ensure startTime is a valid Date object
+  const examDuration = startTime instanceof Date && !isNaN(startTime.getTime())
+    ? formatDistanceToNow(startTime, { locale: ptBR })
+    : "Tempo indisponível";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,7 +118,7 @@ export function ExamCompletionDialog({
                     </div>
                   )}
                 </div>
-              )
+              );
             })}
           </div>
         </ScrollArea>
