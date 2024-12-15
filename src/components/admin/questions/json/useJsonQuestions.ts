@@ -4,7 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const useJsonQuestions = () => {
-  const [questions, setQuestions] = useState("");
+  const [open, setOpen] = useState(false);
+  const [jsonInput, setJsonInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [topic, setTopic] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -48,14 +52,28 @@ export const useJsonQuestions = () => {
     }
   };
 
-  const handleInsertQuestions = async () => {
+  const handleSubmit = async () => {
+    if (!jsonInput.trim()) {
+      toast({
+        title: "JSON vazio",
+        description: "Por favor, insira o JSON das questões.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    console.log("Processando JSON de questões...");
+
     try {
-      const validatedQuestions = validateQuestions(questions);
+      const validatedQuestions = validateQuestions(jsonInput);
       console.log("Questões validadas:", validatedQuestions);
 
-      // Prepara os dados para inserção, marcando questões com exam_year como provas anteriores
+      // Prepara os dados para inserção
       const questionsWithMetadata = validatedQuestions.map(q => ({
         ...q,
+        subject: q.subject || subject,
+        topic: q.topic || topic,
         difficulty: q.difficulty || 'Médio',
         is_from_previous_exam: q.exam_year ? true : false, // Marca como prova anterior se tiver exam_year
         status: 'active'
@@ -81,7 +99,7 @@ export const useJsonQuestions = () => {
         description: `${questionsWithMetadata.length} questões inseridas com sucesso.`,
       });
 
-      setQuestions("");
+      resetForm();
     } catch (error) {
       console.error("Erro ao processar questões:", error);
       toast({
@@ -89,12 +107,29 @@ export const useJsonQuestions = () => {
         description: error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const resetForm = () => {
+    setOpen(false);
+    setJsonInput("");
+    setSubject("");
+    setTopic("");
+  };
+
   return {
-    questions,
-    setQuestions,
-    handleInsertQuestions
+    open,
+    setOpen,
+    jsonInput,
+    setJsonInput,
+    isLoading,
+    subject,
+    setSubject,
+    topic,
+    setTopic,
+    handleSubmit,
+    resetForm
   };
 };
