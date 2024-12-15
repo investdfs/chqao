@@ -1,62 +1,122 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export const JsonQuestionInput = () => {
   const [open, setOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [topic, setTopic] = useState("");
   const { toast } = useToast();
 
+  const { data: subjects } = useQuery({
+    queryKey: ['subject-structure-subjects'],
+    queryFn: async () => {
+      console.log('Buscando matérias do banco...');
+      const { data, error } = await supabase
+        .from('subject_structure')
+        .select('name')
+        .eq('level', 1)
+        .order('name');
+
+      if (error) throw error;
+      return data.map(item => item.name);
+    }
+  });
+
+  const { data: topics } = useQuery({
+    queryKey: ['subject-structure-topics', subject],
+    queryFn: async () => {
+      if (!subject) return [];
+
+      console.log('Buscando tópicos do banco...');
+      const parentNode = await supabase
+        .from('subject_structure')
+        .select('id')
+        .eq('name', subject)
+        .single();
+
+      if (!parentNode.data) return [];
+
+      const { data, error } = await supabase
+        .from('subject_structure')
+        .select('name')
+        .eq('parent_id', parentNode.data.id)
+        .order('name');
+
+      if (error) throw error;
+      return data.map(item => item.name);
+    },
+    enabled: !!subject
+  });
+
   const handleSubmit = async () => {
-    try {
-      setIsLoading(true);
-      console.log("Processando entrada JSON:", jsonInput);
-
-      // Parse JSON input - agora esperando um array
-      const questionsData = JSON.parse(jsonInput);
-      const questions = Array.isArray(questionsData) ? questionsData : [questionsData];
-
-      console.log(`Processando ${questions.length} questões...`);
-
-      // Validar cada questão
-      const requiredFields = ['text', 'option_a', 'option_b', 'option_c', 'option_d', 'option_e', 'correct_answer'];
-      
-      questions.forEach((question, index) => {
-        const missingFields = requiredFields.filter(field => !question[field]);
-        if (missingFields.length > 0) {
-          throw new Error(`Questão ${index + 1}: Campos obrigatórios faltando: ${missingFields.join(', ')}`);
-        }
+    if (!subject || !topic) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, selecione a matéria e o tópico antes de continuar.",
+        variant: "destructive",
       });
+      return;
+    }
 
-      console.log("Questões validadas, inserindo no banco...");
+    if (!jsonInput.trim()) {
+      toast({
+        title: "JSON vazio",
+        description: "Por favor, insira o JSON das questões.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-      // Inserir todas as questões
+    setIsLoading(true);
+    console.log("Processando JSON de questões...");
+
+    try {
+      const questions = JSON.parse(jsonInput);
+      const questionsWithMetadata = Array.isArray(questions) 
+        ? questions.map(q => ({
+            ...q,
+            subject,
+            topic,
+            status: 'active'
+          }))
+        : [{
+            ...questions,
+            subject,
+            topic,
+            status: 'active'
+          }];
+
       const { error } = await supabase
         .from('questions')
-        .insert(questions.map(q => ({
-          ...q,
-          status: 'active'
-        })));
+        .insert(questionsWithMetadata);
 
       if (error) throw error;
 
       toast({
         title: "Sucesso!",
-        description: `${questions.length} questões foram inseridas com sucesso.`,
+        description: "Questões inseridas com sucesso.",
       });
-
+      
       setOpen(false);
       setJsonInput("");
+      setSubject("");
+      setTopic("");
     } catch (error) {
-      console.error("Erro ao processar questões:", error);
+      console.error("Erro ao processar JSON:", error);
       toast({
-        title: "Erro ao inserir questões",
-        description: error.message || "Verifique o formato JSON e tente novamente.",
+        title: "Erro ao processar JSON",
+        description: "Verifique se o formato do JSON está correto.",
         variant: "destructive",
       });
     } finally {
@@ -65,72 +125,97 @@ export const JsonQuestionInput = () => {
   };
 
   return (
-    <>
-      <Button 
-        variant="default" 
-        size="lg"
-        className="w-full bg-primary hover:bg-primary/90"
-        onClick={() => setOpen(true)}
-      >
-        Inserir Questões via JSON
-      </Button>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="w-full bg-primary hover:bg-primary/90">
+          Inserir Questões via JSON
+        </Button>
+      </DialogTrigger>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Inserir Questões via JSON</DialogTitle>
-            <DialogDescription>
-              Cole o JSON das questões em formato de array. Cada questão deve conter os campos obrigatórios (*) conforme exemplo abaixo.
-            </DialogDescription>
-          </DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Inserir Questões via JSON</DialogTitle>
+          <DialogDescription>
+            Cole o JSON das questões abaixo e selecione a matéria e o tópico correspondentes.
+          </DialogDescription>
+        </DialogHeader>
 
-          <div className="space-y-4">
-            <Textarea
-              value={jsonInput}
-              onChange={(e) => setJsonInput(e.target.value)}
-              placeholder={`[
-  {
-    "text": "Texto da questão", // * obrigatório
-    "option_a": "Alternativa A", // * obrigatório
-    "option_b": "Alternativa B", // * obrigatório
-    "option_c": "Alternativa C", // * obrigatório
-    "option_d": "Alternativa D", // * obrigatório
-    "option_e": "Alternativa E", // * obrigatório
-    "correct_answer": "A", // * obrigatório (A, B, C, D ou E)
-
-    // Campos opcionais abaixo
-    "explanation": "Explicação da resposta",
-    "difficulty": "Fácil",
-    "theme": "Tema da questão",
-    "subject": "Matéria",
-    "topic": "Tópico específico",
-    "subject_matter": "Conteúdo específico"
-  },
-  {
-    // Segunda questão...
-  }
-]`}
-              className="min-h-[300px] font-mono"
-            />
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="subject">Matéria *</Label>
+              <Select
+                value={subject}
+                onValueChange={setSubject}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a matéria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects?.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="topic">Tópico *</Label>
+              <div className="flex gap-2">
+                <Select
+                  value={topics?.includes(topic) ? topic : ""}
+                  onValueChange={setTopic}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Selecione o tópico" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {topics?.map((topic) => (
+                      <SelectItem key={topic} value={topic}>
+                        {topic}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="Ou digite um novo tópico"
+                  value={!topics?.includes(topic) ? topic : ""}
+                  onChange={(e) => setTopic(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+            </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSubmit} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processando...
-                </>
-              ) : (
-                "Inserir Questões"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          <div className="space-y-2">
+            <Label htmlFor="json">JSON das Questões *</Label>
+            <Textarea
+              id="json"
+              value={jsonInput}
+              onChange={(e) => setJsonInput(e.target.value)}
+              placeholder="Cole o JSON das questões aqui..."
+              className="min-h-[200px] font-mono"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processando...
+              </>
+            ) : (
+              "Inserir Questões"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
