@@ -3,8 +3,6 @@ import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useExamMode } from "../contexts/ExamModeContext";
 import { ExamCompletionDialog } from "./exam/ExamCompletionDialog";
 
@@ -62,7 +60,6 @@ const QuestionCard = memo(({
 
   const {
     isExamMode,
-    toggleExamMode,
     examStartTime,
     examAnswers,
     addAnswer,
@@ -70,6 +67,7 @@ const QuestionCard = memo(({
   } = useExamMode();
 
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
 
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
@@ -95,23 +93,10 @@ const QuestionCard = memo(({
 
   return (
     <div className="h-full flex flex-col space-y-4">
-      <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="exam-mode"
-            checked={isExamMode}
-            onCheckedChange={toggleExamMode}
-          />
-          <Label htmlFor="exam-mode">Modo Prova</Label>
-        </div>
-        {isExamMode && (
-          <span className="text-sm text-muted-foreground">
-            Correções disponíveis ao final
-          </span>
-        )}
-      </div>
-
-      <QuestionHeader />
+      <QuestionHeader 
+        isFocusMode={isFocusMode}
+        onFocusModeToggle={() => setIsFocusMode(!isFocusMode)}
+      />
       
       <div className="flex-1 overflow-y-auto">
         <QuestionContent
