@@ -32,8 +32,27 @@ export const StatisticsCards = ({
     };
   }, [queryClient, fetchStats]);
 
+  // Subscribe to real-time database changes
   useEffect(() => {
-    fetchStats();
+    console.log('Setting up real-time subscription for questions table...');
+    
+    const channel = supabase
+      .channel('questions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'questions'
+        },
+        (payload) => {
+          console.log('Question change detected:', payload);
+          fetchStats();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+      });
 
     // Initialize presence channel if not already created
     if (!channelRef.current) {
@@ -91,13 +110,14 @@ export const StatisticsCards = ({
 
     // Cleanup function
     return () => {
-      console.log('Cleaning up presence channel...');
+      console.log('Cleaning up subscriptions...');
+      channel.unsubscribe();
       if (channelRef.current) {
         channelRef.current.unsubscribe();
         channelRef.current = null;
       }
     };
-  }, []);
+  }, [fetchStats]);
 
   return (
     <div className="max-w-5xl mx-auto px-4">
