@@ -24,22 +24,33 @@ export const ExamSelectionDialog = ({
     queryKey: ['questions-count-by-exam'],
     queryFn: async () => {
       console.log("Buscando contagem de questões por ano de prova...");
-      const { data: questions, error } = await supabase
+      
+      const { count: totalCount, error: countError, data: countData } = await supabase
         .from('questions')
-        .select('exam_year, count', { count: 'exact', head: true })
+        .select('exam_year', { count: 'exact' })
         .eq('is_from_previous_exam', true)
-        .neq('exam_year', null)
-        .group_by('exam_year');
+        .neq('exam_year', null);
 
-      if (error) {
-        console.error("Erro ao buscar questões:", error);
+      if (countError) {
+        console.error("Erro ao buscar questões:", countError);
         return {};
       }
 
       const examCounts: Record<number, number> = {};
-      questions?.forEach((item: any) => {
-        examCounts[item.exam_year] = item.count;
+      
+      // Initialize counts for all years to 0
+      exams.forEach(year => {
+        examCounts[year] = 0;
       });
+
+      // Count questions for each year
+      if (countData) {
+        countData.forEach((item: any) => {
+          if (item.exam_year) {
+            examCounts[item.exam_year] = (examCounts[item.exam_year] || 0) + 1;
+          }
+        });
+      }
 
       console.log("Contagem de questões por ano:", examCounts);
       return examCounts;
