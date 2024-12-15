@@ -3,6 +3,7 @@ import { PreviewUser } from '@/types/user';
 import { Skeleton } from "@/components/ui/skeleton";
 import QuestionCard from "@/features/questions/components/QuestionCard";
 import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
+import { ExamModeProvider } from "@/features/questions/contexts/ExamModeContext";
 
 interface PreviousExamsProps {
   previewUser?: PreviewUser;
@@ -109,9 +110,11 @@ const PreviousExamsContent = () => {
 
 const PreviousExams: React.FC<PreviousExamsProps> = ({ previewUser }) => {
   return (
-    <QuestionProvider>
-      <PreviousExamsContent />
-    </QuestionProvider>
+    <ExamModeProvider>
+      <QuestionProvider>
+        <PreviousExamsContent />
+      </QuestionProvider>
+    </ExamModeProvider>
   );
 };
 
