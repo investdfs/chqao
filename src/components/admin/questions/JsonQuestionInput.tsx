@@ -6,9 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { SubjectTopicSelect } from "./form/SubjectTopicSelect";
 
 export const JsonQuestionInput = () => {
   const [open, setOpen] = useState(false);
@@ -17,47 +15,6 @@ export const JsonQuestionInput = () => {
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
   const { toast } = useToast();
-
-  const { data: subjects } = useQuery({
-    queryKey: ['subject-structure-subjects'],
-    queryFn: async () => {
-      console.log('Buscando matérias do banco...');
-      const { data, error } = await supabase
-        .from('subject_structure')
-        .select('name')
-        .eq('level', 1)
-        .order('name');
-
-      if (error) throw error;
-      return data.map(item => item.name);
-    }
-  });
-
-  const { data: topics } = useQuery({
-    queryKey: ['subject-structure-topics', subject],
-    queryFn: async () => {
-      if (!subject) return [];
-
-      console.log('Buscando tópicos do banco...');
-      const parentNode = await supabase
-        .from('subject_structure')
-        .select('id')
-        .eq('name', subject)
-        .single();
-
-      if (!parentNode.data) return [];
-
-      const { data, error } = await supabase
-        .from('subject_structure')
-        .select('name')
-        .eq('parent_id', parentNode.data.id)
-        .order('name');
-
-      if (error) throw error;
-      return data.map(item => item.name);
-    },
-    enabled: !!subject
-  });
 
   const handleSubmit = async () => {
     if (!subject || !topic) {
@@ -141,52 +98,12 @@ export const JsonQuestionInput = () => {
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="subject">Matéria *</Label>
-              <Select
-                value={subject}
-                onValueChange={setSubject}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a matéria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects?.map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="topic">Tópico *</Label>
-              <div className="flex gap-2">
-                <Select
-                  value={topics?.includes(topic) ? topic : ""}
-                  onValueChange={setTopic}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Selecione o tópico" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {topics?.map((topic) => (
-                      <SelectItem key={topic} value={topic}>
-                        {topic}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  placeholder="Ou digite um novo tópico"
-                  value={!topics?.includes(topic) ? topic : ""}
-                  onChange={(e) => setTopic(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-            </div>
-          </div>
+          <SubjectTopicSelect
+            subject={subject}
+            topic={topic}
+            onSubjectChange={setSubject}
+            onTopicChange={setTopic}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="json">JSON das Questões *</Label>
