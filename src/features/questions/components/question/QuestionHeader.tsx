@@ -59,17 +59,24 @@ const QuestionHeader = ({ isFocusMode, onFocusModeToggle }: QuestionHeaderProps)
               Voltar
             </Button>
 
+            <Button
+              variant={isExamMode ? "default" : "outline"}
+              size="sm"
+              onClick={handleExamModeToggle}
+              className="flex items-center gap-2"
+            >
+              <GraduationCap className="h-4 w-4" />
+              {isExamMode ? "Desativar" : "Ativar"} Modo Prova
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <GraduationCap className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                   Modos de Estudo
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem onClick={handleExamModeToggle} className="flex items-center gap-2">
-                  {isExamMode ? "Desativar" : "Ativar"} Modo Prova
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={onFocusModeToggle} className="flex items-center gap-2">
                   {isFocusMode ? (
                     <>
