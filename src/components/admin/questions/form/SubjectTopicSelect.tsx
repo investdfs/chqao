@@ -44,33 +44,37 @@ export const SubjectTopicSelect = ({
 
       console.log('Buscando tópicos para a matéria:', subject);
       
-      // First, get the subject's ID
-      const { data: subjectData, error: subjectError } = await supabase
-        .from('subject_structure')
-        .select('id')
-        .eq('level', 1)
-        .eq('name', subject)
-        .single();
+      // First, get all topics from the hierarchy
+      const { data: hierarchyData, error: hierarchyError } = await supabase
+        .rpc('get_subject_hierarchy');
 
-      if (subjectError) {
-        console.error('Erro ao buscar ID da matéria:', subjectError);
+      if (hierarchyError) {
+        console.error('Erro ao buscar hierarquia:', hierarchyError);
         return [];
       }
 
-      // Then, get all descendant topics using recursive CTE
-      const { data: topicsData, error: topicsError } = await supabase
-        .rpc('get_subject_hierarchy')
-        .eq('parent_id', subjectData.id);
-
-      if (topicsError) {
-        console.error('Erro ao buscar tópicos:', topicsError);
+      // Find the selected subject in the hierarchy
+      const selectedSubject = hierarchyData.find(item => item.name === subject);
+      if (!selectedSubject) {
+        console.log('Matéria não encontrada na hierarquia:', subject);
         return [];
       }
 
-      // Filter to get only leaf nodes (actual topics)
-      const leafTopics = topicsData.filter(item => !item.has_children);
+      // Filter to get all descendants that are leaf nodes (no children)
+      const leafTopics = hierarchyData.filter(item => 
+        !item.has_children && // Is a leaf node
+        item.level > selectedSubject.level && // Is a descendant
+        // Check if this item is under our selected subject in the hierarchy
+        (function isDescendant(itemId: string): boolean {
+          const item = hierarchyData.find(h => h.id === itemId);
+          if (!item) return false;
+          if (item.parent_id === selectedSubject.id) return true;
+          if (!item.parent_id) return false;
+          return isDescendant(item.parent_id);
+        })(item.id)
+      );
+
       console.log('Tópicos encontrados:', leafTopics);
-      
       return leafTopics;
     },
     enabled: !!subject
