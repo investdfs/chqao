@@ -25,31 +25,7 @@ export const useQuestion = () => {
 export const QuestionProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  // Fetch student data (bypassed in preview mode)
-  const { data: studentData, isLoading: isLoadingStudent } = useQuery({
-    queryKey: ['student'],
-    queryFn: async () => {
-      if (isPreviewMode) {
-        console.log("Preview mode: using mock student data");
-        return previewStudentData;
-      }
-
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session?.user) {
-        return null;
-      }
-
-      const { data: student } = await supabase
-        .from('students')
-        .select('*')
-        .eq('email', session.session.user.email)
-        .single();
-
-      return student;
-    },
-  });
-
-  // Fetch questions
+  // Fetch questions without requiring authentication
   const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
@@ -68,7 +44,6 @@ export const QuestionProvider = ({ children }: { children: React.ReactNode }) =>
       console.log("Questions fetched successfully:", data?.length, "questions");
       return data;
     },
-    enabled: isPreviewMode || !!studentData,
   });
 
   const currentQuestion = questions?.[currentQuestionIndex];
@@ -89,9 +64,8 @@ export const QuestionProvider = ({ children }: { children: React.ReactNode }) =>
     <QuestionContext.Provider
       value={{
         currentQuestionIndex,
-        studentData: isPreviewMode ? previewStudentData : studentData,
+        studentData: previewStudentData,
         questions,
-        isLoadingStudent,
         isLoadingQuestions,
         error,
         handleNextQuestion,

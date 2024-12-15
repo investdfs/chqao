@@ -20,31 +20,6 @@ const QuestionPracticeContent = () => {
     currentQuestion
   } = useQuestion();
 
-  if (isLoadingStudent) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center">
-        <div className="max-w-4xl w-full mx-auto">
-          <Skeleton className="h-[calc(100vh-2rem)] w-full rounded-lg" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!studentData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center justify-center">
-        <div className="max-w-4xl w-full mx-auto text-center">
-          <h2 className="text-2xl font-bold text-white">
-            Acesso não autorizado
-          </h2>
-          <p className="mt-2 text-white/80">
-            Faça login como estudante para acessar as questões
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (isLoadingQuestions) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary to-primary-light p-4 flex items-center">
@@ -97,8 +72,8 @@ const QuestionPracticeContent = () => {
             onPreviousQuestion={handlePreviousQuestion}
             questionNumber={currentQuestionIndex + 1}
             totalQuestions={questions.length}
-            studentId={studentData.id}
-            isUserBlocked={studentData.status === 'blocked'}
+            studentId={studentData?.id}
+            isUserBlocked={studentData?.status === 'blocked'}
           />
         </div>
       </div>
