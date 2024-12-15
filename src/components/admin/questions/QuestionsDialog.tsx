@@ -1,6 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { QuestionFilters } from "./QuestionFilters";
-import { QuestionsTable } from "./QuestionsTable";
+import { Dialog } from "@/components/ui/dialog";
+import { QuestionsDialogContent } from "./dialog/QuestionsDialogContent";
 
 interface QuestionsDialogProps {
   open: boolean;
@@ -21,11 +20,9 @@ export const QuestionsDialog = ({
   open,
   onOpenChange,
   questions,
-  selectedTheme,
   selectedSubject,
   selectedTopic,
   searchTerm,
-  onThemeChange,
   onSubjectChange,
   onTopicChange,
   onSearchChange,
@@ -54,18 +51,11 @@ export const QuestionsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Questões Cadastradas</DialogTitle>
-        </DialogHeader>
-
-        <QuestionFilters
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        />
-
-        <QuestionsTable questions={questions} />
-      </DialogContent>
+      <QuestionsDialogContent
+        questions={questions}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+      />
     </Dialog>
   );
 };
