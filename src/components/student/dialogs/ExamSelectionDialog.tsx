@@ -1,6 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ExamSelectionDialogProps {
   open: boolean;
@@ -15,6 +18,57 @@ export const ExamSelectionDialog = ({
   onOpenChange,
   onExamSelect
 }: ExamSelectionDialogProps) => {
+  const { toast } = useToast();
+
+  const { data: examQuestionsCount } = useQuery({
+    queryKey: ['questions-count-by-exam'],
+    queryFn: async () => {
+      console.log("Buscando contagem de questões por ano de prova...");
+      const { data: exams, error: examsError } = await supabase
+        .from('previous_exams')
+        .select('id, year');
+
+      if (examsError) {
+        console.error("Erro ao buscar provas:", examsError);
+        return {};
+      }
+
+      const examCounts: Record<number, number> = {};
+      
+      for (const exam of exams) {
+        const { count, error: questionsError } = await supabase
+          .from('previous_exam_questions')
+          .select('*', { count: 'exact' })
+          .eq('exam_id', exam.id);
+
+        if (questionsError) {
+          console.error("Erro ao buscar questões da prova:", questionsError);
+          continue;
+        }
+
+        examCounts[exam.year] = count || 0;
+      }
+
+      console.log("Contagem de questões por ano:", examCounts);
+      return examCounts;
+    }
+  });
+
+  const handleExamSelect = (year: number) => {
+    const count = examQuestionsCount?.[year] || 0;
+    
+    if (count === 0) {
+      toast({
+        title: "Desculpe, não há questões disponíveis",
+        description: "Estamos trabalhando para adicionar milhares de novas questões de provas anteriores. Por favor, tente outro ano ou volte mais tarde.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onExamSelect(year);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -30,7 +84,7 @@ export const ExamSelectionDialog = ({
                 key={year}
                 variant="outline"
                 className="w-full justify-start text-left h-auto py-3 hover:bg-primary/10"
-                onClick={() => onExamSelect(year)}
+                onClick={() => handleExamSelect(year)}
               >
                 <span className="mr-2">{index + 1}.</span>
                 EI PS/CHQAO {year}

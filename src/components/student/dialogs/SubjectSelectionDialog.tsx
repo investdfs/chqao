@@ -1,6 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SubjectSelectionDialogProps {
   open: boolean;
@@ -25,6 +28,46 @@ export const SubjectSelectionDialog = ({
   onOpenChange,
   onSubjectSelect
 }: SubjectSelectionDialogProps) => {
+  const { toast } = useToast();
+
+  const { data: questionsCount } = useQuery({
+    queryKey: ['questions-count-by-subject'],
+    queryFn: async () => {
+      console.log("Buscando contagem de questões por matéria...");
+      const { data, error } = await supabase
+        .from('questions')
+        .select('subject, count(*)', { count: 'exact' })
+        .eq('status', 'active')
+        .group_by('subject');
+
+      if (error) {
+        console.error("Erro ao buscar contagem de questões:", error);
+        return {};
+      }
+
+      console.log("Contagem de questões por matéria:", data);
+      return data.reduce((acc, curr) => {
+        acc[curr.subject] = curr.count;
+        return acc;
+      }, {} as Record<string, number>);
+    }
+  });
+
+  const handleSubjectSelect = (subject: string) => {
+    const count = questionsCount?.[subject] || 0;
+    
+    if (count === 0) {
+      toast({
+        title: "Desculpe, não há questões disponíveis",
+        description: "Estamos trabalhando para adicionar milhares de novas questões. Por favor, tente outra matéria ou volte mais tarde.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onSubjectSelect(subject);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -40,7 +83,7 @@ export const SubjectSelectionDialog = ({
                 key={subject}
                 variant="outline"
                 className="w-full justify-start text-left h-auto py-3 hover:bg-primary/10"
-                onClick={() => onSubjectSelect(subject)}
+                onClick={() => handleSubjectSelect(subject)}
               >
                 <span className="mr-2">{index + 1}.</span>
                 {subject}
