@@ -28,6 +28,7 @@ export const PreviewDialog = ({ question, open, onOpenChange }: PreviewDialogPro
             topic: question.topic,
             exam_year: question.exam_year,
             is_from_previous_exam: question.is_from_previous_exam,
+            image_url: question.image_url // Adicionando o campo image_url
           }}
           onNextQuestion={() => {}}
           onPreviousQuestion={() => {}}

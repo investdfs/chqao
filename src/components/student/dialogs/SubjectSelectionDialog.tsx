@@ -4,6 +4,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { CompletionDialog } from "./CompletionDialog";
+import { useState } from "react";
 
 interface SubjectSelectionDialogProps {
   open: boolean;
@@ -29,6 +31,8 @@ export const SubjectSelectionDialog = ({
   onSubjectSelect
 }: SubjectSelectionDialogProps) => {
   const { toast } = useToast();
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [currentSubject, setCurrentSubject] = useState("");
 
   const { data: questionsCount } = useQuery({
     queryKey: ['questions-count-by-subject'],
@@ -49,7 +53,6 @@ export const SubjectSelectionDialog = ({
         return {};
       }
 
-      // Convertemos o array de objetos para um objeto chave-valor
       const counts = data?.reduce((acc: Record<string, number>, curr: { subject: string, count: number }) => {
         acc[curr.subject] = Number(curr.count);
         return acc;
@@ -75,33 +78,48 @@ export const SubjectSelectionDialog = ({
       return;
     }
 
+    setCurrentSubject(subject);
     onSubjectSelect(subject);
   };
 
+  const handleCompletionClose = () => {
+    setShowCompletion(false);
+    onOpenChange(true);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl font-semibold">
-            Selecione a matéria para estudar
-          </DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="h-[400px] mt-4">
-          <div className="flex flex-col gap-2 p-4">
-            {subjects.map((subject, index) => (
-              <Button
-                key={subject}
-                variant="outline"
-                className="w-full justify-start text-left h-auto py-3 hover:bg-primary/10"
-                onClick={() => handleSubjectSelect(subject)}
-              >
-                <span className="mr-2">{index + 1}.</span>
-                {subject}
-              </Button>
-            ))}
-          </div>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-semibold">
+              Selecione a matéria para estudar
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[400px] mt-4">
+            <div className="flex flex-col gap-2 p-4">
+              {subjects.map((subject, index) => (
+                <Button
+                  key={subject}
+                  variant="outline"
+                  className="w-full justify-start text-left h-auto py-3 hover:bg-primary/10"
+                  onClick={() => handleSubjectSelect(subject)}
+                >
+                  <span className="mr-2">{index + 1}.</span>
+                  {subject}
+                </Button>
+              ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      <CompletionDialog
+        open={showCompletion}
+        onOpenChange={setShowCompletion}
+        subject={currentSubject}
+        onSelectNewSubject={handleCompletionClose}
+      />
+    </>
   );
 };
