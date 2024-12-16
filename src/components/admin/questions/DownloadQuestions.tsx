@@ -38,7 +38,7 @@ export const DownloadQuestions = () => {
       if (error) throw error;
 
       const formatQuestion = (q: any) => ({
-        theme: q.theme || 'História do Brasil',
+        theme: q.subject || SUBJECTS[0], // Usa a matéria como tema, ou a primeira matéria como fallback
         subject_matter: q.subject_matter || '',
         text: q.text,
         image_url: q.image_url || '',
@@ -111,23 +111,21 @@ export const DownloadQuestions = () => {
       wsAllQuestions['!cols'] = columnConfig;
       XLSX.utils.book_append_sheet(workbook, wsAllQuestions, "Questões");
 
-      // Adicionar uma aba para cada matéria
+      // Adicionar uma aba para cada matéria, mesmo que vazia
       for (const subject of SUBJECTS) {
         const subjectQuestions = questions
           .filter(q => q.subject === subject)
           .map(formatQuestion);
 
-        if (subjectQuestions.length > 0) {
-          const wsSubject = XLSX.utils.json_to_sheet(subjectQuestions);
-          wsSubject['!cols'] = columnConfig;
-          
-          // Limitar o nome da aba para 31 caracteres (limite do Excel)
-          const shortSubjectName = subject.length > 28 
-            ? subject.substring(0, 28) + "..."
-            : subject;
-          
-          XLSX.utils.book_append_sheet(workbook, wsSubject, shortSubjectName);
-        }
+        const wsSubject = XLSX.utils.json_to_sheet(subjectQuestions.length > 0 ? subjectQuestions : []);
+        wsSubject['!cols'] = columnConfig;
+        
+        // Limitar o nome da aba para 31 caracteres (limite do Excel)
+        const shortSubjectName = subject.length > 28 
+          ? subject.substring(0, 28) + "..."
+          : subject;
+        
+        XLSX.utils.book_append_sheet(workbook, wsSubject, shortSubjectName);
       }
 
       // Gerar nome do arquivo com data e quantidade de questões
