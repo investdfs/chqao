@@ -1,19 +1,15 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
-interface AuthStore {
+interface AuthState {
   authRequired: boolean;
   toggleAuth: () => void;
 }
 
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    (set) => ({
-      authRequired: false,
-      toggleAuth: () => set((state) => ({ authRequired: !state.authRequired })),
-    }),
-    {
-      name: 'auth-storage',
-    }
-  )
-);
+export const useAuthStore = create<AuthState>((set) => ({
+  // Inicializa com autenticação desativada
+  authRequired: false,
+  
+  toggleAuth: () => set((state) => ({ 
+    authRequired: !state.authRequired 
+  })),
+}));
