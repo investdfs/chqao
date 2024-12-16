@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import QuestionCard from "@/features/questions/components/QuestionCard";
 import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
+import { ExamModeProvider } from "@/features/questions/contexts/ExamModeContext";
 import { PreviewUser } from "@/types/user";
 
 interface QuestionPracticeProps {
@@ -84,7 +85,9 @@ const QuestionPracticeContent = () => {
 const QuestionPractice = ({ previewUser }: QuestionPracticeProps) => {
   return (
     <QuestionProvider>
-      <QuestionPracticeContent />
+      <ExamModeProvider>
+        <QuestionPracticeContent />
+      </ExamModeProvider>
     </QuestionProvider>
   );
 };
