@@ -48,7 +48,7 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
       circleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
       
       const circleMaterial = new THREE.LineBasicMaterial({
-        color: 0x8B5CF6,
+        color: 0xFF0000,
         transparent: true,
         opacity: 0.2 - (i * 0.05)
       });
@@ -60,7 +60,7 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
 
     // Adicionar linhas cruzadas (crosshair)
     const crosshairMaterial = new THREE.LineBasicMaterial({
-      color: 0x8B5CF6,
+      color: 0xFF0000,
       transparent: true,
       opacity: 0.15
     });
@@ -137,7 +137,7 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
       className="absolute top-0 left-0 w-full pointer-events-none"
       style={{ 
         height: `${height}px`,
-        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.05), transparent)',
+        background: 'linear-gradient(to bottom, rgba(255, 0, 0, 0.05), transparent)',
         zIndex: 10
       }}
     />
