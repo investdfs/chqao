@@ -13,15 +13,9 @@ interface QuestionContentProps {
     subject?: string;
     topic?: string;
     source?: string;
-    option_a: string;
-    option_b: string;
-    option_c: string;
-    option_d: string;
-    option_e: string;
-    correct_answer: string;
+    options: Array<{ id: string; text: string }>;
+    correctAnswer: string;
     explanation: string;
-    exam_year?: number;
-    is_from_previous_exam?: boolean;
     image_url?: string;
   };
   selectedAnswer: string;
@@ -51,14 +45,6 @@ const QuestionContent = memo(({
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
-  const options = [
-    { id: "A", text: question.option_a },
-    { id: "B", text: question.option_b },
-    { id: "C", text: question.option_c },
-    { id: "D", text: question.option_d },
-    { id: "E", text: question.option_e },
-  ];
-
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
@@ -85,10 +71,10 @@ const QuestionContent = memo(({
           </div>
 
           <QuestionOptions
-            options={options}
+            options={question.options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}
-            correctAnswer={question.correct_answer}
+            correctAnswer={question.correctAnswer}
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
             onAutoAnswer={handleAnswer}
@@ -106,9 +92,9 @@ const QuestionContent = memo(({
 
           {hasAnswered && (
             <QuestionFeedback
-              isCorrect={selectedAnswer === question.correct_answer}
+              isCorrect={selectedAnswer === question.correctAnswer}
               selectedAnswer={selectedAnswer}
-              correctAnswer={question.correct_answer}
+              correctAnswer={question.correctAnswer}
               explanation={question.explanation}
               onReset={handleReset}
               questionId={question.id}
@@ -117,7 +103,7 @@ const QuestionContent = memo(({
 
           <QuestionFooter 
             questionId={question.id}
-            correctAnswer={question.correct_answer}
+            correctAnswer={question.correctAnswer}
           />
         </div>
       </CardContent>

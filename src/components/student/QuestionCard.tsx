@@ -61,6 +61,25 @@ const QuestionCard = memo(({
     return <BlockedUserCard />;
   }
 
+  // Transform the question format to match QuestionContent's expected structure
+  const transformedQuestion = {
+    id: question.id,
+    text: question.text,
+    subject: question.subject,
+    topic: question.topic,
+    source: question.source,
+    options: [
+      { id: "A", text: question.option_a },
+      { id: "B", text: question.option_b },
+      { id: "C", text: question.option_c },
+      { id: "D", text: question.option_d },
+      { id: "E", text: question.option_e },
+    ],
+    correctAnswer: question.correct_answer,
+    explanation: question.explanation,
+    image_url: question.image_url
+  };
+
   return (
     <div className="space-y-6">
       <QuestionHeader
@@ -68,7 +87,7 @@ const QuestionCard = memo(({
         onFocusModeToggle={() => {}}
       />
       <QuestionContent
-        question={question}
+        question={transformedQuestion}
         selectedAnswer={selectedAnswer}
         setSelectedAnswer={setSelectedAnswer}
         hasAnswered={hasAnswered}
