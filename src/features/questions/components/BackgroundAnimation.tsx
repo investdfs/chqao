@@ -21,29 +21,30 @@ const BackgroundAnimation = () => {
 
     // Criar partículas com mais densidade e tamanho
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 3000; // Aumentado número de partículas
+    const particlesCount = 3000;
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 10; // Aumentado espaço de distribuição
+      posArray[i] = (Math.random() - 0.5) * 15; // Aumentado espaço de distribuição
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     // Material com partículas mais visíveis
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.02, // Aumentado tamanho das partículas
+      size: 0.05, // Aumentado significativamente o tamanho das partículas
       color: 0x8B5CF6,
       transparent: true,
-      opacity: 1, // Aumentada opacidade ao máximo
+      opacity: 1,
       blending: THREE.AdditiveBlending,
-      sizeAttenuation: true
+      sizeAttenuation: true,
+      depthWrite: false // Adicionado para melhorar a visibilidade
     });
 
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
-    camera.position.z = 4; // Ajustada posição da câmera para melhor visualização
+    camera.position.z = 5; // Ajustada posição da câmera
 
     // Mouse movement handler
     const onMouseMove = (event: MouseEvent) => {
@@ -59,7 +60,7 @@ const BackgroundAnimation = () => {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      particlesMesh.rotation.x += 0.002; // Aumentada velocidade de rotação
+      particlesMesh.rotation.x += 0.002;
       particlesMesh.rotation.y += 0.002;
 
       // Movimento mais suave e amplo baseado na posição do mouse
@@ -96,7 +97,7 @@ const BackgroundAnimation = () => {
       ref={containerRef} 
       className="absolute top-0 left-0 w-full h-[300px] pointer-events-none"
       style={{ 
-        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.3), transparent)',
+        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.4), transparent)',
         zIndex: 0
       }}
     />
