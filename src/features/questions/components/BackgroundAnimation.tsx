@@ -22,24 +22,21 @@ const BackgroundAnimation = () => {
     renderer.setClearColor(0x000000, 0);
     containerRef.current.appendChild(renderer.domElement);
 
-    // Aumentando drasticamente o número de partículas
     const particlesGeometry = new THREE.BufferGeometry();
     const particlesCount = 8000;
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-      // Reduzindo a área de distribuição para concentrar mais as partículas
       posArray[i] = (Math.random() - 0.5) * 10;
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
-    // Ajustando material para máxima visibilidade
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.15, // Partículas bem maiores
-      color: 0xFFFFFF, // Cor branca para maior contraste
+      size: 0.15,
+      color: 0xFFFFFF,
       transparent: true,
-      opacity: 1, // Opacidade máxima
+      opacity: 1,
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true,
       depthWrite: false,
@@ -48,7 +45,6 @@ const BackgroundAnimation = () => {
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
-    // Aproximando a câmera para ver melhor as partículas
     camera.position.z = 5;
 
     const onMouseMove = (event: MouseEvent) => {
@@ -63,11 +59,9 @@ const BackgroundAnimation = () => {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Aumentando a velocidade da rotação
       particlesMesh.rotation.x += 0.002;
       particlesMesh.rotation.y += 0.002;
 
-      // Movimento mais pronunciado com o mouse
       particlesMesh.rotation.x += (mousePosition.current.y * 0.5 - particlesMesh.rotation.x) * 0.1;
       particlesMesh.rotation.y += (mousePosition.current.x * 0.5 - particlesMesh.rotation.y) * 0.1;
 
@@ -97,10 +91,10 @@ const BackgroundAnimation = () => {
   return (
     <div 
       ref={containerRef} 
-      className="absolute top-0 left-0 w-full h-[300px] pointer-events-none overflow-hidden"
+      className="fixed top-0 left-0 w-full h-[300px] pointer-events-none"
       style={{ 
         background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.3), transparent)',
-        zIndex: 0
+        zIndex: -1
       }}
     />
   );
