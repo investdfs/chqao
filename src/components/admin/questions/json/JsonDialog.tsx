@@ -43,6 +43,7 @@ export const JsonDialog = ({
               if (field === "topic") onTopicChange(value);
             }}
             isOptional={true}
+            helperText="Estes campos são opcionais e serão usados apenas se não estiverem definidos no JSON. No JSON, 'theme' é a matéria principal e 'subject' é o assunto específico."
           />
         </div>
 
@@ -52,7 +53,16 @@ export const JsonDialog = ({
             id="json"
             value={jsonInput}
             onChange={(e) => onJsonChange(e.target.value)}
-            placeholder="Cole aqui o JSON das questões..."
+            placeholder={`Cole aqui o JSON das questões...
+
+Exemplo de estrutura:
+{
+  "theme": "História do Brasil",
+  "subject": "Os Partidos Políticos",
+  "text": "Texto da questão...",
+  "option_a": "Alternativa A",
+  ...
+}`}
             className="min-h-[300px] font-mono"
           />
         </div>
