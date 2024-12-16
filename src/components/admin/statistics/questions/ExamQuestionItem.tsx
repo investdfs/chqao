@@ -55,7 +55,8 @@ export const ExamQuestionItem = ({
     }
   };
 
-  const subject = VALID_SUBJECTS.find(s => s === question.subject) || "Matéria não especificada";
+  // Use theme for subject display, validate against VALID_SUBJECTS
+  const subject = VALID_SUBJECTS.find(s => s === question.theme) || "História do Brasil";
 
   return (
     <div className="p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
