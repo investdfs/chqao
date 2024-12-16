@@ -71,20 +71,18 @@ const QuestionPracticeContent = () => {
               question={{
                 id: currentQuestion.id,
                 text: currentQuestion.text,
-                options: [
-                  { id: 'A', text: currentQuestion.option_a },
-                  { id: 'B', text: currentQuestion.option_b },
-                  { id: 'C', text: currentQuestion.option_c },
-                  { id: 'D', text: currentQuestion.option_d },
-                  { id: 'E', text: currentQuestion.option_e }
-                ],
-                correctAnswer: currentQuestion.correct_answer,
+                option_a: currentQuestion.option_a,
+                option_b: currentQuestion.option_b,
+                option_c: currentQuestion.option_c,
+                option_d: currentQuestion.option_d,
+                option_e: currentQuestion.option_e,
+                correct_answer: currentQuestion.correct_answer,
                 explanation: currentQuestion.explanation,
                 subject: currentQuestion.subject,
                 topic: currentQuestion.topic,
-                examYear: currentQuestion.exam_year,
-                isFromPreviousExam: currentQuestion.is_from_previous_exam,
-                imageUrl: currentQuestion.image_url
+                exam_year: currentQuestion.exam_year,
+                is_from_previous_exam: currentQuestion.is_from_previous_exam,
+                image_url: currentQuestion.image_url
               }}
               onNextQuestion={handleNextQuestion}
               onPreviousQuestion={handlePreviousQuestion}
