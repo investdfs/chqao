@@ -59,11 +59,15 @@ const NavigationButtons = memo(({
       )}
 
       <Button
-        variant="outline"
+        variant={hasAnswered ? "default" : "outline"}
         size="sm"
         onClick={onNext}
         disabled={questionNumber >= totalQuestions || isAnswering}
-        className="flex items-center gap-1"
+        className={`flex items-center gap-1 transition-all duration-300 ${
+          hasAnswered 
+            ? "bg-primary hover:bg-primary/90 text-white shadow-lg scale-105 animate-pulse" 
+            : ""
+        }`}
       >
         <span className="hidden sm:inline">Próxima</span>
         <ChevronRight className="h-4 w-4" />
