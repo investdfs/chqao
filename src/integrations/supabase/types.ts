@@ -204,6 +204,7 @@ export type Database = {
           option_c: string
           option_d: string
           option_e: string
+          secondary_id: string | null
           status: string | null
           subject: string
           subject_matter: string | null
@@ -226,6 +227,7 @@ export type Database = {
           option_c: string
           option_d: string
           option_e: string
+          secondary_id?: string | null
           status?: string | null
           subject: string
           subject_matter?: string | null
@@ -248,6 +250,7 @@ export type Database = {
           option_c?: string
           option_d?: string
           option_e?: string
+          secondary_id?: string | null
           status?: string | null
           subject?: string
           subject_matter?: string | null
@@ -372,6 +375,12 @@ export type Database = {
           count: number
         }[]
       }
+      get_next_subject_sequence: {
+        Args: {
+          p_subject: string
+        }
+        Returns: number
+      }
       get_questions_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -413,6 +422,12 @@ export type Database = {
           display_order: number
           has_children: boolean
         }[]
+      }
+      get_subject_prefix: {
+        Args: {
+          p_subject: string
+        }
+        Returns: string
       }
       get_subjects_count: {
         Args: Record<PropertyKey, never>
