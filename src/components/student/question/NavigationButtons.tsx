@@ -55,10 +55,12 @@ const NavigationButtons = memo(({
       )}
 
       <Button
-        variant="outline"
+        variant={hasAnswered ? "default" : "outline"}
         onClick={onNext}
         disabled={questionNumber >= totalQuestions || isAnswering}
-        className="flex items-center gap-2"
+        className={`flex items-center gap-2 ${
+          hasAnswered ? "bg-primary hover:bg-primary/90 text-white animate-pulse" : ""
+        }`}
       >
         Próxima
         <ChevronRight className="h-4 w-4" />
