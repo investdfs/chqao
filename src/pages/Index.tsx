@@ -1,56 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { ArrowRight, BookOpen, Brain, Target, Trophy, Users, Sparkles } from "lucide-react";
+  ArrowRight,
+  BookOpen,
+  Brain,
+  Target,
+  Trophy,
+  Users,
+  Sparkles,
+} from "lucide-react";
+import BackgroundAnimation from "@/features/questions/components/BackgroundAnimation";
 
 const Index = () => {
   const navigate = useNavigate();
-  const isPreview = window.location.hostname.includes('preview');
+  const isPreview = window.location.hostname.includes("preview");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-light via-white to-white">
-      {isPreview && (
-        <nav className="bg-white/80 backdrop-blur-md shadow-sm py-4 sticky top-0 z-50">
-          <div className="container mx-auto px-4">
-            <NavigationMenu>
-              <NavigationMenuList className="flex-wrap justify-center">
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>Páginas</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid gap-3 p-4 min-w-[200px]">
-                      <NavigationMenuLink 
-                        className="cursor-pointer block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        onClick={() => navigate("/")}
-                      >
-                        Início
-                      </NavigationMenuLink>
-                      <NavigationMenuLink 
-                        className="cursor-pointer block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        onClick={() => navigate("/login")}
-                      >
-                        Login
-                      </NavigationMenuLink>
-                      <NavigationMenuLink 
-                        className="cursor-pointer block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        onClick={() => navigate("/register")}
-                      >
-                        Registro
-                      </NavigationMenuLink>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
-        </nav>
-      )}
+      <BackgroundAnimation />
 
       <section className="relative py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-primary-light/50 to-transparent opacity-50" />
