@@ -1,12 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 interface BackgroundAnimationProps {
   height?: number;
 }
 
-const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
+const BackgroundAnimation = ({ height = 800 }: BackgroundAnimationProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -26,12 +27,17 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
     containerRef.current.appendChild(renderer.domElement);
 
     // Criar pontos para a grade
-    const gridSize = 15;
-    const spacing = 2;
-    const points = [];
-    const pointGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-    const pointMaterial = new THREE.MeshBasicMaterial({ color: 0x8B5CF6 });
+    const gridSize = 20;
+    const spacing = 2.5;
     const points3D = [];
+
+    // Material mais sutil para os pontos
+    const pointGeometry = new THREE.SphereGeometry(0.03, 8, 8);
+    const pointMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0x8B5CF6,
+      transparent: true,
+      opacity: 0.3
+    });
 
     for (let x = -gridSize; x <= gridSize; x += spacing) {
       for (let y = -gridSize; y <= gridSize; y += spacing) {
@@ -39,22 +45,19 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
         point.position.set(x, y, 0);
         scene.add(point);
         points3D.push(point);
-        points.push(new THREE.Vector3(x, y, 0));
       }
     }
 
-    // Criar linhas de conexão
+    // Material mais sutil para as linhas
     const linesMaterial = new THREE.LineBasicMaterial({ 
       color: 0x8B5CF6,
       transparent: true,
-      opacity: 0.2
+      opacity: 0.1
     });
 
     const connectPoints = () => {
-      // Remover linhas antigas
       scene.children = scene.children.filter(child => child instanceof THREE.Mesh);
 
-      // Conectar pontos próximos
       points3D.forEach((point, i) => {
         points3D.forEach((otherPoint, j) => {
           if (i !== j) {
@@ -74,13 +77,35 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
 
     camera.position.z = 20;
 
+    // Função para atualizar a posição do mouse normalizada
+    const handleMouseMove = (event: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      setMousePosition({ x, y });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
     // Animação dos pontos
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Mover pontos suavemente
+      // Movimento suave dos pontos baseado na posição do mouse
       points3D.forEach((point) => {
-        point.position.z = Math.sin(Date.now() * 0.001 + point.position.x + point.position.y) * 0.5;
+        const distanceFromCenter = new THREE.Vector2(point.position.x, point.position.y).length();
+        const influence = Math.max(0, 1 - distanceFromCenter / gridSize);
+        
+        point.position.z = Math.sin(Date.now() * 0.001 + distanceFromCenter) * 0.2;
+        
+        // Adiciona um leve movimento em direção ao mouse
+        point.position.x += (mousePosition.x * influence * 0.01);
+        point.position.y += (mousePosition.y * influence * 0.01);
+        
+        // Restaura a posição original gradualmente
+        point.position.x *= 0.99;
+        point.position.y *= 0.99;
       });
 
       connectPoints();
@@ -90,21 +115,24 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
     animate();
 
     const handleResize = () => {
-      camera.aspect = window.innerWidth / height;
+      if (!containerRef.current) return;
+      const newWidth = window.innerWidth;
+      camera.aspect = newWidth / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, height);
+      renderer.setSize(newWidth, height);
     };
 
     window.addEventListener('resize', handleResize);
 
     return () => {
       console.log("Limpando animação Three.js");
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
       if (containerRef.current) {
         containerRef.current.removeChild(renderer.domElement);
       }
-      window.removeEventListener('resize', handleResize);
     };
-  }, [height]);
+  }, [height, mousePosition]);
 
   return (
     <div 
@@ -112,7 +140,7 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
       className="absolute top-0 left-0 w-full pointer-events-none"
       style={{ 
         height: `${height}px`,
-        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.05), transparent)',
+        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.03), transparent)',
         zIndex: 10
       }}
     />
