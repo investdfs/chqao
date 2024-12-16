@@ -9,15 +9,13 @@ import {
   Users,
   Sparkles,
 } from "lucide-react";
-import BackgroundAnimation from "@/features/questions/components/BackgroundAnimation";
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary-light via-white to-white">
-      <section className="relative py-20 sm:py-32 overflow-hidden">
-        <BackgroundAnimation height={800} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-light/5">
+      <section className="relative py-20 sm:py-32">
         <div className="container mx-auto px-4 relative">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
             <div className="lg:w-1/2 space-y-8 animate-fade-in">
@@ -28,7 +26,7 @@ const Index = () => {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                 Prepare-se para o <span className="text-primary animate-pulse">Sucesso</span> no CHQAO
               </h1>
-              <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
+              <p className="text-lg sm:text-xl text-gray-700 leading-relaxed">
                 Domine o conteúdo através de questões personalizadas e feedback instantâneo. 
                 Uma plataforma desenvolvida especialmente para seu sucesso.
               </p>
@@ -65,7 +63,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="relative py-20">
+      <section className="relative py-20 bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 relative">
           <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-16">
             Por que escolher o CHQAO?
@@ -74,33 +72,33 @@ const Index = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group bg-white/80 backdrop-blur rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in hover:translate-y-[-4px]"
+                className="group bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in hover:translate-y-[-4px] border border-gray-100"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-4 text-gray-900">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <p className="text-gray-700 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-primary-light/50 to-white rounded-xl p-8 text-center transform hover:-translate-y-1 transition-all duration-300 animate-fade-in shadow-lg hover:shadow-xl"
+                className="bg-white rounded-xl p-8 text-center transform hover:-translate-y-1 transition-all duration-300 animate-fade-in shadow-lg hover:shadow-xl border border-gray-100"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="text-3xl sm:text-4xl font-bold text-primary mb-2 animate-float">
                   {stat.value}
                 </div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
+                <div className="text-gray-700 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
