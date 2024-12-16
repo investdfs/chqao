@@ -27,7 +27,7 @@ export const PreviewDialog = ({ question, open, onOpenChange }: PreviewDialogPro
     explanation: question.explanation || '',
     subject: question.subject,
     topic: question.topic,
-    secondaryId: question.secondary_id,
+    secondaryId: question.secondary_id
   };
 
   return (
@@ -40,7 +40,7 @@ export const PreviewDialog = ({ question, open, onOpenChange }: PreviewDialogPro
             onPreviousQuestion={() => {}}
             questionNumber={1}
             totalQuestions={1}
-            showQuestionId={true}
+            isUserBlocked={false}
           />
         </ExamModeProvider>
       </DialogContent>
