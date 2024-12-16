@@ -4,6 +4,7 @@ import QuestionMetadata from "./question/QuestionMetadata";
 import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
 import NavigationButtons from "./question/NavigationButtons";
 import QuestionFeedback from "./question/QuestionFeedback";
+import { QuestionFooter } from "./question/QuestionFooter";
 
 interface QuestionContentProps {
   question: {
@@ -12,9 +13,16 @@ interface QuestionContentProps {
     subject?: string;
     topic?: string;
     source?: string;
-    options: Array<{ id: string; text: string }>;
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
+    exam_year?: number;
+    is_from_previous_exam?: boolean;
+    image_url?: string;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -41,6 +49,14 @@ const QuestionContent = memo(({
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
+  const options = [
+    { id: "A", text: question.option_a },
+    { id: "B", text: question.option_b },
+    { id: "C", text: question.option_c },
+    { id: "D", text: question.option_d },
+    { id: "E", text: question.option_e },
+  ];
+
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
@@ -57,10 +73,10 @@ const QuestionContent = memo(({
           </div>
 
           <QuestionOptions
-            options={question.options}
+            options={options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}
-            correctAnswer={question.correctAnswer}
+            correctAnswer={question.correct_answer}
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
             onAutoAnswer={handleAnswer}
@@ -78,14 +94,19 @@ const QuestionContent = memo(({
 
           {hasAnswered && (
             <QuestionFeedback
-              isCorrect={selectedAnswer === question.correctAnswer}
+              isCorrect={selectedAnswer === question.correct_answer}
               selectedAnswer={selectedAnswer}
-              correctAnswer={question.correctAnswer}
+              correctAnswer={question.correct_answer}
               explanation={question.explanation}
               onReset={handleReset}
               questionId={question.id}
             />
           )}
+
+          <QuestionFooter 
+            questionId={question.id}
+            correctAnswer={question.correct_answer}
+          />
         </div>
       </CardContent>
     </Card>

@@ -13,12 +13,19 @@ interface QuestionCardProps {
   question: {
     id: string;
     text: string;
-    options: QuestionOption[];
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
     source?: string;
     subject?: string;
     topic?: string;
+    exam_year?: number;
+    is_from_previous_exam?: boolean;
+    image_url?: string;
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
