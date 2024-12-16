@@ -3,29 +3,17 @@ import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
+import { FormattedQuestion } from "@/types/questions/common";
 
 interface QuestionCardProps {
-  question: {
-    id: string;
-    text: string;
-    option_a: string;
-    option_b: string;
-    option_c: string;
-    option_d: string;
-    option_e: string;
-    correct_answer: string;
-    explanation: string;
-    source?: string;
-    subject?: string;
-    topic?: string;
-    secondary_id?: string;
-  };
+  question: FormattedQuestion;
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
   isUserBlocked?: boolean;
   studentId?: string;
+  showQuestionId?: boolean;
 }
 
 const QuestionCard = memo(({
@@ -36,6 +24,7 @@ const QuestionCard = memo(({
   totalQuestions,
   isUserBlocked = false,
   studentId,
+  showQuestionId = true,
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
@@ -59,25 +48,6 @@ const QuestionCard = memo(({
     return <BlockedUserCard />;
   }
 
-  // Transform the question format to match what QuestionContent expects
-  const formattedQuestion = {
-    id: question.id,
-    text: question.text,
-    subject: question.subject,
-    topic: question.topic,
-    source: question.source,
-    options: [
-      { id: 'A', text: question.option_a },
-      { id: 'B', text: question.option_b },
-      { id: 'C', text: question.option_c },
-      { id: 'D', text: question.option_d },
-      { id: 'E', text: question.option_e },
-    ],
-    correctAnswer: question.correct_answer,
-    explanation: question.explanation,
-    secondaryId: question.secondary_id
-  };
-
   return (
     <div className="space-y-6">
       <QuestionHeader
@@ -85,7 +55,7 @@ const QuestionCard = memo(({
         onFocusModeToggle={() => {}}
       />
       <QuestionContent
-        question={formattedQuestion}
+        question={question}
         selectedAnswer={selectedAnswer}
         setSelectedAnswer={setSelectedAnswer}
         hasAnswered={hasAnswered}
@@ -96,6 +66,7 @@ const QuestionCard = memo(({
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
         studentId={studentId}
+        showQuestionId={showQuestionId}
       />
     </div>
   );

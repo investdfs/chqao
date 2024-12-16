@@ -28,6 +28,8 @@ export const PreviewDialog = ({ question, open, onOpenChange }: PreviewDialogPro
     subject: question.subject,
     topic: question.topic,
     secondaryId: question.secondary_id,
+    examYear: question.exam_year,
+    isFromPreviousExam: question.is_from_previous_exam
   };
 
   return (
