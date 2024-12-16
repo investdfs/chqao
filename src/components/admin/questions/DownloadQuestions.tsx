@@ -3,6 +3,7 @@ import { Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { useToast } from "@/components/ui/use-toast";
+import { format } from "date-fns";
 
 export const DownloadQuestions = () => {
   const { toast } = useToast();
@@ -97,8 +98,12 @@ export const DownloadQuestions = () => {
       
       XLSX.utils.book_append_sheet(workbook, wsQuestions, "Questões");
       
+      // Gerar nome do arquivo com data e quantidade de questões
+      const currentDate = format(new Date(), 'dd-MM-yyyy');
+      const fileName = `banco_questoes_${currentDate}_${questions.length}_questoes.xlsx`;
+      
       // Download do arquivo
-      XLSX.writeFile(workbook, "banco_questoes.xlsx");
+      XLSX.writeFile(workbook, fileName);
       
       console.log('Download concluído com sucesso!');
       toast({
