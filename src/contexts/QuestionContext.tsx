@@ -42,7 +42,7 @@ export function QuestionProvider({ children }: { children: ReactNode }) {
   } = useQuestionPractice();
 
   const currentQuestion = questions?.[currentQuestionIndex] ? {
-    id: questions[currentQuestionIndex].secondary_id || questions[currentQuestionIndex].id,
+    id: questions[currentQuestionIndex].id,
     text: questions[currentQuestionIndex].text,
     subject: questions[currentQuestionIndex].subject,
     topic: questions[currentQuestionIndex].topic || undefined,

@@ -1,10 +1,8 @@
 import { useEffect, memo } from "react";
 import QuestionHeader from "./question/QuestionHeader";
-import QuestionContent from "@/components/student/question/QuestionContent";
+import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
-import { useQuestionAnswer } from "../hooks/useQuestionAnswer";
-import { useExamMode } from "../contexts/ExamModeContext";
-import { ExamCompletionDialog } from "./exam/ExamCompletionDialog";
+import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
 interface QuestionCardProps {
   question: {
@@ -20,9 +18,7 @@ interface QuestionCardProps {
     source?: string;
     subject?: string;
     topic?: string;
-    exam_year?: number;
-    is_from_previous_exam?: boolean;
-    image_url?: string;
+    secondary_id?: string;
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
@@ -30,8 +26,6 @@ interface QuestionCardProps {
   totalQuestions: number;
   isUserBlocked?: boolean;
   studentId?: string;
-  showQuestionId?: boolean;
-  questions?: any[];
 }
 
 const QuestionCard = memo(({
@@ -42,8 +36,6 @@ const QuestionCard = memo(({
   totalQuestions,
   isUserBlocked = false,
   studentId,
-  showQuestionId = false,
-  questions = [],
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
@@ -58,14 +50,6 @@ const QuestionCard = memo(({
     studentId
   });
 
-  const {
-    isExamMode,
-    examStartTime,
-    examAnswers,
-    addAnswer,
-    resetExamMode
-  } = useExamMode();
-
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
     handleReset();
@@ -75,50 +59,43 @@ const QuestionCard = memo(({
     return <BlockedUserCard />;
   }
 
-  // Transform question data to match expected format
-  const transformedQuestion = {
-    ...question,
+  // Transform the question format to match what QuestionContent expects
+  const formattedQuestion = {
+    id: question.id,
+    text: question.text,
+    subject: question.subject,
+    topic: question.topic,
+    source: question.source,
     options: [
-      { id: "A", text: question.option_a },
-      { id: "B", text: question.option_b },
-      { id: "C", text: question.option_c },
-      { id: "D", text: question.option_d },
-      { id: "E", text: question.option_e },
+      { id: 'A', text: question.option_a },
+      { id: 'B', text: question.option_b },
+      { id: 'C', text: question.option_c },
+      { id: 'D', text: question.option_d },
+      { id: 'E', text: question.option_e },
     ],
-    correctAnswer: question.correct_answer
+    correctAnswer: question.correct_answer,
+    explanation: question.explanation,
+    secondaryId: question.secondary_id
   };
 
   return (
-    <div className="h-full flex flex-col space-y-4">
-      <QuestionHeader 
+    <div className="space-y-6">
+      <QuestionHeader
         isFocusMode={false}
         onFocusModeToggle={() => {}}
       />
-      
-      <div className="flex-1 overflow-y-auto">
-        <QuestionContent
-          question={transformedQuestion}
-          selectedAnswer={selectedAnswer}
-          setSelectedAnswer={setSelectedAnswer}
-          hasAnswered={!isExamMode && hasAnswered}
-          handleAnswer={handleAnswer}
-          handleReset={handleReset}
-          onNextQuestion={onNextQuestion}
-          onPreviousQuestion={onPreviousQuestion}
-          questionNumber={questionNumber}
-          totalQuestions={totalQuestions}
-        />
-      </div>
-
-      <ExamCompletionDialog
-        open={false}
-        onOpenChange={() => {}}
-        questions={questions}
-        answers={examAnswers}
-        startTime={examStartTime!}
-        onFinish={() => {
-          resetExamMode();
-        }}
+      <QuestionContent
+        question={formattedQuestion}
+        selectedAnswer={selectedAnswer}
+        setSelectedAnswer={setSelectedAnswer}
+        hasAnswered={hasAnswered}
+        handleAnswer={handleAnswer}
+        handleReset={handleReset}
+        onNextQuestion={onNextQuestion}
+        onPreviousQuestion={onPreviousQuestion}
+        questionNumber={questionNumber}
+        totalQuestions={totalQuestions}
+        studentId={studentId}
       />
     </div>
   );

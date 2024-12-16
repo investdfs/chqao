@@ -12,7 +12,6 @@ interface QuestionOption {
 interface QuestionCardProps {
   question: {
     id: string;
-    secondary_id?: string;
     text: string;
     options: QuestionOption[];
     correctAnswer: string;
