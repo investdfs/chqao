@@ -34,7 +34,7 @@ const previewUser = {
 
 const App: React.FC = () => {
   const { authRequired } = useAuthStore();
-  const isPreviewMode = window.location.hostname.startsWith('preview--');
+  const isPreviewMode = window.location.hostname.includes('preview');
   
   console.log("App renderizando, autenticação requerida:", authRequired);
   console.log("Modo preview:", isPreviewMode);
@@ -54,11 +54,13 @@ const App: React.FC = () => {
             <Route path="/test-dashboard" element={<TestDashboard previewUser={previewUser} />} />
             <Route path="/previous-exams" element={<PreviousExams previewUser={previewUser} />} />
 
-            {/* Rotas protegidas - requerem autenticação apenas fora do modo preview */}
+            {/* Rotas protegidas - requerem autenticação apenas em produção */}
             <Route
               path="/student-dashboard"
               element={
-                authRequired && !isPreviewMode ? (
+                isPreviewMode ? (
+                  <StudentDashboard previewUser={previewUser} />
+                ) : authRequired ? (
                   <Navigate to="/login" replace />
                 ) : (
                   <StudentDashboard previewUser={previewUser} />
@@ -68,7 +70,9 @@ const App: React.FC = () => {
             <Route
               path="/admin-dashboard"
               element={
-                authRequired && !isPreviewMode ? (
+                isPreviewMode ? (
+                  <AdminDashboard />
+                ) : authRequired ? (
                   <Navigate to="/login" replace />
                 ) : (
                   <AdminDashboard />
