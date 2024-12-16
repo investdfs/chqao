@@ -67,7 +67,22 @@ const QuestionPracticeContent = () => {
     );
   }
 
-  if (!currentQuestion) return null;
+  const questionData = {
+    id: currentQuestion?.id || '',
+    text: currentQuestion?.text || '',
+    option_a: currentQuestion?.option_a || '',
+    option_b: currentQuestion?.option_b || '',
+    option_c: currentQuestion?.option_c || '',
+    option_d: currentQuestion?.option_d || '',
+    option_e: currentQuestion?.option_e || '',
+    correct_answer: currentQuestion?.correct_answer || '',
+    explanation: currentQuestion?.explanation || '',
+    subject: currentQuestion?.subject,
+    topic: currentQuestion?.topic,
+    exam_year: currentQuestion?.exam_year,
+    is_from_previous_exam: currentQuestion?.is_from_previous_exam,
+    image_url: currentQuestion?.image_url,
+  };
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ backgroundColor }}>
@@ -76,7 +91,7 @@ const QuestionPracticeContent = () => {
         <div className="max-w-4xl w-full mx-auto">
           <div className="transform transition-all duration-300 hover:translate-y-[-2px]">
             <QuestionCard
-              question={currentQuestion}
+              question={questionData}
               onNextQuestion={handleNextQuestion}
               onPreviousQuestion={handlePreviousQuestion}
               questionNumber={currentQuestionIndex + 1}

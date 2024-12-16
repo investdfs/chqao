@@ -30,7 +30,7 @@ const BackgroundColorSelector = ({ onColorChange, currentColor }: BackgroundColo
         <Button 
           variant="outline" 
           size="icon"
-          className="fixed top-4 right-4 z-50 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
+          className="absolute top-4 right-4 z-50 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
         >
           <Paintbrush className="h-4 w-4" />
         </Button>
