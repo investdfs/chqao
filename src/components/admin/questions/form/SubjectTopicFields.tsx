@@ -8,9 +8,15 @@ interface SubjectTopicFieldsProps {
   subject: string;
   topic: string;
   onInputChange: (field: string, value: string) => void;
+  isOptional?: boolean;
 }
 
-export const SubjectTopicFields = ({ subject, topic, onInputChange }: SubjectTopicFieldsProps) => {
+export const SubjectTopicFields = ({ 
+  subject, 
+  topic, 
+  onInputChange,
+  isOptional = false 
+}: SubjectTopicFieldsProps) => {
   const { data: subjects } = useQuery({
     queryKey: ['subject-structure-subjects'],
     queryFn: async () => {
@@ -29,7 +35,10 @@ export const SubjectTopicFields = ({ subject, topic, onInputChange }: SubjectTop
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
-        <Label htmlFor="subject">Matéria *</Label>
+        <Label htmlFor="subject">
+          Matéria {!isOptional && '*'}
+          {isOptional && ' (opcional)'}
+        </Label>
         <Select
           value={subject}
           onValueChange={(value) => onInputChange("subject", value)}
@@ -47,7 +56,10 @@ export const SubjectTopicFields = ({ subject, topic, onInputChange }: SubjectTop
         </Select>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="topic">Tópico *</Label>
+        <Label htmlFor="topic">
+          Tópico {!isOptional && '*'}
+          {isOptional && ' (opcional)'}
+        </Label>
         <Input
           placeholder="Digite o tópico"
           value={topic}

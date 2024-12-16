@@ -28,7 +28,7 @@ export const useJsonQuestions = () => {
       questionsArray.forEach((q, index) => {
         const requiredFields = [
           'text', 'option_a', 'option_b', 'option_c', 
-          'option_d', 'option_e', 'correct_answer', 'subject'
+          'option_d', 'option_e', 'correct_answer'
         ];
 
         requiredFields.forEach(field => {
@@ -72,10 +72,10 @@ export const useJsonQuestions = () => {
       // Prepara os dados para inserção
       const questionsWithMetadata = validatedQuestions.map(q => ({
         ...q,
-        subject: q.subject || subject,
-        topic: q.topic || topic,
+        subject: q.subject || subject, // Prioriza o subject do JSON
+        topic: q.topic || topic, // Prioriza o topic do JSON
         difficulty: q.difficulty || 'Médio',
-        is_from_previous_exam: q.exam_year ? true : false, // Marca como prova anterior se tiver exam_year
+        is_from_previous_exam: q.exam_year ? true : false,
         status: 'active'
       }));
 
