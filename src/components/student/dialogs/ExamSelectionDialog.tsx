@@ -25,14 +25,14 @@ export const ExamSelectionDialog = ({
     queryFn: async () => {
       console.log("Buscando contagem de questões por ano de prova...");
       
-      const { count: totalCount, error: countError, data: countData } = await supabase
+      const { data, error } = await supabase
         .from('questions')
-        .select('exam_year', { count: 'exact' })
+        .select('exam_year')
         .eq('is_from_previous_exam', true)
-        .neq('exam_year', null);
+        .not('exam_year', 'is', null);
 
-      if (countError) {
-        console.error("Erro ao buscar questões:", countError);
+      if (error) {
+        console.error("Erro ao buscar questões:", error);
         return {};
       }
 
@@ -44,8 +44,8 @@ export const ExamSelectionDialog = ({
       });
 
       // Count questions for each year
-      if (countData) {
-        countData.forEach((item: any) => {
+      if (data) {
+        data.forEach((item: any) => {
           if (item.exam_year) {
             examCounts[item.exam_year] = (examCounts[item.exam_year] || 0) + 1;
           }
