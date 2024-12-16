@@ -13,6 +13,18 @@ interface ExamFiltersProps {
   subjects: string[];
 }
 
+const availableSubjects = [
+  "Língua Portuguesa",
+  "Geografia do Brasil",
+  "História do Brasil",
+  "Estatuto dos Militares",
+  "Licitações e Contratos",
+  "Regulamento de Administração do Exército (RAE)",
+  "Direito Militar e Sindicância no Âmbito do Exército Brasileiro",
+  "Código Penal Militar",
+  "Código de Processo Penal Militar"
+];
+
 export const ExamFilters = ({
   searchTerm,
   onSearchChange,
@@ -21,7 +33,6 @@ export const ExamFilters = ({
   selectedSubject,
   onSubjectChange,
   years,
-  subjects
 }: ExamFiltersProps) => {
   return (
     <div className="flex gap-4 mb-6">
@@ -35,12 +46,12 @@ export const ExamFilters = ({
         />
       </div>
       <Select value={selectedSubject} onValueChange={onSubjectChange}>
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-[300px]">
           <SelectValue placeholder="Filtrar por matéria" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas as matérias</SelectItem>
-          {subjects.map(subject => (
+          {availableSubjects.map(subject => (
             <SelectItem key={subject} value={subject}>
               {subject}
             </SelectItem>
@@ -55,7 +66,7 @@ export const ExamFilters = ({
           <SelectItem value="all">Todos os anos</SelectItem>
           {years.map(year => (
             <SelectItem key={year} value={year.toString()}>
-              {year}
+              {`Concurso: EIPS/CHQAO ${year}`}
             </SelectItem>
           ))}
         </SelectContent>

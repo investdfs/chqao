@@ -1,11 +1,12 @@
-import { Edit, Eye, EyeOff, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Eye, Pencil, Trash2, EyeOff } from "lucide-react";
 
 interface ExamQuestionItemProps {
   question: any;
-  onDelete: (id: string) => Promise<void>;
-  onHide: (id: string) => Promise<void>;
-  onShow: (id: string) => Promise<void>;
+  onDelete: (id: string) => void;
+  onHide: (id: string) => void;
+  onShow: (id: string) => void;
   onEdit: (question: any) => void;
   onPreview: (question: any) => void;
 }
@@ -18,81 +19,55 @@ export const ExamQuestionItem = ({
   onEdit,
   onPreview
 }: ExamQuestionItemProps) => {
-  const handleDelete = async (id: string) => {
-    try {
-      await onDelete(id);
-      toast.success("Questão excluída com sucesso.");
-    } catch (error) {
-      console.error('Error deleting question:', error);
-      toast.error("Erro ao excluir questão.");
-    }
-  };
-
-  const handleVisibilityToggle = async (id: string, status: string) => {
-    try {
-      if (status === 'active') {
-        await onHide(id);
-        toast.success("Questão ocultada com sucesso.");
-      } else {
-        await onShow(id);
-        toast.success("Questão ativada com sucesso.");
-      }
-    } catch (error) {
-      console.error('Error toggling question visibility:', error);
-      toast.error("Erro ao alterar visibilidade da questão.");
-    }
-  };
-
   return (
-    <div className="p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
-      <div className="flex justify-between items-start gap-4 mb-2">
+    <Card className="p-4">
+      <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
-          <div className="text-sm font-medium mb-1 space-y-1">
-            <div className="text-primary/70">{question.subject}</div>
-            <div>Concurso: EIPS/CHQAO {question.exam_year}</div>
+          <div className="flex flex-col mb-2">
+            <span className="text-sm font-medium text-primary">
+              {question.subject}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              Concurso: EIPS/CHQAO {question.exam_year}
+            </span>
           </div>
-          <div className="text-sm text-muted-foreground">
-            {question.text}
-          </div>
+          <p className="text-sm">{question.text}</p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={() => onEdit(question)}
-            className="p-2 hover:bg-primary/10 rounded-full transition-colors"
-            title="Editar questão"
-          >
-            <Edit className="h-4 w-4 text-primary" />
-          </button>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onPreview(question)}
-            className="p-2 hover:bg-primary/10 rounded-full transition-colors"
             title="Visualizar questão"
           >
-            <Eye className="h-4 w-4 text-primary" />
-          </button>
-          <button
-            onClick={() => handleVisibilityToggle(question.id, question.status)}
-            className="p-2 hover:bg-primary/10 rounded-full transition-colors"
-            title={question.status === 'active' ? "Ocultar questão" : "Mostrar questão"}
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(question)}
+            title="Editar questão"
           >
-            {question.status === 'active' ? (
-              <EyeOff className="h-4 w-4 text-primary" />
-            ) : (
-              <Eye className="h-4 w-4 text-primary" />
-            )}
-          </button>
-          <button
-            onClick={() => handleDelete(question.id)}
-            className="p-2 hover:bg-error/10 rounded-full transition-colors"
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onDelete(question.id)}
             title="Excluir questão"
           >
-            <Trash2 className="h-4 w-4 text-error" />
-          </button>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => question.status === 'active' ? onHide(question.id) : onShow(question.id)}
+            title={question.status === 'active' ? "Ocultar questão" : "Mostrar questão"}
+          >
+            <EyeOff className="h-4 w-4" />
+          </Button>
         </div>
       </div>
-      <div className="text-sm text-primary">
-        Gabarito: {question.correct_answer}
-      </div>
-    </div>
+    </Card>
   );
 };
