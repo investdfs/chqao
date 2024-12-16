@@ -7,6 +7,7 @@ import QuestionFeedback from "./QuestionFeedback";
 import ThemeSelector from "@/components/theme/ThemeSelector";
 import QuestionCounter from "./QuestionCounter";
 import PreviousAnswerInfo from "./PreviousAnswerInfo";
+import { QuestionFooter } from "./QuestionFooter";
 
 interface QuestionContentProps {
   question: {
@@ -105,6 +106,11 @@ const QuestionContent = memo(({
               questionId={question.id}
             />
           )}
+
+          <QuestionFooter 
+            questionId={question.id}
+            correctAnswer={question.correctAnswer}
+          />
         </div>
       </CardContent>
     </Card>

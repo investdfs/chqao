@@ -68,7 +68,24 @@ const QuestionPracticeContent = () => {
         <div className="max-w-4xl w-full mx-auto">
           <div className="transform transition-all duration-300 hover:translate-y-[-2px]">
             <QuestionCard
-              question={currentQuestion}
+              question={{
+                id: currentQuestion.id,
+                text: currentQuestion.text,
+                options: [
+                  { id: 'A', text: currentQuestion.option_a },
+                  { id: 'B', text: currentQuestion.option_b },
+                  { id: 'C', text: currentQuestion.option_c },
+                  { id: 'D', text: currentQuestion.option_d },
+                  { id: 'E', text: currentQuestion.option_e }
+                ],
+                correctAnswer: currentQuestion.correct_answer,
+                explanation: currentQuestion.explanation,
+                subject: currentQuestion.subject,
+                topic: currentQuestion.topic,
+                examYear: currentQuestion.exam_year,
+                isFromPreviousExam: currentQuestion.is_from_previous_exam,
+                imageUrl: currentQuestion.image_url
+              }}
               onNextQuestion={handleNextQuestion}
               onPreviousQuestion={handlePreviousQuestion}
               questionNumber={currentQuestionIndex + 1}
