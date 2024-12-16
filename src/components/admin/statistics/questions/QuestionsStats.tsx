@@ -22,10 +22,11 @@ export const useQuestionsStats = () => {
     try {
       console.log('Fetching questions statistics...');
       
-      // Fetch total regular questions
+      // Fetch total regular questions (only active)
       const { count: regularQuestionsCount, error: regularError } = await supabase
         .from('questions')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active'); // Only count active questions
 
       if (regularError) {
         console.error('Error fetching regular questions:', regularError);

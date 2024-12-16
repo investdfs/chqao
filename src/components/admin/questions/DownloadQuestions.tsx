@@ -16,15 +16,15 @@ export const DownloadQuestions = () => {
         description: "Preparando arquivo de questões...",
       });
 
-      // Buscar questões regulares
+      // Buscar apenas questões ativas
       const { data: questions, error } = await supabase
         .from('questions')
         .select('*')
+        .eq('status', 'active') // Apenas questões ativas
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      // Formatar questões para exportação
       const formattedQuestions = questions.map(q => ({
         theme: q.theme || 'História do Brasil',
         subject_matter: q.subject_matter || '',
@@ -97,7 +97,7 @@ export const DownloadQuestions = () => {
       ];
       
       XLSX.utils.book_append_sheet(workbook, wsQuestions, "Questões");
-      
+
       // Gerar nome do arquivo com data e quantidade de questões
       const currentDate = format(new Date(), 'dd-MM-yyyy');
       const fileName = `banco_questoes_${currentDate}_${questions.length}_questoes.xlsx`;
@@ -108,7 +108,7 @@ export const DownloadQuestions = () => {
       console.log('Download concluído com sucesso!');
       toast({
         title: "Download concluído",
-        description: "O arquivo foi baixado com sucesso!",
+        description: `${questions.length} questões foram baixadas com sucesso!`,
       });
     } catch (error) {
       console.error('Erro ao baixar questões:', error);
