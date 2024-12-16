@@ -83,9 +83,16 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
     camera.position.z = 15;
 
     const onMouseMove = (event: MouseEvent) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      // Calcular a posição do mouse relativa ao container
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
       mousePosition.current = {
-        x: (event.clientX / window.innerWidth) * 2 - 1,
-        y: -(event.clientY / window.innerHeight) * 2 + 1,
+        x: (x / rect.width) * 2 - 1,
+        y: -(y / rect.height) * 2 + 1,
       };
 
       // Atualizar posição do crosshair diretamente
