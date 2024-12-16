@@ -43,53 +43,32 @@ const App: React.FC = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Rotas públicas - sempre acessíveis */}
             <Route path="/" element={<Index />} />
-            <Route 
-              path="/register" 
-              element={authRequired ? <Register /> : <Navigate to="/student-dashboard" replace />} 
-            />
-            <Route 
-              path="/login" 
-              element={authRequired ? <Login /> : <Navigate to="/student-dashboard" replace />} 
-            />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/question-practice" element={<QuestionPractice previewUser={previewUser} />} />
+            <Route path="/test-dashboard" element={<TestDashboard previewUser={previewUser} />} />
+            <Route path="/previous-exams" element={<PreviousExams previewUser={previewUser} />} />
+
+            {/* Rotas protegidas - requerem autenticação quando authRequired está ativo */}
             <Route
               path="/student-dashboard"
               element={
-                !authRequired ? (
+                authRequired ? (
+                  <Navigate to="/login" replace />
+                ) : (
                   <StudentDashboard previewUser={previewUser} />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route
-              path="/question-practice"
-              element={
-                !authRequired ? (
-                  <QuestionPractice previewUser={previewUser} />
-                ) : (
-                  <Navigate to="/login" replace />
                 )
               }
             />
             <Route
-              path="/test-dashboard"
+              path="/admin-dashboard"
               element={
-                !authRequired ? (
-                  <TestDashboard previewUser={previewUser} />
-                ) : (
+                authRequired ? (
                   <Navigate to="/login" replace />
-                )
-              }
-            />
-            <Route
-              path="/previous-exams"
-              element={
-                !authRequired ? (
-                  <PreviousExams previewUser={previewUser} />
                 ) : (
-                  <Navigate to="/login" replace />
+                  <AdminDashboard />
                 )
               }
             />
