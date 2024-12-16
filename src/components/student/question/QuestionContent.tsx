@@ -1,11 +1,10 @@
 import { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
-import EnhancedQuestionOptions from "./EnhancedQuestionOptions";
+import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
 import NavigationButtons from "./NavigationButtons";
 import QuestionFeedback from "./QuestionFeedback";
-import ThemeSelector from "@/components/theme/ThemeSelector";
-import QuestionCounter from "./QuestionCounter";
+import { QuestionCommentsDialog } from "./QuestionCommentsDialog";
 import PreviousAnswerInfo from "./PreviousAnswerInfo";
 
 interface QuestionContentProps {
@@ -18,6 +17,7 @@ interface QuestionContentProps {
     options: Array<{ id: string; text: string }>;
     correctAnswer: string;
     explanation: string;
+    image_url?: string;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -47,22 +47,17 @@ const QuestionContent = memo(({
   console.log("Renderizando QuestionContent para questão:", question.id);
 
   return (
-    <Card className="animate-fade-in dark:bg-gray-800">
+    <Card className="dark:bg-gray-800 relative">
       <CardContent className="p-4 sm:p-6">
-        <div className="flex justify-end mb-4">
-          <ThemeSelector />
-        </div>
+        <QuestionCommentsDialog questionId={question.id} />
+        
         <div className="space-y-6">
-          <div className="flex flex-col gap-4">
-            <QuestionCounter 
-              current={questionNumber} 
-              total={totalQuestions} 
-            />
+          {studentId && (
             <PreviousAnswerInfo 
-              questionId={question.id}
+              questionId={question.id} 
               studentId={studentId}
             />
-          </div>
+          )}
 
           <QuestionMetadata
             id={question.id}
@@ -73,9 +68,19 @@ const QuestionContent = memo(({
 
           <div className="text-base dark:text-gray-200 text-left">
             {question.text}
+            {question.image_url && (
+              <div className="flex justify-center my-4">
+                <img 
+                  src={question.image_url} 
+                  alt="Questão" 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                  loading="lazy"
+                />
+              </div>
+            )}
           </div>
 
-          <EnhancedQuestionOptions
+          <QuestionOptions
             options={question.options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}

@@ -50,20 +50,45 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
     },
   });
 
+  // Mock data for preview mode
+  const previewData = {
+    studyStats: {
+      total_study_time: '10h',
+      consecutive_study_days: 5,
+      weekly_study_hours: 20,
+      weekly_questions_target: 250,
+      weekly_questions_completed: 150
+    },
+    syllabusProgress: {
+      completed_topics: 15,
+      pending_topics: 25,
+      progress_percentage: 37.5
+    },
+    weeklyStudyData: Array.from({ length: 7 }, (_, i) => ({
+      study_day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
+      question_count: Math.floor(Math.random() * 50),
+      study_time: '2h'
+    })),
+    performance: {
+      totalCorrect: 75,
+      totalQuestions: 100,
+      performancePercentage: 75
+    }
+  };
+
   const userId = previewUser?.id || session?.user?.id;
   const isPreviewMode = !!previewUser;
 
   const { 
-    studyStats, 
-    syllabusProgress, 
-    weeklyStudyData,
-    loginDays = []
+    studyStats = isPreviewMode ? previewData.studyStats : undefined, 
+    syllabusProgress = isPreviewMode ? previewData.syllabusProgress : undefined, 
+    weeklyStudyData = isPreviewMode ? previewData.weeklyStudyData : undefined 
   } = useStudentStats(isPreviewMode ? undefined : userId);
 
   const { 
-    totalCorrect,
-    totalQuestions,
-    performancePercentage
+    totalCorrect = isPreviewMode ? previewData.performance.totalCorrect : 0,
+    totalQuestions = isPreviewMode ? previewData.performance.totalQuestions : 0,
+    performancePercentage = isPreviewMode ? previewData.performance.performancePercentage : 0
   } = useStudentPerformance(isPreviewMode ? undefined : userId);
 
   const handleSubjectSelect = (subject: string) => {
@@ -135,7 +160,10 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
 
         <StudyConsistency
           consecutiveDays={studyStats?.consecutive_study_days || 0}
-          loginDays={loginDays}
+          studyDays={Array.from({ length: 30 }, (_, i) => ({
+            date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+            studied: Math.random() > 0.3,
+          }))}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

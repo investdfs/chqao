@@ -20,20 +20,24 @@ import { useState } from "react";
 
 interface StudyConsistencyProps {
   consecutiveDays: number;
-  loginDays: Array<{
+  studyDays: Array<{
     date: string;
-    has_login: boolean;
+    studied: boolean;
   }>;
 }
 
-export const StudyConsistency = ({ consecutiveDays, loginDays }: StudyConsistencyProps) => {
+export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistencyProps) => {
   const [selectedRange, setSelectedRange] = useState<string>("all");
   
-  // Generate array of all days with login status
-  const allDays = loginDays.map(day => ({
-    date: day.date,
-    studied: day.has_login
-  }));
+  // Generate array of all days 1-31 with default "not studied" status
+  const allDays = Array.from({ length: 31 }, (_, i) => {
+    const currentDate = new Date();
+    currentDate.setDate(i + 1);
+    return {
+      date: currentDate.toISOString(),
+      studied: false // Always set to false by default
+    };
+  });
 
   // Filter days based on selected range
   const visibleDays = selectedRange === "all" 
@@ -94,7 +98,7 @@ export const StudyConsistency = ({ consecutiveDays, loginDays }: StudyConsistenc
               className="flex flex-col items-center min-w-[32px]"
             >
               <span className="text-xs text-gray-500 mb-1">
-                {new Date(day.date).getDate()}
+                {index + 1}
               </span>
               <div
                 className={`w-8 h-8 rounded-sm flex items-center justify-center relative transition-colors ${
@@ -117,7 +121,7 @@ export const StudyConsistency = ({ consecutiveDays, loginDays }: StudyConsistenc
               className="flex flex-col items-center min-w-[32px]"
             >
               <span className="text-xs text-gray-500 mb-1">
-                {new Date(day.date).getDate()}
+                {selectedRange === "all" ? index + 1 : (parseInt(selectedRange) - 1) * 7 + index + 1}
               </span>
               <div
                 className={`w-8 h-8 rounded-sm flex items-center justify-center relative transition-colors ${

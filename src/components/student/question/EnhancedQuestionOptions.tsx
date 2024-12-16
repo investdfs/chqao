@@ -20,7 +20,7 @@ interface EnhancedQuestionOptionsProps {
 }
 
 const EnhancedQuestionOptions = ({
-  options = [], // Fornece um array vazio como fallback
+  options,
   selectedAnswer,
   hasAnswered,
   correctAnswer,
@@ -60,12 +60,6 @@ const EnhancedQuestionOptions = ({
       onAutoAnswer();
     }
   };
-
-  // Verifica se options existe e é um array antes de tentar fazer o map
-  if (!Array.isArray(options) || options.length === 0) {
-    console.warn("Nenhuma opção fornecida para o componente EnhancedQuestionOptions");
-    return null;
-  }
 
   return (
     <RadioGroup
