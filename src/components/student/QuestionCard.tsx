@@ -4,23 +4,21 @@ import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
+interface QuestionOption {
+  id: string;
+  text: string;
+}
+
 interface QuestionCardProps {
   question: {
     id: string;
     text: string;
-    option_a: string;
-    option_b: string;
-    option_c: string;
-    option_d: string;
-    option_e: string;
-    correct_answer: string;
+    options: QuestionOption[];
+    correctAnswer: string;
     explanation: string;
     source?: string;
     subject?: string;
     topic?: string;
-    exam_year?: number;
-    is_from_previous_exam?: boolean;
-    image_url?: string;
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
@@ -61,25 +59,6 @@ const QuestionCard = memo(({
     return <BlockedUserCard />;
   }
 
-  // Transform the question format to match QuestionContent's expected structure
-  const transformedQuestion = {
-    id: question.id,
-    text: question.text,
-    subject: question.subject,
-    topic: question.topic,
-    source: question.source,
-    options: [
-      { id: "A", text: question.option_a },
-      { id: "B", text: question.option_b },
-      { id: "C", text: question.option_c },
-      { id: "D", text: question.option_d },
-      { id: "E", text: question.option_e },
-    ],
-    correctAnswer: question.correct_answer,
-    explanation: question.explanation,
-    image_url: question.image_url
-  };
-
   return (
     <div className="space-y-6">
       <QuestionHeader
@@ -87,7 +66,7 @@ const QuestionCard = memo(({
         onFocusModeToggle={() => {}}
       />
       <QuestionContent
-        question={transformedQuestion}
+        question={question}
         selectedAnswer={selectedAnswer}
         setSelectedAnswer={setSelectedAnswer}
         hasAnswered={hasAnswered}

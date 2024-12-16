@@ -14,9 +14,15 @@ interface QuestionContentProps {
     subject?: string;
     topic?: string;
     source?: string;
-    options: Array<{ id: string; text: string }>;
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
+    exam_year?: number;
+    is_from_previous_exam?: boolean;
     image_url?: string;
   };
   selectedAnswer: string;
@@ -50,6 +56,14 @@ const QuestionContent = memo(({
 
   console.log("Rendering QuestionContent with question:", question);
 
+  const options = [
+    { id: "A", text: question.option_a },
+    { id: "B", text: question.option_b },
+    { id: "C", text: question.option_c },
+    { id: "D", text: question.option_d },
+    { id: "E", text: question.option_e },
+  ];
+
   const handleAnswerWithDelay = async () => {
     console.log("Iniciando processo de resposta com delay");
     setIsAnswering(true);
@@ -64,7 +78,7 @@ const QuestionContent = memo(({
   };
 
   return (
-    <Card className="dark:bg-gray-800">
+    <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
         <div className="space-y-4">
           <QuestionMetadata
@@ -72,6 +86,8 @@ const QuestionContent = memo(({
             subject={question.subject}
             topic={question.topic}
             source={question.source}
+            examYear={question.exam_year}
+            isFromPreviousExam={question.is_from_previous_exam}
             showId={showQuestionId}
           />
 
@@ -90,10 +106,10 @@ const QuestionContent = memo(({
           </div>
 
           <QuestionOptions
-            options={question.options}
+            options={options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}
-            correctAnswer={question.correctAnswer}
+            correctAnswer={question.correct_answer}
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
           />
@@ -111,9 +127,9 @@ const QuestionContent = memo(({
 
           {hasAnswered && !isMobile && (
             <QuestionFeedback
-              isCorrect={selectedAnswer === question.correctAnswer}
+              isCorrect={selectedAnswer === question.correct_answer}
               selectedAnswer={selectedAnswer}
-              correctAnswer={question.correctAnswer}
+              correctAnswer={question.correct_answer}
               explanation={question.explanation}
               onReset={handleReset}
               questionId={question.id}
@@ -123,9 +139,9 @@ const QuestionContent = memo(({
           <MobileFeedbackDialog
             open={showMobileFeedback}
             onOpenChange={setShowMobileFeedback}
-            isCorrect={selectedAnswer === question.correctAnswer}
+            isCorrect={selectedAnswer === question.correct_answer}
             selectedAnswer={selectedAnswer}
-            correctAnswer={question.correctAnswer}
+            correctAnswer={question.correct_answer}
             explanation={question.explanation}
             onNext={onNextQuestion}
             onPrevious={onPreviousQuestion}

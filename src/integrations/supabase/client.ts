@@ -18,12 +18,9 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
       'Content-Type': 'application/json',
     },
   },
-  db: {
-    schema: 'public'
-  }
 });
 
-// Helper function to check connectivity
+// Função helper para verificar conectividade
 export const checkSupabaseConnection = async () => {
   try {
     const { data, error } = await supabase

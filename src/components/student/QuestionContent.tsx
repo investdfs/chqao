@@ -4,7 +4,6 @@ import QuestionMetadata from "./question/QuestionMetadata";
 import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
 import NavigationButtons from "./question/NavigationButtons";
 import QuestionFeedback from "./question/QuestionFeedback";
-import { QuestionFooter } from "./question/QuestionFooter";
 
 interface QuestionContentProps {
   question: {
@@ -16,7 +15,6 @@ interface QuestionContentProps {
     options: Array<{ id: string; text: string }>;
     correctAnswer: string;
     explanation: string;
-    image_url?: string;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -27,7 +25,6 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
-  studentId?: string;
 }
 
 const QuestionContent = memo(({
@@ -41,7 +38,6 @@ const QuestionContent = memo(({
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
-  studentId,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
@@ -58,16 +54,6 @@ const QuestionContent = memo(({
 
           <div className="text-base dark:text-gray-200 text-left">
             {question.text}
-            {question.image_url && (
-              <div className="flex justify-center my-4">
-                <img 
-                  src={question.image_url} 
-                  alt="Questão" 
-                  className="max-w-full h-auto rounded-lg shadow-md"
-                  loading="lazy"
-                />
-              </div>
-            )}
           </div>
 
           <QuestionOptions
@@ -100,11 +86,6 @@ const QuestionContent = memo(({
               questionId={question.id}
             />
           )}
-
-          <QuestionFooter 
-            questionId={question.id}
-            correctAnswer={question.correctAnswer}
-          />
         </div>
       </CardContent>
     </Card>
