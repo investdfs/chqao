@@ -65,7 +65,7 @@ const NavigationButtons = memo(({
         disabled={questionNumber >= totalQuestions || isAnswering}
         className={`flex items-center gap-1 transition-all duration-500 ${
           hasAnswered 
-            ? "bg-primary hover:bg-primary/90 text-white shadow-md scale-102 animate-[pulse_3s_ease-in-out_infinite]" 
+            ? "bg-primary hover:bg-primary/90 text-white shadow-md" 
             : ""
         }`}
       >
