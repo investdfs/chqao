@@ -27,30 +27,33 @@ interface PreviewDialogProps {
 export const PreviewDialog = ({ question, open, onOpenChange }: PreviewDialogProps) => {
   if (!question) return null;
 
+  const formattedQuestion = {
+    id: question.id,
+    text: question.text,
+    options: [
+      { id: 'A', text: question.option_a },
+      { id: 'B', text: question.option_b },
+      { id: 'C', text: question.option_c },
+      { id: 'D', text: question.option_d },
+      { id: 'E', text: question.option_e },
+    ],
+    correctAnswer: question.correct_answer,
+    explanation: question.explanation,
+    subject: question.subject,
+    topic: question.topic,
+    secondaryId: question.secondary_id
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[80vh] overflow-y-auto">
         <ExamModeProvider>
           <QuestionCard
-            question={{
-              id: question.id,
-              text: question.text,
-              option_a: question.option_a,
-              option_b: question.option_b,
-              option_c: question.option_c,
-              option_d: question.option_d,
-              option_e: question.option_e,
-              correct_answer: question.correct_answer,
-              explanation: question.explanation,
-              subject: question.subject,
-              topic: question.topic,
-              secondary_id: question.secondary_id
-            }}
+            question={formattedQuestion}
             onNextQuestion={() => {}}
             onPreviousQuestion={() => {}}
             questionNumber={1}
             totalQuestions={1}
-            showQuestionId={true}
           />
         </ExamModeProvider>
       </DialogContent>
