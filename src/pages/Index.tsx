@@ -13,14 +13,11 @@ import BackgroundAnimation from "@/features/questions/components/BackgroundAnima
 
 const Index = () => {
   const navigate = useNavigate();
-  const isPreview = window.location.hostname.includes("preview");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-light via-white to-white">
-      <BackgroundAnimation />
-
       <section className="relative py-20 sm:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-radial from-primary-light/50 to-transparent opacity-50" />
+        <BackgroundAnimation height={800} />
         <div className="container mx-auto px-4 relative">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
             <div className="lg:w-1/2 space-y-8 animate-fade-in">
@@ -69,7 +66,6 @@ const Index = () => {
       </section>
 
       <section className="relative py-20">
-        <BackgroundAnimation height={800} />
         <div className="container mx-auto px-4 relative">
           <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-16">
             Por que escolher o CHQAO?
