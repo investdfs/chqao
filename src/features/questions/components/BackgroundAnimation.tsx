@@ -1,51 +1,86 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-const BackgroundAnimation = () => {
+interface BackgroundAnimationProps {
+  height?: number;
+}
+
+const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mousePosition = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    console.log("Inicializando animação Three.js");
+    console.log("Inicializando animação Three.js com efeito de mira");
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 300, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / height, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ 
       alpha: true, 
       antialias: true,
       powerPreference: "high-performance"
     });
     
-    renderer.setSize(window.innerWidth, 300);
+    renderer.setSize(window.innerWidth, height);
     renderer.setClearColor(0x000000, 0);
     containerRef.current.appendChild(renderer.domElement);
 
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 5000; // Reduzido de 8000 para 5000
-    const posArray = new Float32Array(particlesCount * 3);
-
-    for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 15;
+    // Criar círculos concêntricos para o efeito de mira
+    const circles: THREE.Line[] = [];
+    const numCircles = 3;
+    
+    for (let i = 0; i < numCircles; i++) {
+      const radius = (i + 1) * 2;
+      const segments = 32;
+      const circleGeometry = new THREE.BufferGeometry();
+      const positions = [];
+      
+      for (let j = 0; j <= segments; j++) {
+        const theta = (j / segments) * Math.PI * 2;
+        positions.push(
+          Math.cos(theta) * radius,
+          Math.sin(theta) * radius,
+          0
+        );
+      }
+      
+      circleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      
+      const circleMaterial = new THREE.LineBasicMaterial({
+        color: 0x8B5CF6,
+        transparent: true,
+        opacity: 0.2 - (i * 0.05)
+      });
+      
+      const circle = new THREE.Line(circleGeometry, circleMaterial);
+      circles.push(circle);
+      scene.add(circle);
     }
 
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.1, // Reduzido de 0.15 para 0.1
-      color: 0xFFFFFF,
+    // Adicionar linhas cruzadas (crosshair)
+    const crosshairMaterial = new THREE.LineBasicMaterial({
+      color: 0x8B5CF6,
       transparent: true,
-      opacity: 0.3, // Reduzido de 1 para 0.3
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true,
-      depthWrite: false,
+      opacity: 0.15
     });
 
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particlesMesh);
+    const crosshairSize = 8;
+    const crosshairGeometryH = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-crosshairSize, 0, 0),
+      new THREE.Vector3(crosshairSize, 0, 0)
+    ]);
+    const crosshairGeometryV = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, -crosshairSize, 0),
+      new THREE.Vector3(0, crosshairSize, 0)
+    ]);
 
-    camera.position.z = 5;
+    const crosshairH = new THREE.Line(crosshairGeometryH, crosshairMaterial);
+    const crosshairV = new THREE.Line(crosshairGeometryV, crosshairMaterial);
+    scene.add(crosshairH);
+    scene.add(crosshairV);
+
+    camera.position.z = 15;
 
     const onMouseMove = (event: MouseEvent) => {
       mousePosition.current = {
@@ -59,11 +94,19 @@ const BackgroundAnimation = () => {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      particlesMesh.rotation.x += 0.0005; // Reduzido de 0.002 para 0.0005
-      particlesMesh.rotation.y += 0.0005; // Reduzido de 0.002 para 0.0005
+      // Rotação suave dos círculos
+      circles.forEach((circle, index) => {
+        circle.rotation.z += 0.001 * (index + 1);
+      });
 
-      particlesMesh.rotation.x += (mousePosition.current.y * 0.2 - particlesMesh.rotation.x) * 0.05;
-      particlesMesh.rotation.y += (mousePosition.current.x * 0.2 - particlesMesh.rotation.y) * 0.05;
+      // Movimento suave do crosshair seguindo o mouse
+      const targetX = mousePosition.current.x * 2;
+      const targetY = mousePosition.current.y * 2;
+      
+      crosshairH.position.x += (targetX - crosshairH.position.x) * 0.1;
+      crosshairH.position.y += (targetY - crosshairH.position.y) * 0.1;
+      crosshairV.position.x += (targetX - crosshairV.position.x) * 0.1;
+      crosshairV.position.y += (targetY - crosshairV.position.y) * 0.1;
 
       renderer.render(scene, camera);
     };
@@ -71,9 +114,9 @@ const BackgroundAnimation = () => {
     animate();
 
     const handleResize = () => {
-      camera.aspect = window.innerWidth / 300;
+      camera.aspect = window.innerWidth / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, 300);
+      renderer.setSize(window.innerWidth, height);
     };
 
     window.addEventListener('resize', handleResize);
@@ -86,14 +129,15 @@ const BackgroundAnimation = () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [height]);
 
   return (
     <div 
       ref={containerRef} 
-      className="fixed top-0 left-0 w-full h-[300px] pointer-events-none"
+      className="absolute top-0 left-0 w-full pointer-events-none"
       style={{ 
-        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.1), transparent)',
+        height: `${height}px`,
+        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.05), transparent)',
         zIndex: 10
       }}
     />

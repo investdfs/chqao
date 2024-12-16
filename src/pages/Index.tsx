@@ -68,8 +68,9 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-b from-white to-primary-light/20">
-        <div className="container mx-auto px-4">
+      <section className="relative py-20">
+        <BackgroundAnimation height={800} />
+        <div className="container mx-auto px-4 relative">
           <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-16">
             Por que escolher o CHQAO?
           </h2>
