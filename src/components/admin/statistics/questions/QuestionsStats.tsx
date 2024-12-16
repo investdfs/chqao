@@ -26,7 +26,7 @@ export const useQuestionsStats = () => {
       const { count: regularQuestionsCount, error: regularError } = await supabase
         .from('questions')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'active'); // Only count active questions
+        .eq('status', 'active');
 
       if (regularError) {
         console.error('Error fetching regular questions:', regularError);
