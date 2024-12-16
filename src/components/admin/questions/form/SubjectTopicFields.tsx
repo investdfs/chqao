@@ -9,13 +9,15 @@ interface SubjectTopicFieldsProps {
   topic: string;
   onInputChange: (field: string, value: string) => void;
   isOptional?: boolean;
+  helperText?: string;
 }
 
 export const SubjectTopicFields = ({ 
   subject, 
   topic, 
   onInputChange,
-  isOptional = false 
+  isOptional = false,
+  helperText
 }: SubjectTopicFieldsProps) => {
   const { data: subjects } = useQuery({
     queryKey: ['subject-structure-subjects'],
@@ -33,39 +35,44 @@ export const SubjectTopicFields = ({
   });
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="subject">
-          Matéria {!isOptional && '*'}
-          {isOptional && ' (opcional)'}
-        </Label>
-        <Select
-          value={subject}
-          onValueChange={(value) => onInputChange("subject", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione a matéria" />
-          </SelectTrigger>
-          <SelectContent>
-            {subjects?.map((subject) => (
-              <SelectItem key={subject} value={subject}>
-                {subject}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="topic">
-          Tópico {!isOptional && '*'}
-          {isOptional && ' (opcional)'}
-        </Label>
-        <Input
-          placeholder="Digite o tópico"
-          value={topic}
-          onChange={(e) => onInputChange("topic", e.target.value)}
-          className="bg-white dark:bg-gray-800"
-        />
+    <div className="space-y-4">
+      {helperText && (
+        <p className="text-sm text-muted-foreground">{helperText}</p>
+      )}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="subject">
+            Matéria {!isOptional && '*'}
+            {isOptional && ' (opcional)'}
+          </Label>
+          <Select
+            value={subject}
+            onValueChange={(value) => onInputChange("subject", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione a matéria" />
+            </SelectTrigger>
+            <SelectContent>
+              {subjects?.map((subject) => (
+                <SelectItem key={subject} value={subject}>
+                  {subject}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="topic">
+            Tópico {!isOptional && '*'}
+            {isOptional && ' (opcional)'}
+          </Label>
+          <Input
+            placeholder="Digite o tópico"
+            value={topic}
+            onChange={(e) => onInputChange("topic", e.target.value)}
+            className="bg-white dark:bg-gray-800"
+          />
+        </div>
       </div>
     </div>
   );

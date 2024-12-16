@@ -57,11 +57,20 @@ export const JsonDialog = ({
 
 Exemplo de estrutura:
 {
+  "text": "Qual foi um dos principais focos de atuação do Partido Liberal?",
+  "option_a": "Conservação da escravidão.",
+  "option_b": "Apoio à abolição do escravismo.",
+  "option_c": "Estabelecimento de uma monarquia divina.",
+  "option_d": "Estagnação do comércio.",
+  "option_e": "Apoio às potências europeias.",
+  "correct_answer": "B",
+  "explanation": "O Partido Liberal promoveu discussões sobre a abolição do escravismo e a modernização de instituições.",
+  "difficulty": "Médio",
   "theme": "História do Brasil",
   "subject": "Os Partidos Políticos",
-  "text": "Texto da questão...",
-  "option_a": "Alternativa A",
-  ...
+  "topic": "Questão Inédita",
+  "is_from_previous_exam": false,
+  "exam_year": null
 }`}
             className="min-h-[300px] font-mono"
           />
