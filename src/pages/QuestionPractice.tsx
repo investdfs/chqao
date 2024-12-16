@@ -64,7 +64,7 @@ const QuestionPracticeContent = () => {
   if (!currentQuestion) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-light/30 via-white to-accent-blue/10 flex flex-col relative">
+    <div className="min-h-screen bg-gradient-to-br from-primary-light/30 via-white to-accent-blue/10 flex flex-col relative overflow-hidden">
       <BackgroundAnimation />
       <div className="flex-1 p-4 md:p-6 lg:p-8 flex items-center justify-center relative z-10">
         <div className="max-w-4xl w-full mx-auto">

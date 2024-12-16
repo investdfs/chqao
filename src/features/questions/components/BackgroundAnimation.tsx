@@ -8,39 +8,42 @@ const BackgroundAnimation = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    console.log("Inicializando animação Three.js");
+
     // Setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     
-    renderer.setSize(window.innerWidth, 300); // Altura fixa para o cabeçalho
+    renderer.setSize(window.innerWidth, 300);
     renderer.setClearColor(0x000000, 0);
     containerRef.current.appendChild(renderer.domElement);
 
-    // Criar partículas
+    // Criar partículas com mais densidade e tamanho
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 1000;
+    const particlesCount = 2000; // Aumentado número de partículas
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 5;
+      posArray[i] = (Math.random() - 0.5) * 8; // Aumentado espaço de distribuição
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
-    // Material com gradiente roxo suave
+    // Material com partículas mais visíveis
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.005,
+      size: 0.01, // Aumentado tamanho das partículas
       color: 0x8B5CF6,
       transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending
+      opacity: 0.9, // Aumentada opacidade
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true
     });
 
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
-    camera.position.z = 2;
+    camera.position.z = 3; // Ajustada posição da câmera
 
     // Mouse movement handler
     const onMouseMove = (event: MouseEvent) => {
@@ -56,12 +59,12 @@ const BackgroundAnimation = () => {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      particlesMesh.rotation.x += 0.0005;
-      particlesMesh.rotation.y += 0.0005;
+      particlesMesh.rotation.x += 0.001;
+      particlesMesh.rotation.y += 0.001;
 
-      // Suave movimento baseado na posição do mouse
-      particlesMesh.rotation.x += (mousePosition.current.y * 0.5 - particlesMesh.rotation.x) * 0.05;
-      particlesMesh.rotation.y += (mousePosition.current.x * 0.5 - particlesMesh.rotation.y) * 0.05;
+      // Movimento mais suave baseado na posição do mouse
+      particlesMesh.rotation.x += (mousePosition.current.y * 0.3 - particlesMesh.rotation.x) * 0.03;
+      particlesMesh.rotation.y += (mousePosition.current.x * 0.3 - particlesMesh.rotation.y) * 0.03;
 
       renderer.render(scene, camera);
     };
@@ -79,6 +82,7 @@ const BackgroundAnimation = () => {
 
     // Cleanup
     return () => {
+      console.log("Limpando animação Three.js");
       if (containerRef.current) {
         containerRef.current.removeChild(renderer.domElement);
       }
@@ -90,8 +94,11 @@ const BackgroundAnimation = () => {
   return (
     <div 
       ref={containerRef} 
-      className="absolute top-0 left-0 w-full h-[300px] pointer-events-none z-0"
-      style={{ background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.1), transparent)' }}
+      className="absolute top-0 left-0 w-full h-[300px] pointer-events-none"
+      style={{ 
+        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.15), transparent)',
+        zIndex: 0
+      }}
     />
   );
 };
