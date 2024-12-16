@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { StudyConsistencyChart } from "./StudyConsistencyChart";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StudyConsistencyProps {
   consecutiveDays: number;
@@ -26,20 +28,50 @@ interface StudyConsistencyProps {
   }>;
 }
 
-export const StudyConsistency = ({ consecutiveDays, studyDays }: StudyConsistencyProps) => {
+export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => {
   const [selectedRange, setSelectedRange] = useState<string>("all");
   
-  // Generate array of all days 1-31 with default "not studied" status
+  const { data: loginDays = [] } = useQuery({
+    queryKey: ['loginDays'],
+    queryFn: async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.user?.id) return [];
+
+      console.log("Buscando dias de login para o usuário:", session.user.id);
+      
+      const { data, error } = await supabase
+        .rpc('get_login_days', {
+          student_id_param: session.user.id
+        });
+
+      if (error) {
+        console.error('Erro ao buscar dias de login:', error);
+        return [];
+      }
+
+      console.log("Dias de login encontrados:", data);
+      return data;
+    }
+  });
+
+  // Gerar array com todos os dias do mês atual
   const allDays = Array.from({ length: 31 }, (_, i) => {
     const currentDate = new Date();
     currentDate.setDate(i + 1);
+    
+    // Encontrar se existe login para este dia
+    const loginDay = loginDays.find(day => {
+      const dayDate = new Date(day.date);
+      return dayDate.getDate() === (i + 1);
+    });
+
     return {
       date: currentDate.toISOString(),
-      studied: false // Always set to false by default
+      studied: loginDay?.has_login || false
     };
   });
 
-  // Filter days based on selected range
+  // Filtrar dias baseado no range selecionado
   const visibleDays = selectedRange === "all" 
     ? allDays 
     : allDays.slice((parseInt(selectedRange) - 1) * 7, parseInt(selectedRange) * 7);
