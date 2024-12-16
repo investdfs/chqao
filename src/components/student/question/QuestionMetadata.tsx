@@ -1,5 +1,5 @@
 interface QuestionMetadataProps {
-  id: string;  // Changed from number to string
+  id: string;
   subject?: string;
   topic?: string;
   source?: string;
@@ -10,7 +10,7 @@ const QuestionMetadata = ({ id, subject, topic, source }: QuestionMetadataProps)
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-primary dark:text-blue-400">
-          Q.{id}
+          {id}
         </span>
         {subject && (
           <>
