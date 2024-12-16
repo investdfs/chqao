@@ -3,7 +3,23 @@ import QuestionCard from "@/features/questions/components/QuestionCard";
 import { ExamModeProvider } from "@/features/questions/contexts/ExamModeContext";
 
 interface PreviewDialogProps {
-  question: any;
+  question: {
+    id: string;
+    text: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
+    explanation: string;
+    subject?: string;
+    topic?: string;
+    exam_year?: number;
+    is_from_previous_exam?: boolean;
+    image_url?: string;
+    secondary_id?: string;
+  };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -28,9 +44,7 @@ export const PreviewDialog = ({ question, open, onOpenChange }: PreviewDialogPro
               explanation: question.explanation,
               subject: question.subject,
               topic: question.topic,
-              exam_year: question.exam_year,
-              is_from_previous_exam: question.is_from_previous_exam,
-              image_url: question.image_url
+              secondary_id: question.secondary_id
             }}
             onNextQuestion={() => {}}
             onPreviousQuestion={() => {}}

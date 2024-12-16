@@ -16,8 +16,6 @@ interface QuestionContentProps {
     correctAnswer: string;
     explanation: string;
     secondaryId?: string;
-    examYear?: number;
-    isFromPreviousExam?: boolean;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -29,6 +27,7 @@ interface QuestionContentProps {
   questionNumber: number;
   totalQuestions: number;
   showQuestionId?: boolean;
+  studentId?: string;
 }
 
 const QuestionContent = memo(({
@@ -43,6 +42,7 @@ const QuestionContent = memo(({
   questionNumber,
   totalQuestions,
   showQuestionId = true,
+  studentId,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
@@ -56,8 +56,6 @@ const QuestionContent = memo(({
             topic={question.topic}
             source={question.source}
             secondaryId={question.secondaryId}
-            examYear={question.examYear}
-            isFromPreviousExam={question.isFromPreviousExam}
             showId={showQuestionId}
           />
 
