@@ -5,6 +5,18 @@ import * as XLSX from 'xlsx';
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 
+const SUBJECTS = [
+  "Língua Portuguesa",
+  "Geografia do Brasil",
+  "História do Brasil",
+  "Estatuto dos Militares",
+  "Licitações e Contratos",
+  "Regulamento de Administração do Exército (RAE)",
+  "Direito Militar e Sindicância no Âmbito do Exército Brasileiro",
+  "Código Penal Militar",
+  "Código de Processo Penal Militar"
+];
+
 export const DownloadQuestions = () => {
   const { toast } = useToast();
 
@@ -20,12 +32,12 @@ export const DownloadQuestions = () => {
       const { data: questions, error } = await supabase
         .from('questions')
         .select('*')
-        .eq('status', 'active') // Apenas questões ativas
+        .eq('status', 'active')
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      const formattedQuestions = questions.map(q => ({
+      const formatQuestion = (q: any) => ({
         theme: q.theme || 'História do Brasil',
         subject_matter: q.subject_matter || '',
         text: q.text,
@@ -42,9 +54,9 @@ export const DownloadQuestions = () => {
         exam_year: q.exam_year || '',
         exam_name: '',
         status: q.status || 'active'
-      }));
+      });
 
-      // Criar workbook e worksheet
+      // Criar workbook
       const workbook = XLSX.utils.book_new();
       
       // Adicionar aba de instruções
@@ -73,11 +85,8 @@ export const DownloadQuestions = () => {
       const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
       XLSX.utils.book_append_sheet(workbook, wsInstructions, "Instruções");
 
-      // Adicionar aba com as questões
-      const wsQuestions = XLSX.utils.json_to_sheet(formattedQuestions);
-
       // Configurar largura das colunas
-      wsQuestions['!cols'] = [
+      const columnConfig = [
         { wch: 30 },  // theme
         { wch: 30 },  // subject_matter
         { wch: 50 },  // text
@@ -95,8 +104,31 @@ export const DownloadQuestions = () => {
         { wch: 30 },  // exam_name
         { wch: 15 },  // status
       ];
-      
-      XLSX.utils.book_append_sheet(workbook, wsQuestions, "Questões");
+
+      // Adicionar aba com todas as questões
+      const allQuestionsFormatted = questions.map(formatQuestion);
+      const wsAllQuestions = XLSX.utils.json_to_sheet(allQuestionsFormatted);
+      wsAllQuestions['!cols'] = columnConfig;
+      XLSX.utils.book_append_sheet(workbook, wsAllQuestions, "Questões");
+
+      // Adicionar uma aba para cada matéria
+      for (const subject of SUBJECTS) {
+        const subjectQuestions = questions
+          .filter(q => q.subject === subject)
+          .map(formatQuestion);
+
+        if (subjectQuestions.length > 0) {
+          const wsSubject = XLSX.utils.json_to_sheet(subjectQuestions);
+          wsSubject['!cols'] = columnConfig;
+          
+          // Limitar o nome da aba para 31 caracteres (limite do Excel)
+          const shortSubjectName = subject.length > 28 
+            ? subject.substring(0, 28) + "..."
+            : subject;
+          
+          XLSX.utils.book_append_sheet(workbook, wsSubject, shortSubjectName);
+        }
+      }
 
       // Gerar nome do arquivo com data e quantidade de questões
       const currentDate = format(new Date(), 'dd-MM-yyyy');
