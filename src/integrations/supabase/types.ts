@@ -260,6 +260,35 @@ export type Database = {
         }
         Relationships: []
       }
+      student_logins: {
+        Row: {
+          created_at: string
+          id: string
+          login_date: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          login_date?: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          login_date?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_logins_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           created_at: string
@@ -373,6 +402,15 @@ export type Database = {
         Returns: {
           option_letter: string
           count: number
+        }[]
+      }
+      get_login_days: {
+        Args: {
+          student_id_param: string
+        }
+        Returns: {
+          date: string
+          has_login: boolean
         }[]
       }
       get_next_subject_sequence: {

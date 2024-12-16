@@ -2,6 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { StudyStats, SyllabusProgress, WeeklyStudyData } from "@/types/database/functions";
 
+interface LoginDay {
+  date: string;
+  has_login: boolean;
+}
+
 export const useStudentStats = (userId: string | undefined) => {
   const { data: studyStats } = useQuery({
     queryKey: ['studyStats', userId],
@@ -85,9 +90,34 @@ export const useStudentStats = (userId: string | undefined) => {
     initialData: []
   });
 
+  const { data: loginDays } = useQuery({
+    queryKey: ['loginDays', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      
+      console.log("Buscando dias de login:", userId);
+      
+      const { data, error } = await supabase
+        .rpc('get_login_days', {
+          student_id_param: userId
+        });
+
+      if (error) {
+        console.error('Erro ao buscar dias de login:', error);
+        return null;
+      }
+
+      console.log("Dias de login encontrados:", data);
+      return data as LoginDay[];
+    },
+    enabled: !!userId,
+    initialData: []
+  });
+
   return {
     studyStats,
     syllabusProgress,
     weeklyStudyData,
+    loginDays,
   };
 };
