@@ -12,7 +12,7 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    console.log("Inicializando animação Three.js com efeito de mira");
+    console.log("Inicializando animação Three.js com efeito de mira em tempo real");
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / height, 0.1, 1000);
@@ -87,6 +87,15 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
         x: (event.clientX / window.innerWidth) * 2 - 1,
         y: -(event.clientY / window.innerHeight) * 2 + 1,
       };
+
+      // Atualizar posição do crosshair diretamente
+      const targetX = mousePosition.current.x * 2;
+      const targetY = mousePosition.current.y * 2;
+      
+      crosshairH.position.x = targetX;
+      crosshairH.position.y = targetY;
+      crosshairV.position.x = targetX;
+      crosshairV.position.y = targetY;
     };
 
     window.addEventListener('mousemove', onMouseMove);
@@ -98,15 +107,6 @@ const BackgroundAnimation = ({ height = 300 }: BackgroundAnimationProps) => {
       circles.forEach((circle, index) => {
         circle.rotation.z += 0.001 * (index + 1);
       });
-
-      // Movimento suave do crosshair seguindo o mouse
-      const targetX = mousePosition.current.x * 2;
-      const targetY = mousePosition.current.y * 2;
-      
-      crosshairH.position.x += (targetX - crosshairH.position.x) * 0.1;
-      crosshairH.position.y += (targetY - crosshairH.position.y) * 0.1;
-      crosshairV.position.x += (targetX - crosshairV.position.x) * 0.1;
-      crosshairV.position.y += (targetY - crosshairV.position.y) * 0.1;
 
       renderer.render(scene, camera);
     };
