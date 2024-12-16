@@ -59,7 +59,7 @@ const NavigationButtons = memo(({
         onClick={onNext}
         disabled={questionNumber >= totalQuestions || isAnswering}
         className={`flex items-center gap-2 ${
-          hasAnswered ? "bg-primary hover:bg-primary/90 text-white animate-pulse" : ""
+          hasAnswered ? "bg-primary hover:bg-primary/90 text-white shadow-md" : ""
         }`}
       >
         Próxima
