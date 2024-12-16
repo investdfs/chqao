@@ -33,6 +33,7 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
+  studentId?: string;
 }
 
 const QuestionContent = memo(({
@@ -46,6 +47,7 @@ const QuestionContent = memo(({
   onPreviousQuestion,
   questionNumber,
   totalQuestions,
+  studentId,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
@@ -70,6 +72,16 @@ const QuestionContent = memo(({
 
           <div className="text-base dark:text-gray-200 text-left">
             {question.text}
+            {question.image_url && (
+              <div className="flex justify-center my-4">
+                <img 
+                  src={question.image_url} 
+                  alt="Questão" 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                  loading="lazy"
+                />
+              </div>
+            )}
           </div>
 
           <QuestionOptions

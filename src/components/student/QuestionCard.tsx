@@ -4,11 +4,6 @@ import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
-interface QuestionOption {
-  id: string;
-  text: string;
-}
-
 interface QuestionCardProps {
   question: {
     id: string;
