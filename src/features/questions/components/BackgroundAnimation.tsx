@@ -21,21 +21,21 @@ const BackgroundAnimation = () => {
 
     // Criar partículas com mais densidade e tamanho
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 2000; // Aumentado número de partículas
+    const particlesCount = 3000; // Aumentado número de partículas
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 8; // Aumentado espaço de distribuição
+      posArray[i] = (Math.random() - 0.5) * 10; // Aumentado espaço de distribuição
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     // Material com partículas mais visíveis
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.01, // Aumentado tamanho das partículas
+      size: 0.02, // Aumentado tamanho das partículas
       color: 0x8B5CF6,
       transparent: true,
-      opacity: 0.9, // Aumentada opacidade
+      opacity: 1, // Aumentada opacidade ao máximo
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true
     });
@@ -43,7 +43,7 @@ const BackgroundAnimation = () => {
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
-    camera.position.z = 3; // Ajustada posição da câmera
+    camera.position.z = 4; // Ajustada posição da câmera para melhor visualização
 
     // Mouse movement handler
     const onMouseMove = (event: MouseEvent) => {
@@ -59,12 +59,12 @@ const BackgroundAnimation = () => {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      particlesMesh.rotation.x += 0.001;
-      particlesMesh.rotation.y += 0.001;
+      particlesMesh.rotation.x += 0.002; // Aumentada velocidade de rotação
+      particlesMesh.rotation.y += 0.002;
 
-      // Movimento mais suave baseado na posição do mouse
-      particlesMesh.rotation.x += (mousePosition.current.y * 0.3 - particlesMesh.rotation.x) * 0.03;
-      particlesMesh.rotation.y += (mousePosition.current.x * 0.3 - particlesMesh.rotation.y) * 0.03;
+      // Movimento mais suave e amplo baseado na posição do mouse
+      particlesMesh.rotation.x += (mousePosition.current.y * 0.5 - particlesMesh.rotation.x) * 0.05;
+      particlesMesh.rotation.y += (mousePosition.current.x * 0.5 - particlesMesh.rotation.y) * 0.05;
 
       renderer.render(scene, camera);
     };
@@ -96,7 +96,7 @@ const BackgroundAnimation = () => {
       ref={containerRef} 
       className="absolute top-0 left-0 w-full h-[300px] pointer-events-none"
       style={{ 
-        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.15), transparent)',
+        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.3), transparent)',
         zIndex: 0
       }}
     />
