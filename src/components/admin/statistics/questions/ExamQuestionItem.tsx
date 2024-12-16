@@ -10,6 +10,18 @@ interface ExamQuestionItemProps {
   onPreview: (question: any) => void;
 }
 
+const VALID_SUBJECTS = [
+  "Língua Portuguesa",
+  "Geografia do Brasil",
+  "História do Brasil",
+  "Estatuto dos Militares",
+  "Licitações e Contratos",
+  "Regulamento de Administração do Exército (RAE)",
+  "Direito Militar e Sindicância no Âmbito do Exército Brasileiro",
+  "Código Penal Militar",
+  "Código de Processo Penal Militar"
+];
+
 export const ExamQuestionItem = ({
   question,
   onDelete,
@@ -43,12 +55,14 @@ export const ExamQuestionItem = ({
     }
   };
 
+  const subject = VALID_SUBJECTS.find(s => s === question.subject) || "Matéria não especificada";
+
   return (
     <div className="p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
       <div className="flex justify-between items-start gap-4 mb-2">
         <div className="flex-1">
           <div className="text-sm font-medium mb-1 space-y-1">
-            <div className="text-primary/70">{question.subject}</div>
+            <div className="text-primary/70">{subject}</div>
             <div>Concurso: EIPS/CHQAO {question.exam_year}</div>
           </div>
           <div className="text-sm text-muted-foreground">
