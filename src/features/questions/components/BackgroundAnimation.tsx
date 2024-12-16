@@ -10,41 +10,45 @@ const BackgroundAnimation = () => {
 
     console.log("Inicializando animação Three.js");
 
-    // Setup
+    // Setup com alpha: true para transparência
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 300, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ 
+      alpha: true, 
+      antialias: true,
+      powerPreference: "high-performance"
+    });
     
     renderer.setSize(window.innerWidth, 300);
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0x000000, 0); // Fundo transparente
     containerRef.current.appendChild(renderer.domElement);
 
-    // Criar partículas com mais densidade e tamanho
+    // Criar partículas com alta densidade
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 3000;
+    const particlesCount = 5000; // Aumentado número de partículas
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 15; // Aumentado espaço de distribuição
+      posArray[i] = (Math.random() - 0.5) * 20; // Maior área de distribuição
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
-    // Material com partículas mais visíveis
+    // Material otimizado para melhor visibilidade
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.05, // Aumentado significativamente o tamanho das partículas
+      size: 0.08, // Partículas maiores
       color: 0x8B5CF6,
       transparent: true,
-      opacity: 1,
+      opacity: 0.8,
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true,
-      depthWrite: false // Adicionado para melhorar a visibilidade
+      depthWrite: false,
     });
 
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
-    camera.position.z = 5; // Ajustada posição da câmera
+    camera.position.z = 8; // Câmera mais distante para ver mais partículas
 
     // Mouse movement handler
     const onMouseMove = (event: MouseEvent) => {
@@ -56,25 +60,25 @@ const BackgroundAnimation = () => {
 
     window.addEventListener('mousemove', onMouseMove);
 
-    // Animation
+    // Animation com rotação mais suave
     const animate = () => {
       requestAnimationFrame(animate);
 
-      particlesMesh.rotation.x += 0.002;
-      particlesMesh.rotation.y += 0.002;
+      particlesMesh.rotation.x += 0.001;
+      particlesMesh.rotation.y += 0.001;
 
-      // Movimento mais suave e amplo baseado na posição do mouse
-      particlesMesh.rotation.x += (mousePosition.current.y * 0.5 - particlesMesh.rotation.x) * 0.05;
-      particlesMesh.rotation.y += (mousePosition.current.x * 0.5 - particlesMesh.rotation.y) * 0.05;
+      // Movimento suave baseado no mouse
+      particlesMesh.rotation.x += (mousePosition.current.y * 0.3 - particlesMesh.rotation.x) * 0.05;
+      particlesMesh.rotation.y += (mousePosition.current.x * 0.3 - particlesMesh.rotation.y) * 0.05;
 
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // Resize handler
+    // Resize handler otimizado
     const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.aspect = window.innerWidth / 300;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, 300);
     };
@@ -95,9 +99,9 @@ const BackgroundAnimation = () => {
   return (
     <div 
       ref={containerRef} 
-      className="absolute top-0 left-0 w-full h-[300px] pointer-events-none"
+      className="absolute top-0 left-0 w-full h-[300px] pointer-events-none overflow-hidden"
       style={{ 
-        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.4), transparent)',
+        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.15), transparent)',
         zIndex: 0
       }}
     />
