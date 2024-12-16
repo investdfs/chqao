@@ -27,15 +27,14 @@ const PreviousAnswerInfo = memo(({ questionId, studentId }: PreviousAnswerInfoPr
           .eq('question_id', questionId)
           .eq('student_id', studentId)
           .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+          .limit(1);
 
         if (error) {
           console.error('Erro ao buscar resposta anterior:', error);
           return null;
         }
 
-        return data;
+        return data?.[0] || null;
       } catch (error) {
         console.error('Erro ao buscar resposta anterior:', error);
         return null;
