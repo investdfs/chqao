@@ -59,7 +59,9 @@ export const useLoginControl = () => {
 
       console.log('Processed login data:', Array.from(studentMap.values()));
       return Array.from(studentMap.values());
-    }
+    },
+    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 15000, // Consider data stale after 15 seconds
   });
 
   return {
