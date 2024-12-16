@@ -34,14 +34,19 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
   const { data: loginDays = [] } = useQuery({
     queryKey: ['loginDays'],
     queryFn: async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.user?.id) return [];
-
-      console.log("Buscando dias de login para o usuário:", session.user.id);
+      const { data } = await supabase.auth.getSession();
+      const userId = data.session?.user?.id;
       
-      const { data, error } = await supabase
+      if (!userId) {
+        console.log("Usuário não autenticado");
+        return [];
+      }
+
+      console.log("Buscando dias de login para o usuário:", userId);
+      
+      const { data: loginData, error } = await supabase
         .rpc('get_login_days', {
-          student_id_param: session.user.id
+          student_id_param: userId
         });
 
       if (error) {
@@ -49,8 +54,8 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
         return [];
       }
 
-      console.log("Dias de login encontrados:", data);
-      return data;
+      console.log("Dias de login encontrados:", loginData);
+      return loginData;
     }
   });
 
