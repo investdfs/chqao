@@ -4,21 +4,13 @@ interface QuestionMetadataProps {
   topic?: string;
   source?: string;
   secondaryId?: string;
-  showId?: boolean;
 }
 
-const QuestionMetadata = ({ 
-  id, 
-  subject, 
-  topic, 
-  source, 
-  secondaryId,
-  showId = true 
-}: QuestionMetadataProps) => {
+const QuestionMetadata = ({ id, subject, topic, source, secondaryId }: QuestionMetadataProps) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        {showId && secondaryId && (
+        {secondaryId && (
           <span className="text-sm font-medium text-primary dark:text-blue-400">
             {secondaryId}
           </span>

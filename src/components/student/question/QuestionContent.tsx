@@ -1,9 +1,11 @@
 import { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import QuestionMetadata from "./QuestionMetadata";
-import QuestionOptions from "@/features/questions/components/question/QuestionOptions";
+import EnhancedQuestionOptions from "./EnhancedQuestionOptions";
 import NavigationButtons from "./NavigationButtons";
 import QuestionFeedback from "./QuestionFeedback";
+import ThemeSelector from "@/components/theme/ThemeSelector";
+import QuestionCounter from "./QuestionCounter";
 import PreviousAnswerInfo from "./PreviousAnswerInfo";
 
 interface QuestionContentProps {
@@ -16,7 +18,6 @@ interface QuestionContentProps {
     options: Array<{ id: string; text: string }>;
     correctAnswer: string;
     explanation: string;
-    secondaryId?: string;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -28,7 +29,6 @@ interface QuestionContentProps {
   questionNumber: number;
   totalQuestions: number;
   studentId?: string;
-  showQuestionId?: boolean;
 }
 
 const QuestionContent = memo(({
@@ -43,41 +43,46 @@ const QuestionContent = memo(({
   questionNumber,
   totalQuestions,
   studentId,
-  showQuestionId = true,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
   return (
     <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
+        <div className="flex justify-end mb-4">
+          <ThemeSelector />
+        </div>
         <div className="space-y-6">
+          <div className="flex flex-col gap-4">
+            <QuestionCounter 
+              current={questionNumber} 
+              total={totalQuestions} 
+            />
+            <PreviousAnswerInfo 
+              questionId={question.id}
+              studentId={studentId}
+            />
+          </div>
+
           <QuestionMetadata
             id={question.id}
             subject={question.subject}
             topic={question.topic}
             source={question.source}
-            secondaryId={question.secondaryId}
-            showId={showQuestionId}
           />
-
-          {studentId && (
-            <PreviousAnswerInfo 
-              questionId={question.id}
-              studentId={studentId}
-            />
-          )}
 
           <div className="text-base dark:text-gray-200 text-left">
             {question.text}
           </div>
 
-          <QuestionOptions
+          <EnhancedQuestionOptions
             options={question.options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}
             correctAnswer={question.correctAnswer}
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
+            onAutoAnswer={handleAnswer}
           />
 
           <NavigationButtons
