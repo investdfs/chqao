@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Download, Eye, History, Trash2 } from "lucide-react";
+import { DownloadQuestions } from "./DownloadQuestions";
 
 interface ActionButtonsProps {
   questionsCount: number;
@@ -18,6 +19,8 @@ export const ActionButtons = ({ questionsCount, onShowQuestions, onShowResetDial
         <Download className="h-4 w-4" />
         Baixar Modelo de Planilha
       </Button>
+
+      <DownloadQuestions />
 
       <Button
         variant="outline"
