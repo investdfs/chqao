@@ -1,8 +1,8 @@
-import { useEffect, memo, useState } from "react";
+import { useEffect, memo } from "react";
 import QuestionHeader from "./question/QuestionHeader";
-import QuestionContent from "./question/QuestionContent";
+import QuestionContent from "@/components/student/question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
-import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
+import { useQuestionAnswer } from "../hooks/useQuestionAnswer";
 import { useExamMode } from "../contexts/ExamModeContext";
 import { ExamCompletionDialog } from "./exam/ExamCompletionDialog";
 
@@ -66,62 +66,57 @@ const QuestionCard = memo(({
     resetExamMode
   } = useExamMode();
 
-  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
-  const [isFocusMode, setIsFocusMode] = useState(false);
-
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
     handleReset();
   }, [question.id]);
 
-  const handleExamAnswer = () => {
-    if (isExamMode && selectedAnswer) {
-      addAnswer(question.id, selectedAnswer);
-      if (questionNumber === totalQuestions) {
-        setShowCompletionDialog(true);
-      } else {
-        onNextQuestion();
-      }
-    } else {
-      handleAnswer();
-    }
-  };
-
   if (isUserBlocked) {
     return <BlockedUserCard />;
   }
 
+  // Transform question data to match expected format
+  const transformedQuestion = {
+    ...question,
+    options: [
+      { id: "A", text: question.option_a },
+      { id: "B", text: question.option_b },
+      { id: "C", text: question.option_c },
+      { id: "D", text: question.option_d },
+      { id: "E", text: question.option_e },
+    ],
+    correctAnswer: question.correct_answer
+  };
+
   return (
     <div className="h-full flex flex-col space-y-4">
       <QuestionHeader 
-        isFocusMode={isFocusMode}
-        onFocusModeToggle={() => setIsFocusMode(!isFocusMode)}
+        isFocusMode={false}
+        onFocusModeToggle={() => {}}
       />
       
       <div className="flex-1 overflow-y-auto">
         <QuestionContent
-          question={question}
+          question={transformedQuestion}
           selectedAnswer={selectedAnswer}
           setSelectedAnswer={setSelectedAnswer}
           hasAnswered={!isExamMode && hasAnswered}
-          handleAnswer={handleExamAnswer}
+          handleAnswer={handleAnswer}
           handleReset={handleReset}
           onNextQuestion={onNextQuestion}
           onPreviousQuestion={onPreviousQuestion}
           questionNumber={questionNumber}
           totalQuestions={totalQuestions}
-          showQuestionId={showQuestionId}
         />
       </div>
 
       <ExamCompletionDialog
-        open={showCompletionDialog}
-        onOpenChange={setShowCompletionDialog}
+        open={false}
+        onOpenChange={() => {}}
         questions={questions}
         answers={examAnswers}
         startTime={examStartTime!}
         onFinish={() => {
-          setShowCompletionDialog(false);
           resetExamMode();
         }}
       />
