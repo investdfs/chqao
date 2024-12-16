@@ -15,26 +15,30 @@ const PreviousAnswerInfo = memo(({ questionId, studentId }: PreviousAnswerInfoPr
     queryFn: async () => {
       if (!studentId) return null;
 
-      const { data, error } = await supabase
-        .from('question_answers')
-        .select(`
-          *,
-          questions!inner (
-            correct_answer
-          )
-        `)
-        .eq('question_id', questionId)
-        .eq('student_id', studentId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('question_answers')
+          .select(`
+            *,
+            questions!inner (
+              correct_answer
+            )
+          `)
+          .eq('question_id', questionId)
+          .eq('student_id', studentId)
+          .order('created_at', { ascending: false })
+          .limit(1);
 
-      if (error) {
+        if (error) {
+          console.error('Erro ao buscar resposta anterior:', error);
+          return null;
+        }
+
+        return data?.[0] || null;
+      } catch (error) {
         console.error('Erro ao buscar resposta anterior:', error);
         return null;
       }
-
-      return data;
     },
     enabled: !!studentId && !!questionId,
   });
