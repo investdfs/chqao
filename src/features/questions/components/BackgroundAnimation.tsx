@@ -94,7 +94,7 @@ const BackgroundAnimation = () => {
       className="fixed top-0 left-0 w-full h-[300px] pointer-events-none"
       style={{ 
         background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.3), transparent)',
-        zIndex: -1
+        zIndex: 10
       }}
     />
   );
