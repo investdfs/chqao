@@ -2,7 +2,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import QuestionCard from "@/features/questions/components/QuestionCard";
 import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
 import { ExamModeProvider } from "@/features/questions/contexts/ExamModeContext";
-import BackgroundAnimation from "@/features/questions/components/BackgroundAnimation";
 import { PreviewUser } from "@/types/user";
 
 interface QuestionPracticeProps {
@@ -65,7 +64,6 @@ const QuestionPracticeContent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/30 via-white to-accent-blue/10 flex flex-col relative overflow-hidden">
-      <BackgroundAnimation />
       <div className="flex-1 p-4 md:p-6 lg:p-8 flex items-center justify-center relative z-10">
         <div className="max-w-4xl w-full mx-auto">
           <div className="transform transition-all duration-300 hover:translate-y-[-2px]">

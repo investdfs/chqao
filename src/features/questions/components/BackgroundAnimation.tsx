@@ -23,20 +23,20 @@ const BackgroundAnimation = () => {
     containerRef.current.appendChild(renderer.domElement);
 
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 8000;
+    const particlesCount = 5000; // Reduzido de 8000 para 5000
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 10;
+      posArray[i] = (Math.random() - 0.5) * 15;
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.15,
+      size: 0.1, // Reduzido de 0.15 para 0.1
       color: 0xFFFFFF,
       transparent: true,
-      opacity: 1,
+      opacity: 0.3, // Reduzido de 1 para 0.3
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true,
       depthWrite: false,
@@ -59,11 +59,11 @@ const BackgroundAnimation = () => {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      particlesMesh.rotation.x += 0.002;
-      particlesMesh.rotation.y += 0.002;
+      particlesMesh.rotation.x += 0.0005; // Reduzido de 0.002 para 0.0005
+      particlesMesh.rotation.y += 0.0005; // Reduzido de 0.002 para 0.0005
 
-      particlesMesh.rotation.x += (mousePosition.current.y * 0.5 - particlesMesh.rotation.x) * 0.1;
-      particlesMesh.rotation.y += (mousePosition.current.x * 0.5 - particlesMesh.rotation.y) * 0.1;
+      particlesMesh.rotation.x += (mousePosition.current.y * 0.2 - particlesMesh.rotation.x) * 0.05;
+      particlesMesh.rotation.y += (mousePosition.current.x * 0.2 - particlesMesh.rotation.y) * 0.05;
 
       renderer.render(scene, camera);
     };
@@ -93,7 +93,7 @@ const BackgroundAnimation = () => {
       ref={containerRef} 
       className="fixed top-0 left-0 w-full h-[300px] pointer-events-none"
       style={{ 
-        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.3), transparent)',
+        background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.1), transparent)',
         zIndex: 10
       }}
     />
