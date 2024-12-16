@@ -7,7 +7,6 @@ interface QuestionMetadataProps {
   examYear?: number;
   isFromPreviousExam?: boolean;
   showId?: boolean; // New prop to control ID visibility
-  secondaryId?: string; // New prop for the secondary ID
 }
 
 const QuestionMetadata = ({ 
@@ -18,12 +17,11 @@ const QuestionMetadata = ({
   className = "",
   examYear,
   isFromPreviousExam,
-  showId = true, // Default to true to maintain existing behavior
-  secondaryId
+  showId = true // Default to true to maintain existing behavior
 }: QuestionMetadataProps) => {
   const examInfo = isFromPreviousExam && examYear 
     ? `EIPS/CHQAO ${examYear} (Q${id.toString().padStart(4, '0')})`
-    : secondaryId || `Q.${id}`;
+    : `Q.${id}`;
 
   return (
     <div className={`flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 ${className}`}>
