@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Eye, Plus } from "lucide-react";
+import { Eye, Plus, UserCog } from "lucide-react";
 import { StudentList } from "./StudentList";
 import { useStudentManager } from "./manager/useStudentManager";
 import { AddStudentForm } from "./manager/AddStudentForm";
+import { LoginControlDialog } from "./manager/LoginControlDialog";
 
 export const StudentManager = () => {
   const {
@@ -49,6 +50,17 @@ export const StudentManager = () => {
                 />
               </DialogContent>
             </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <UserCog className="h-4 w-4" />
+                  Controle de Login
+                </Button>
+              </DialogTrigger>
+              <LoginControlDialog />
+            </Dialog>
+
             <Button onClick={() => setShowStudents(!showStudents)}>
               <Eye className="h-4 w-4 mr-2" />
               {showStudents ? "Ocultar" : "Ver Alunos"}
