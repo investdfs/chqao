@@ -15,6 +15,7 @@ interface QuestionContentProps {
     options: Array<{ id: string; text: string }>;
     correctAnswer: string;
     explanation: string;
+    secondaryId?: string;
   };
   selectedAnswer: string;
   setSelectedAnswer: (value: string) => void;
@@ -25,6 +26,7 @@ interface QuestionContentProps {
   onPreviousQuestion: () => void;
   questionNumber: number;
   totalQuestions: number;
+  studentId?: string;
 }
 
 const QuestionContent = memo(({
@@ -50,6 +52,7 @@ const QuestionContent = memo(({
             subject={question.subject}
             topic={question.topic}
             source={question.source}
+            secondaryId={question.secondaryId}
           />
 
           <div className="text-base dark:text-gray-200 text-left">

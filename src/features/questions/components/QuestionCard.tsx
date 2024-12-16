@@ -1,10 +1,8 @@
-import { useEffect, memo, useState } from "react";
+import { useEffect, memo } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
-import { useQuestionAnswer } from "@/features/questions/hooks/useQuestionAnswer";
-import { useExamMode } from "../contexts/ExamModeContext";
-import { ExamCompletionDialog } from "./exam/ExamCompletionDialog";
+import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
 interface QuestionCardProps {
   question: {
@@ -20,9 +18,7 @@ interface QuestionCardProps {
     source?: string;
     subject?: string;
     topic?: string;
-    exam_year?: number;
-    is_from_previous_exam?: boolean;
-    image_url?: string;
+    secondary_id?: string;
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
@@ -30,8 +26,6 @@ interface QuestionCardProps {
   totalQuestions: number;
   isUserBlocked?: boolean;
   studentId?: string;
-  showQuestionId?: boolean;
-  questions?: any[];
 }
 
 const QuestionCard = memo(({
@@ -42,8 +36,6 @@ const QuestionCard = memo(({
   totalQuestions,
   isUserBlocked = false,
   studentId,
-  showQuestionId = false,
-  questions = [],
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
@@ -58,72 +50,52 @@ const QuestionCard = memo(({
     studentId
   });
 
-  const {
-    isExamMode,
-    examStartTime,
-    examAnswers,
-    addAnswer,
-    resetExamMode
-  } = useExamMode();
-
-  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
-  const [isFocusMode, setIsFocusMode] = useState(false);
-
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
     handleReset();
   }, [question.id]);
 
-  const handleExamAnswer = () => {
-    if (isExamMode && selectedAnswer) {
-      addAnswer(question.id, selectedAnswer);
-      if (questionNumber === totalQuestions) {
-        setShowCompletionDialog(true);
-      } else {
-        onNextQuestion();
-      }
-    } else {
-      handleAnswer();
-    }
-  };
-
   if (isUserBlocked) {
     return <BlockedUserCard />;
   }
 
-  return (
-    <div className="h-full flex flex-col space-y-4">
-      <QuestionHeader 
-        isFocusMode={isFocusMode}
-        onFocusModeToggle={() => setIsFocusMode(!isFocusMode)}
-      />
-      
-      <div className="flex-1 overflow-y-auto">
-        <QuestionContent
-          question={question}
-          selectedAnswer={selectedAnswer}
-          setSelectedAnswer={setSelectedAnswer}
-          hasAnswered={!isExamMode && hasAnswered}
-          handleAnswer={handleExamAnswer}
-          handleReset={handleReset}
-          onNextQuestion={onNextQuestion}
-          onPreviousQuestion={onPreviousQuestion}
-          questionNumber={questionNumber}
-          totalQuestions={totalQuestions}
-          showQuestionId={showQuestionId}
-        />
-      </div>
+  // Transform the question format to match what QuestionContent expects
+  const formattedQuestion = {
+    id: question.id,
+    text: question.text,
+    subject: question.subject,
+    topic: question.topic,
+    source: question.source,
+    options: [
+      { id: 'A', text: question.option_a },
+      { id: 'B', text: question.option_b },
+      { id: 'C', text: question.option_c },
+      { id: 'D', text: question.option_d },
+      { id: 'E', text: question.option_e },
+    ],
+    correctAnswer: question.correct_answer,
+    explanation: question.explanation,
+    secondaryId: question.secondary_id
+  };
 
-      <ExamCompletionDialog
-        open={showCompletionDialog}
-        onOpenChange={setShowCompletionDialog}
-        questions={questions}
-        answers={examAnswers}
-        startTime={examStartTime!}
-        onFinish={() => {
-          setShowCompletionDialog(false);
-          resetExamMode();
-        }}
+  return (
+    <div className="space-y-6">
+      <QuestionHeader
+        isFocusMode={false}
+        onFocusModeToggle={() => {}}
+      />
+      <QuestionContent
+        question={formattedQuestion}
+        selectedAnswer={selectedAnswer}
+        setSelectedAnswer={setSelectedAnswer}
+        hasAnswered={hasAnswered}
+        handleAnswer={handleAnswer}
+        handleReset={handleReset}
+        onNextQuestion={onNextQuestion}
+        onPreviousQuestion={onPreviousQuestion}
+        questionNumber={questionNumber}
+        totalQuestions={totalQuestions}
+        studentId={studentId}
       />
     </div>
   );
