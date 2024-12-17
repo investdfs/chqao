@@ -51,12 +51,16 @@ export const BulkActionButtons = ({ selectedQuestions, onSuccess }: BulkActionBu
         value={selectedSubject}
         onValueChange={setSelectedSubject}
       >
-        <SelectTrigger className="w-[280px]">
+        <SelectTrigger className="w-[280px] bg-white dark:bg-gray-800">
           <SelectValue placeholder="Selecione a matéria" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg">
           {SUBJECTS.map((subject) => (
-            <SelectItem key={subject} value={subject}>
+            <SelectItem 
+              key={subject} 
+              value={subject}
+              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
               {subject}
             </SelectItem>
           ))}
