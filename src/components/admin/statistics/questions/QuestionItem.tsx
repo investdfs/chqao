@@ -36,8 +36,8 @@ export const QuestionItem = ({
         <div className="flex-1">
           <p className="font-medium">{question.text}</p>
           <div className="text-sm text-gray-500 mt-2">
-            <span>{question.subject}</span>
-            {question.theme && <span> • {question.theme}</span>}
+            <span>{question.theme}</span>
+            {question.subject && <span> • {question.subject}</span>}
             {question.topic && <span> • {question.topic}</span>}
             {question.difficulty && <span> • {question.difficulty}</span>}
           </div>
