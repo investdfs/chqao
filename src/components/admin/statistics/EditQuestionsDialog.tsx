@@ -6,6 +6,7 @@ import { QuestionFilters } from "./questions/QuestionFilters";
 import { QuestionsList } from "./questions/QuestionsList";
 import { QuestionEditForm } from "./questions/QuestionEditForm";
 import { QuestionsCounter } from "./questions/QuestionsCounter";
+import { BulkActionButtons } from "./questions/BulkActionButtons";
 
 interface EditQuestionsDialogProps {
   open: boolean;
@@ -158,6 +159,11 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     setSelectedQuestions(questionIds);
   };
 
+  const handleBulkActionSuccess = () => {
+    setSelectedQuestions([]);
+    fetchQuestions();
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -173,6 +179,11 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
           <QuestionFilters 
             filters={filters}
             onFilterChange={handleFilterChange}
+          />
+
+          <BulkActionButtons 
+            selectedQuestions={selectedQuestions}
+            onSuccess={handleBulkActionSuccess}
           />
 
           {loading ? (
