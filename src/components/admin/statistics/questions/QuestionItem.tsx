@@ -28,6 +28,13 @@ export const QuestionItem = ({
   onPreview
 }: QuestionItemProps) => {
   const renderMetadata = () => {
+    console.log("Renderizando metadados da questão:", {
+      theme: question.theme,
+      subject: question.subject,
+      topic: question.topic,
+      difficulty: question.difficulty
+    });
+
     const metadata = [
       question.theme || 'Sem tema',
       question.subject || 'Sem matéria',
