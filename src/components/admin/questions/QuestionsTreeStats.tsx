@@ -27,7 +27,8 @@ export const QuestionsTreeStats = () => {
 
       console.log('Questions stats data:', data);
       return data;
-    }
+    },
+    refetchInterval: 5000 // Atualiza a cada 5 segundos
   });
 
   const buildTree = (data: any[]) => {
@@ -83,6 +84,7 @@ export const QuestionsTreeStats = () => {
       tree.push(subjectNode);
     });
 
+    console.log('Built tree structure:', tree);
     return tree;
   };
 
