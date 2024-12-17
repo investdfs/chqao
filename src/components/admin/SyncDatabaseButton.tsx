@@ -18,15 +18,29 @@ export const SyncDatabaseButton = () => {
         'subjects-stats',     // Estatísticas de matérias
         'questions-tree-stats', // Árvore de questões
         'uploaded-pdfs',      // PDFs carregados
+        'active-questions-count', // Contador de questões ativas
+        'previous-exams-stats', // Estatísticas de provas anteriores
+        'subject-questions-count', // Contador por matéria
       ];
 
       // Atualiza todas as queries em paralelo
       await Promise.all(
         queriesToRefetch.map(queryKey => {
           console.log(`Atualizando dados de: ${queryKey}`);
-          return queryClient.refetchQueries({ queryKey: [queryKey] });
+          return queryClient.refetchQueries({ 
+            queryKey: [queryKey],
+            type: 'all', // Força atualização mesmo se os dados forem recentes
+            exact: false // Atualiza todas as queries que começam com esse prefixo
+          });
         })
       );
+
+      // Invalida o cache de todas as queries relacionadas a questões
+      await queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0].toString().includes('question')
+      });
+      
+      console.log('Todas as queries foram atualizadas com sucesso');
       
       toast({
         title: "Dados atualizados",
