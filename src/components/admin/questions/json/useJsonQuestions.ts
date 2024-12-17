@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { validateNewFormat, convertNewToOldFormat } from "@/utils/questionFormatConverter";
 
 export const useJsonQuestions = () => {
   const [open, setOpen] = useState(false);
@@ -14,37 +15,23 @@ export const useJsonQuestions = () => {
 
   const validateQuestions = (input: string) => {
     try {
-      // Remove possíveis caracteres inválidos
       const cleanInput = input.trim();
       console.log("Processando JSON:", cleanInput);
       
       const parsedData = JSON.parse(cleanInput);
-      
-      // Se for um objeto único, converte para array
       const questionsArray = Array.isArray(parsedData) ? parsedData : [parsedData];
-      console.log("Questões convertidas para array:", questionsArray);
       
-      // Valida cada questão
+      console.log("Validando array de questões:", questionsArray);
+      
       questionsArray.forEach((q, index) => {
-        const requiredFields = [
-          'text', 'option_a', 'option_b', 'option_c', 
-          'option_d', 'option_e', 'correct_answer'
-        ];
-
-        requiredFields.forEach(field => {
-          if (!q[field]) {
-            throw new Error(`Campo obrigatório '${field}' ausente na questão ${index + 1}`);
-          }
-        });
-
-        // Valida o exam_year se presente
-        if (q.exam_year && !Number.isInteger(q.exam_year)) {
-          throw new Error(`Campo 'exam_year' deve ser um número inteiro na questão ${index + 1}`);
+        if (!validateNewFormat(q)) {
+          throw new Error(`Questão ${index + 1} está em formato inválido`);
         }
       });
 
       return questionsArray;
     } catch (error) {
+      console.error("Erro ao validar questões:", error);
       if (error instanceof SyntaxError) {
         throw new Error("JSON inválido. Verifique a formatação.");
       }
@@ -69,24 +56,21 @@ export const useJsonQuestions = () => {
       const validatedQuestions = validateQuestions(jsonInput);
       console.log("Questões validadas:", validatedQuestions);
 
-      // Prepara os dados para inserção
-      const questionsWithMetadata = validatedQuestions.map(q => ({
-        ...q,
-        subject: q.subject || subject, // Prioriza o subject do JSON
-        topic: q.topic || topic, // Prioriza o topic do JSON
-        difficulty: q.difficulty || 'Médio',
-        is_from_previous_exam: q.exam_year ? true : false,
+      // Converte questões para o formato antigo antes de inserir
+      const questionsToInsert = validatedQuestions.map(q => ({
+        ...convertNewToOldFormat(q),
+        subject: q.subject || subject,
+        topic: q.topic || topic,
         status: 'active'
       }));
 
-      console.log("Inserindo questões:", questionsWithMetadata);
+      console.log("Inserindo questões:", questionsToInsert);
 
       const { error } = await supabase
         .from('questions')
-        .insert(questionsWithMetadata);
+        .insert(questionsToInsert);
 
       if (error) {
-        console.error("Erro ao inserir questões:", error);
         throw error;
       }
 
@@ -96,7 +80,7 @@ export const useJsonQuestions = () => {
 
       toast({
         title: "Sucesso!",
-        description: `${questionsWithMetadata.length} questões inseridas com sucesso.`,
+        description: `${questionsToInsert.length} questões inseridas com sucesso.`,
       });
 
       resetForm();
