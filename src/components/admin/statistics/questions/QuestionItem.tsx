@@ -35,13 +35,12 @@ export const QuestionItem = ({
       difficulty: question.difficulty
     });
 
-    // Removido "Conhecimentos Gerais" e usando apenas os campos corretos
     const metadata = [
       question.theme || 'Sem tema',
       question.subject || 'Sem matéria',
-      question.topic || 'Sem tópico',
-      question.difficulty || 'Sem dificuldade'
-    ].filter(Boolean); // Remove valores vazios ou undefined
+      topic: question.topic || 'Sem tópico',
+      difficulty: question.difficulty || 'Sem dificuldade'
+    ].filter(Boolean);
     
     return metadata.join(' • ');
   };
