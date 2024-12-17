@@ -37,7 +37,9 @@ export const QuestionItem = ({
           <p className="font-medium">{question.text}</p>
           <div className="text-sm text-gray-500 mt-2">
             <span>{question.subject}</span>
+            {question.theme && <span> • {question.theme}</span>}
             {question.topic && <span> • {question.topic}</span>}
+            {question.difficulty && <span> • {question.difficulty}</span>}
           </div>
         </div>
         <div className="flex gap-2">
