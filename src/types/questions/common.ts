@@ -16,6 +16,8 @@ export interface Question {
   theme?: string;
   is_ai_generated?: boolean;
   status?: string;
+  is_from_previous_exam?: boolean;
+  exam_year?: number | null;
 }
 
 export interface PreviousExam {
