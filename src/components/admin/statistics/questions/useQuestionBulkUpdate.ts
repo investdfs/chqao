@@ -6,17 +6,22 @@ export const useQuestionBulkUpdate = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const updateQuestionsSubject = async (questionIds: string[]) => {
+  const updateQuestionsSubject = async (questionIds: string[], subject: string) => {
     if (!questionIds.length) return;
 
-    console.log("Atualizando matéria das questões:", questionIds);
+    console.log("Atualizando matéria das questões:", questionIds, "para", subject);
+
+    // Determina o tema baseado na matéria
+    const theme = ['Língua Portuguesa', 'Geografia do Brasil', 'História do Brasil'].includes(subject)
+      ? 'Conhecimentos Gerais'
+      : 'Conhecimentos Profissionais';
 
     try {
       const { error } = await supabase
         .from('questions')
         .update({ 
-          subject: 'História do Brasil',
-          theme: 'Conhecimentos Gerais'
+          subject,
+          theme
         })
         .in('id', questionIds);
 
