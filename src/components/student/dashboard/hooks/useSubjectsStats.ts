@@ -86,7 +86,7 @@ export const useSubjectsStats = () => {
       console.log("Processed subject groups:", subjectGroups);
       return subjectGroups;
     },
-    refetchInterval: 30000,
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
     refetchOnWindowFocus: true,
   });
 };
