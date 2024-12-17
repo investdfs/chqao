@@ -1,13 +1,16 @@
 import { Edit, Eye, EyeOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ExamQuestionItemProps {
   question: any;
   onDelete: (id: string) => Promise<void>;
-  onHide: (id: string) => Promise<void>;
-  onShow: (id: string) => Promise<void>;
+  onHide?: (id: string) => Promise<void>;
+  onShow?: (id: string) => Promise<void>;
   onEdit: (question: any) => void;
   onPreview: (question: any) => void;
+  onSelect: (selected: boolean) => void;
+  isSelected: boolean;
 }
 
 const VALID_SUBJECTS = [
@@ -28,7 +31,9 @@ export const ExamQuestionItem = ({
   onHide,
   onShow,
   onEdit,
-  onPreview
+  onPreview,
+  onSelect,
+  isSelected
 }: ExamQuestionItemProps) => {
   const handleDelete = async (id: string) => {
     try {
@@ -42,10 +47,10 @@ export const ExamQuestionItem = ({
 
   const handleVisibilityToggle = async (id: string, status: string) => {
     try {
-      if (status === 'active') {
+      if (status === 'active' && onHide) {
         await onHide(id);
         toast.success("Questão ocultada com sucesso.");
-      } else {
+      } else if (onShow) {
         await onShow(id);
         toast.success("Questão ativada com sucesso.");
       }
@@ -61,13 +66,20 @@ export const ExamQuestionItem = ({
   return (
     <div className="p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
       <div className="flex justify-between items-start gap-4 mb-2">
-        <div className="flex-1">
-          <div className="text-sm font-medium mb-1 space-y-1">
-            <div className="text-primary/70">{subject}</div>
-            <div>Concurso: EIPS/CHQAO {question.exam_year}</div>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {question.text}
+        <div className="flex items-start gap-4">
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={(checked) => onSelect(checked as boolean)}
+            className="mt-1"
+          />
+          <div className="flex-1">
+            <div className="text-sm font-medium mb-1 space-y-1">
+              <div className="text-primary/70">{subject}</div>
+              <div>Concurso: EIPS/CHQAO {question.exam_year}</div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {question.text}
+            </div>
           </div>
         </div>
         <div className="flex gap-2">
