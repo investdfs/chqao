@@ -3,7 +3,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Trash, EyeOff, Eye } from "lucide-react";
 
 interface QuestionItemProps {
-  question: any;
+  question: {
+    id: string;
+    text: string;
+    theme?: string;
+    subject?: string;
+    topic?: string;
+    difficulty?: string;
+    status?: string;
+  };
   isSelected: boolean;
   onSelect: (questionId: string) => void;
   onStatusChange: (questionId: string, status: 'hidden' | 'deleted') => void;
@@ -19,6 +27,17 @@ export const QuestionItem = ({
   onEdit,
   onPreview
 }: QuestionItemProps) => {
+  const renderMetadata = () => {
+    const metadata = [
+      question.theme || 'Sem tema',
+      question.subject || 'Sem matéria',
+      question.topic || 'Sem tópico',
+      question.difficulty || 'Sem dificuldade'
+    ];
+    
+    return metadata.join(' • ');
+  };
+
   return (
     <div 
       className={`p-4 border rounded-lg transition-colors ${
@@ -36,7 +55,7 @@ export const QuestionItem = ({
         <div className="flex-1">
           <p className="font-medium">{question.text}</p>
           <div className="text-sm text-gray-500 mt-2">
-            {question.theme} • {question.subject} • {question.topic} • {question.difficulty}
+            {renderMetadata()}
           </div>
         </div>
         <div className="flex gap-2">
