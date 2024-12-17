@@ -19,12 +19,12 @@ export const ExamsQuestionsSheet = ({
 }: ExamsQuestionsSheetProps) => {
   const [questions, setQuestions] = useState<any[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<any[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [previewQuestion, setPreviewQuestion] = useState<any | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
   const { toast } = useToast();
 
-  const handleYearSelect = async (year: number | null) => {
+  const handleYearSelect = async (year: string | null) => {
     console.log('Buscando questões do ano:', year);
     setSelectedYear(year);
     
@@ -37,7 +37,7 @@ export const ExamsQuestionsSheet = ({
       const { data, error } = await supabase
         .from('previous_exam_questions')
         .select('*')
-        .eq('exam_year', year);
+        .eq('exam_year', parseInt(year));
 
       if (error) throw error;
 
@@ -128,8 +128,11 @@ export const ExamsQuestionsSheet = ({
 
           {selectedQuestions.length > 0 && (
             <BulkActionButtons
-              selectedCount={selectedQuestions.length}
-              onDelete={handleBulkDelete}
+              selectedQuestions={selectedQuestions}
+              onSuccess={() => {
+                setSelectedQuestions([]);
+                handleBulkDelete();
+              }}
             />
           )}
 
@@ -141,7 +144,7 @@ export const ExamsQuestionsSheet = ({
                 onDelete={handleDelete}
                 onEdit={() => setEditingQuestion(question)}
                 onPreview={() => setPreviewQuestion(question)}
-                onSelect={handleQuestionSelect}
+                onSelect={(selected) => handleQuestionSelect(question, selected)}
                 isSelected={selectedQuestions.some(q => q.id === question.id)}
               />
             ))}
@@ -158,10 +161,10 @@ export const ExamsQuestionsSheet = ({
 
         {editingQuestion && (
           <EditQuestionsDialog
-            question={editingQuestion}
             open={!!editingQuestion}
-            onOpenChange={() => setEditingQuestion(null)}
-            onSave={handleQuestionUpdate}
+            onOpenChange={(open) => {
+              if (!open) setEditingQuestion(null);
+            }}
           />
         )}
       </SheetContent>
