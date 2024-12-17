@@ -1,12 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, Trash, EyeOff, Eye } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 interface QuestionItemProps {
-  question: any;
+  question: {
+    id: string;
+    text: string;
+    theme: string;
+    subject: string;
+    topic: string;
+    difficulty: string;
+  };
   isSelected: boolean;
-  onSelect: (questionId: string) => void;
-  onStatusChange: (questionId: string, status: 'hidden' | 'deleted') => void;
+  onSelect: (id: string) => void;
+  onStatusChange: (id: string, status: 'hidden' | 'deleted') => void;
   onEdit: (question: any) => void;
   onPreview: (question: any) => void;
 }
@@ -19,58 +26,59 @@ export const QuestionItem = ({
   onEdit,
   onPreview
 }: QuestionItemProps) => {
+  const renderMetadata = () => {
+    const parts = [
+      question.theme || 'Sem tema',
+      question.subject || 'Sem matéria',
+      question.topic || 'Questão Inédita',
+      question.difficulty || 'Médio'
+    ];
+    
+    return parts.join(' • ');
+  };
+
   return (
-    <div 
-      className={`p-4 border rounded-lg transition-colors ${
-        question.status === 'hidden' ? 'bg-red-50 border-red-200' : 
-        question.status === 'deleted' ? 'bg-gray-100 border-gray-200' : 
-        'hover:bg-gray-50'
-      }`}
-    >
-      <div className="flex items-start gap-4">
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={() => onSelect(question.id)}
-          className="mt-1"
-        />
-        <div className="flex-1">
-          <p className="font-medium">{question.text}</p>
-          <div className="text-sm text-gray-500 mt-2">
-            {question.theme} • {question.subject} • {question.topic} • {question.difficulty}
-          </div>
+    <div className="flex items-start gap-4 p-4 border rounded-lg bg-white hover:bg-gray-50">
+      <Checkbox
+        checked={isSelected}
+        onCheckedChange={() => onSelect(question.id)}
+        className="mt-1"
+      />
+      
+      <div className="flex-1 space-y-2">
+        <div className="text-sm text-muted-foreground">
+          {renderMetadata()}
         </div>
+        
+        <p className="text-sm">{question.text}</p>
+        
         <div className="flex gap-2">
           <Button
-            variant="ghost"
-            size="icon"
+            variant="outline"
+            size="sm"
             onClick={() => onPreview(question)}
-            title="Visualizar questão"
           >
-            <Eye className="h-4 w-4" />
+            <Eye className="h-4 w-4 mr-1" />
+            Visualizar
           </Button>
+          
           <Button
-            variant="ghost"
-            size="icon"
+            variant="outline"
+            size="sm"
             onClick={() => onEdit(question)}
-            title="Editar questão"
           >
-            <Edit className="h-4 w-4" />
+            <Pencil className="h-4 w-4 mr-1" />
+            Editar
           </Button>
+          
           <Button
-            variant="ghost"
-            size="icon"
+            variant="outline"
+            size="sm"
+            className="text-red-600 hover:text-red-700"
             onClick={() => onStatusChange(question.id, 'deleted')}
-            title="Excluir questão"
           >
-            <Trash className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onStatusChange(question.id, 'hidden')}
-            title="Ocultar questão"
-          >
-            <EyeOff className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 mr-1" />
+            Excluir
           </Button>
         </div>
       </div>
