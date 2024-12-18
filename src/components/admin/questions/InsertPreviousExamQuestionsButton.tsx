@@ -19,7 +19,9 @@ export const InsertPreviousExamQuestionsButton = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+        >
           Inserir Questões de Provas Anteriores
         </Button>
       </DialogTrigger>
