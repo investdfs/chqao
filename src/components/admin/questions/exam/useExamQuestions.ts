@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { validateNewFormat, convertNewToOldFormat } from "@/utils/questionFormatConverter";
+import type { Database } from "@/integrations/supabase/types";
+
+type QuestionInsert = Database['public']['Tables']['questions']['Insert'];
 
 export const useExamQuestions = () => {
   const [open, setOpen] = useState(false);
@@ -45,12 +48,24 @@ export const useExamQuestions = () => {
       });
 
       // Converte e prepara as questões para inserção
-      const questionsToInsert = questionsArray.map(question => ({
-        ...convertNewToOldFormat(question),
-        is_from_previous_exam: true,
-        exam_year: parseInt(examYear),
-        status: 'active'
-      }));
+      const questionsToInsert: QuestionInsert[] = questionsArray.map(question => {
+        const convertedQuestion = convertNewToOldFormat(question);
+        return {
+          ...convertedQuestion,
+          is_from_previous_exam: true,
+          exam_year: parseInt(examYear),
+          status: 'active',
+          // Garantindo que todos os campos obrigatórios estejam presentes
+          correct_answer: convertedQuestion.correct_answer,
+          option_a: convertedQuestion.option_a,
+          option_b: convertedQuestion.option_b,
+          option_c: convertedQuestion.option_c,
+          option_d: convertedQuestion.option_d,
+          option_e: convertedQuestion.option_e,
+          text: convertedQuestion.text,
+          subject: convertedQuestion.subject
+        };
+      });
 
       console.log("Questões preparadas para inserção:", questionsToInsert);
 
