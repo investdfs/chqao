@@ -12,6 +12,8 @@ export const useExamQuestions = () => {
 
   const processQuestions = async (questionsText: string) => {
     try {
+      console.log("Processando texto das questões:", questionsText);
+      
       // Transformar o texto em um array de objetos JSON
       const questionsArray = questionsText
         .split('\n')
@@ -31,7 +33,12 @@ export const useExamQuestions = () => {
         .select()
         .single();
 
-      if (examError) throw examError;
+      if (examError) {
+        console.error("Erro ao criar prova:", examError);
+        throw examError;
+      }
+
+      console.log("Prova criada com sucesso:", examData);
 
       const processedQuestions = questionsArray.map((q: ExamQuestion) => ({
         exam_id: examData.id,
@@ -44,8 +51,8 @@ export const useExamQuestions = () => {
         correct_answer: q.correct_answer,
         explanation: q.explanation || "Gabarito Oficial",
         subject: q.subject,
-        topic: q.topic,
-        theme: q.theme
+        topic: q.topic || null,
+        theme: q.theme || null
       }));
 
       return processedQuestions;
@@ -57,7 +64,7 @@ export const useExamQuestions = () => {
 
   const handleInsertQuestions = async () => {
     try {
-      console.log("Processando questões de prova anterior...");
+      console.log("Iniciando inserção de questões...");
       const processedQuestions = await processQuestions(questions);
 
       if (processedQuestions.length === 0) {
@@ -67,11 +74,14 @@ export const useExamQuestions = () => {
       console.log(`Inserindo ${processedQuestions.length} questões...`);
       const { error } = await supabase
         .from("previous_exam_questions")
-        .insert(processedQuestions)
-        .select();
+        .insert(processedQuestions);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro ao inserir questões:", error);
+        throw error;
+      }
 
+      console.log("Questões inseridas com sucesso!");
       toast({
         title: "Sucesso!",
         description: `${processedQuestions.length} questões foram inseridas com sucesso.`,

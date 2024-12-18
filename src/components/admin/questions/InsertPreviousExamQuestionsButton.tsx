@@ -50,6 +50,7 @@ export const InsertPreviousExamQuestionsButton = () => {
           <Button 
             onClick={handleInsertQuestions}
             disabled={!examYear || !questions.trim()}
+            className="bg-blue-600 hover:bg-blue-700"
           >
             Inserir
           </Button>
