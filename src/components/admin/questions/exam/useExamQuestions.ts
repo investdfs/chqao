@@ -7,7 +7,6 @@ export const useExamQuestions = () => {
   const [open, setOpen] = useState(false);
   const [questions, setQuestions] = useState("");
   const [examYear, setExamYear] = useState("");
-  const [examName, setExamName] = useState("");
   const { toast } = useToast();
 
   const processQuestions = async (questionsText: string) => {
@@ -27,7 +26,7 @@ export const useExamQuestions = () => {
         .from("previous_exams")
         .insert({
           year: parseInt(examYear),
-          name: examName || `Prova ${examYear}`,
+          name: "Concurso EIPS-CHQAO",
           description: `Prova do ano ${examYear}`
         })
         .select()
@@ -90,7 +89,6 @@ export const useExamQuestions = () => {
       setOpen(false);
       setQuestions("");
       setExamYear("");
-      setExamName("");
     } catch (error) {
       console.error("Erro ao inserir questões:", error);
       toast({
@@ -108,8 +106,6 @@ export const useExamQuestions = () => {
     setQuestions,
     examYear,
     setExamYear,
-    examName,
-    setExamName,
     handleInsertQuestions
   };
 };

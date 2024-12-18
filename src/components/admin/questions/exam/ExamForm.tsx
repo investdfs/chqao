@@ -31,7 +31,7 @@ export const ExamForm = ({
           <SelectTrigger>
             <SelectValue placeholder="Selecione o ano" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             {years.map((year) => (
               <SelectItem key={year} value={year}>
                 {year}
@@ -45,9 +45,9 @@ export const ExamForm = ({
         <Label htmlFor="examName">Nome da Prova</Label>
         <Input
           id="examName"
-          value={examName}
-          onChange={(e) => onExamNameChange(e.target.value)}
-          placeholder="Ex: EsIE 2024"
+          value="Concurso EIPS-CHQAO"
+          readOnly
+          className="bg-gray-100"
         />
       </div>
 
