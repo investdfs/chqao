@@ -45,7 +45,7 @@ export const ExamForm = ({
         <Label htmlFor="examName">Nome da Prova</Label>
         <Input
           id="examName"
-          value="Concurso EIPS-CHQAO"
+          value={examName}
           readOnly
           className="bg-gray-100"
         />
@@ -57,7 +57,20 @@ export const ExamForm = ({
           id="questions"
           value={questions}
           onChange={(e) => onQuestionsChange(e.target.value)}
-          placeholder='Cole aqui as questões no formato JSON, uma por linha...'
+          placeholder={`Cole aqui as questões no formato JSON, uma por linha...
+
+Exemplo:
+{
+    "questao": "Qual foi a principal razão para a transferência da Corte Portuguesa para o Brasil em 1808?",
+    "opcao_a": "A busca por novas colônias.",
+    "opcao_b": "A invasão napoleônica a Portugal.",
+    "opcao_c": "O interesse em expandir o comércio com a colônia.",
+    "opcao_d": "A necessidade de recursos naturais do Brasil.",
+    "opcao_e": "A busca por apoio militar.",
+    "resposta_correta": "B",
+    "comentario": "A transferência da Corte ocorre devido à invasão napoleônica a Portugal, que obrigou a família real a buscar refúgio no Brasil.",
+    "nivel": "Fácil"
+}`}
           className="min-h-[300px] font-mono text-sm"
         />
       </div>

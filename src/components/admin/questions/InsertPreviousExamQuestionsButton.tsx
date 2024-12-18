@@ -28,7 +28,7 @@ export const InsertPreviousExamQuestionsButton = () => {
         <DialogHeader>
           <DialogTitle>Inserir Questões de Provas Anteriores</DialogTitle>
           <DialogDescription>
-            Cole as questões no formato JSON, uma por linha. Cada questão deve conter os campos: text, option_a até option_e, correct_answer, explanation, difficulty, theme, subject e topic.
+            Cole as questões no formato JSON, uma por linha. Cada questão deve conter os campos: questao, opcao_a até opcao_e, resposta_correta, comentario e nivel.
           </DialogDescription>
         </DialogHeader>
 

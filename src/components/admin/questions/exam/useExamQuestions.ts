@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ExamQuestion } from "./types";
+import { validateNewFormat, convertNewToOldFormat } from "@/utils/questionFormatConverter";
 
 export const useExamQuestions = () => {
   const [open, setOpen] = useState(false);
@@ -9,83 +9,62 @@ export const useExamQuestions = () => {
   const [examYear, setExamYear] = useState("");
   const { toast } = useToast();
 
-  const processQuestions = async (questionsText: string) => {
+  const handleInsertQuestions = async () => {
+    if (!examYear || !questions.trim()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha o ano da prova e as questões.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      console.log("Processando texto das questões:", questionsText);
+      console.log("Processando questões para inserção...");
       
-      // Transformar o texto em um array de objetos JSON
-      const questionsArray = questionsText
+      // Processa cada linha como uma questão separada
+      const questionsArray = questions
         .split('\n')
         .filter(line => line.trim())
-        .map(line => JSON.parse(line));
+        .map(line => {
+          try {
+            return JSON.parse(line);
+          } catch (e) {
+            console.error("Erro ao fazer parse da linha:", line, e);
+            throw new Error(`Erro ao processar linha: ${line}`);
+          }
+        });
 
-      console.log(`Processando ${questionsArray.length} questões...`);
-      
-      // Primeiro criar a prova
-      const { data: examData, error: examError } = await supabase
-        .from("previous_exams")
-        .insert({
-          year: parseInt(examYear),
-          name: "Concurso EIPS-CHQAO",
-          description: `Prova do ano ${examYear}`
-        })
-        .select()
-        .single();
+      console.log("Questões parseadas:", questionsArray);
 
-      if (examError) {
-        console.error("Erro ao criar prova:", examError);
-        throw examError;
-      }
+      // Valida cada questão
+      questionsArray.forEach((question, index) => {
+        if (!validateNewFormat(question)) {
+          throw new Error(`Questão ${index + 1} está em formato inválido`);
+        }
+      });
 
-      console.log("Prova criada com sucesso:", examData);
-
-      const processedQuestions = questionsArray.map((q: ExamQuestion) => ({
-        exam_id: examData.id,
-        text: q.text,
-        option_a: q.option_a,
-        option_b: q.option_b,
-        option_c: q.option_c,
-        option_d: q.option_d,
-        option_e: q.option_e,
-        correct_answer: q.correct_answer,
-        explanation: q.explanation || "Gabarito Oficial",
-        subject: q.subject,
-        topic: q.topic || null,
-        theme: q.theme || null
+      // Converte e prepara as questões para inserção
+      const questionsToInsert = questionsArray.map(question => ({
+        ...convertNewToOldFormat(question),
+        is_from_previous_exam: true,
+        exam_year: parseInt(examYear),
+        status: 'active'
       }));
 
-      return processedQuestions;
-    } catch (error) {
-      console.error("Erro ao processar JSON das questões:", error);
-      throw new Error("Formato JSON inválido. Verifique se cada linha contém um objeto JSON válido.");
-    }
-  };
+      console.log("Questões preparadas para inserção:", questionsToInsert);
 
-  const handleInsertQuestions = async () => {
-    try {
-      console.log("Iniciando inserção de questões...");
-      const processedQuestions = await processQuestions(questions);
-
-      if (processedQuestions.length === 0) {
-        throw new Error("Nenhuma questão válida encontrada");
-      }
-
-      console.log(`Inserindo ${processedQuestions.length} questões...`);
       const { error } = await supabase
-        .from("previous_exam_questions")
-        .insert(processedQuestions);
+        .from('questions')
+        .insert(questionsToInsert);
 
-      if (error) {
-        console.error("Erro ao inserir questões:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log("Questões inseridas com sucesso!");
       toast({
         title: "Sucesso!",
-        description: `${processedQuestions.length} questões foram inseridas com sucesso.`,
+        description: `${questionsToInsert.length} questões inseridas com sucesso.`,
       });
-      
+
       setOpen(false);
       setQuestions("");
       setExamYear("");
@@ -93,7 +72,7 @@ export const useExamQuestions = () => {
       console.error("Erro ao inserir questões:", error);
       toast({
         title: "Erro ao inserir questões",
-        description: error.message || "Ocorreu um erro ao tentar inserir as questões. Tente novamente.",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     }
