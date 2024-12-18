@@ -69,7 +69,8 @@ Exemplo:
     "opcao_e": "A busca por apoio militar.",
     "resposta_correta": "B",
     "comentario": "A transferência da Corte ocorre devido à invasão napoleônica a Portugal, que obrigou a família real a buscar refúgio no Brasil.",
-    "nivel": "Fácil"
+    "nivel": "Fácil",
+    "status": "active"
 }`}
           className="min-h-[300px] font-mono text-sm"
         />
