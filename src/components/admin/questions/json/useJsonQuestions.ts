@@ -3,6 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { validateNewFormat, convertNewToOldFormat } from "@/utils/questionFormatConverter";
+import { TablesInsert } from "@/integrations/supabase/types";
 
 export const useJsonQuestions = () => {
   const [open, setOpen] = useState(false);
@@ -56,13 +57,28 @@ export const useJsonQuestions = () => {
       const validatedQuestions = validateQuestions(jsonInput);
       console.log("Questões validadas:", validatedQuestions);
 
-      // Converte questões para o formato antigo antes de inserir
-      const questionsToInsert = validatedQuestions.map(q => ({
-        ...convertNewToOldFormat(q),
-        subject: q.subject || subject,
-        topic: q.topic || topic,
-        status: 'active'
-      }));
+      // Converte questões para o formato antigo e garante que todos os campos obrigatórios estejam presentes
+      const questionsToInsert: TablesInsert<"questions">[] = validatedQuestions.map(q => {
+        const convertedQuestion = convertNewToOldFormat(q);
+        return {
+          text: convertedQuestion.text,
+          option_a: convertedQuestion.option_a,
+          option_b: convertedQuestion.option_b,
+          option_c: convertedQuestion.option_c,
+          option_d: convertedQuestion.option_d,
+          option_e: convertedQuestion.option_e,
+          correct_answer: convertedQuestion.correct_answer,
+          explanation: convertedQuestion.explanation,
+          difficulty: convertedQuestion.difficulty,
+          subject: q.subject || subject,
+          topic: q.topic || topic,
+          status: 'active',
+          is_from_previous_exam: convertedQuestion.is_from_previous_exam,
+          exam_year: convertedQuestion.exam_year,
+          theme: convertedQuestion.theme,
+          is_ai_generated: false
+        };
+      });
 
       console.log("Inserindo questões:", questionsToInsert);
 
