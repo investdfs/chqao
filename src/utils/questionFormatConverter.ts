@@ -17,7 +17,7 @@ export interface NewQuestionFormat {
   ano_exame: number | null;
 }
 
-export const convertNewToOldFormat = (newQuestion: NewQuestionFormat): Question => {
+export const convertNewToOldFormat = (newQuestion: NewQuestionFormat): Partial<Question> => {
   console.log("Convertendo questão do novo formato para o antigo:", newQuestion);
   
   return {
@@ -89,6 +89,11 @@ export const validateNewFormat = (question: any): question is NewQuestionFormat 
 
   if (question.resposta_correta && !["A", "B", "C", "D", "E"].includes(question.resposta_correta)) {
     console.error("Resposta correta inválida:", question.resposta_correta);
+    return false;
+  }
+
+  if (question.questao_de_prova_anterior && !["sim", "nao"].includes(question.questao_de_prova_anterior)) {
+    console.error("Valor inválido para questao_de_prova_anterior:", question.questao_de_prova_anterior);
     return false;
   }
 
