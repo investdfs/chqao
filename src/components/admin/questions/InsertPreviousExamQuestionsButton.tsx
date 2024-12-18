@@ -11,8 +11,6 @@ export const InsertPreviousExamQuestionsButton = () => {
     setQuestions,
     examYear,
     setExamYear,
-    examName,
-    setExamName,
     handleInsertQuestions
   } = useExamQuestions();
 
@@ -36,10 +34,10 @@ export const InsertPreviousExamQuestionsButton = () => {
 
         <ExamForm
           examYear={examYear}
-          examName={examName}
+          examName="Concurso EIPS-CHQAO"
           questions={questions}
           onExamYearChange={setExamYear}
-          onExamNameChange={setExamName}
+          onExamNameChange={() => {}}
           onQuestionsChange={setQuestions}
         />
 
