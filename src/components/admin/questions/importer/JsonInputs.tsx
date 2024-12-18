@@ -5,12 +5,16 @@ import { InsertPreviousExamQuestionsButton } from "../InsertPreviousExamQuestion
 export const JsonInputs = () => {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <JsonQuestionInput />
-        <JsonImageQuestionInput />
-      </div>
-      <div className="flex gap-4">
-        <InsertPreviousExamQuestionsButton />
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex-1">
+          <JsonQuestionInput />
+        </div>
+        <div className="flex-1">
+          <JsonImageQuestionInput />
+        </div>
+        <div className="flex items-end">
+          <InsertPreviousExamQuestionsButton />
+        </div>
       </div>
     </div>
   );
