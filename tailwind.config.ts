@@ -25,7 +25,7 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#8B5CF6", // Violeta vibrante
+          DEFAULT: "#8B5CF6",
           hover: "#7C3AED",
           light: "#F5F3FF",
           dark: "#6D28D9",
@@ -45,9 +45,9 @@ export default {
           light: "#FEF2F2",
         },
         card: {
-          DEFAULT: "#FFFFFF",
+          DEFAULT: "#F3F4F6",
           hover: "#F9FAFB",
-          glass: "rgba(255, 255, 255, 0.85)",
+          glass: "rgba(243, 244, 246, 0.85)",
         },
         accent: {
           purple: "#9333EA",
