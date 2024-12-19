@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --background: 220 25% 97%;
+    --foreground: 220 25% 20%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 25% 20%;
     --radius: 0.5rem;
   }
 
   body {
-    @apply bg-gradient-to-br from-primary-light/30 via-white to-accent-blue/10 min-h-screen text-foreground antialiased selection:bg-primary/20;
+    @apply bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 min-h-screen text-foreground antialiased selection:bg-primary/20;
   }
 
   /* Smooth scrolling */
@@ -57,23 +57,23 @@
   }
 
   .card {
-    @apply bg-card-glass backdrop-blur-md rounded-xl shadow-lg 
-           hover:shadow-xl transition-all duration-300 p-6 
-           hover:translate-y-[-4px] border border-white/20;
+    @apply bg-white/90 backdrop-blur-md rounded-xl shadow-sm 
+           hover:shadow-md transition-all duration-300 p-6 
+           hover:translate-y-[-2px] border border-gray-100;
   }
 
   .question-option {
-    @apply flex items-center gap-4 p-4 rounded-lg border-2 border-gray-200 
-           hover:border-primary hover:bg-primary-light/50 cursor-pointer 
+    @apply flex items-center gap-4 p-4 rounded-lg border border-gray-200 
+           hover:border-primary hover:bg-primary-light/30 cursor-pointer 
            transition-all shadow-sm hover:translate-y-[-2px] backdrop-blur-sm;
   }
 
   .question-option.correct {
-    @apply border-success bg-success-light/70 backdrop-blur-sm;
+    @apply border-success bg-success-light/50 backdrop-blur-sm;
   }
 
   .question-option.incorrect {
-    @apply border-error bg-error-light/70 backdrop-blur-sm;
+    @apply border-error bg-error-light/50 backdrop-blur-sm;
   }
 
   .table-row-hover {
@@ -94,13 +94,13 @@
 
   /* Glass effect */
   .glass {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-lg;
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm;
   }
 
   /* Gradient text */
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r 
-           from-primary via-accent-purple to-accent-pink 
+           from-primary via-primary-dark to-primary-hover 
            animate-shimmer bg-[length:200%_100%];
   }
 

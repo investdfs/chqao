@@ -25,23 +25,23 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#8B5CF6",
-          hover: "#7C3AED",
-          light: "#EDE9FE",
-          dark: "#6D28D9",
+          DEFAULT: "#6B7280", // Cinza neutro
+          hover: "#4B5563",
+          light: "#F3F4F6",
+          dark: "#374151",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#F3F4F6",
+          DEFAULT: "#E5E7EB",
           foreground: "#1F2937",
-          hover: "#E5E7EB",
+          hover: "#D1D5DB",
         },
         success: {
-          DEFAULT: "#10B981",
+          DEFAULT: "#059669", // Verde mais suave
           light: "#D1FAE5",
         },
         error: {
-          DEFAULT: "#EF4444",
+          DEFAULT: "#DC2626", // Vermelho menos intenso
           light: "#FEE2E2",
         },
         card: {
@@ -50,7 +50,7 @@ export default {
           glass: "rgba(255, 255, 255, 0.8)",
         },
         accent: {
-          purple: "#9333EA",
+          purple: "#8B5CF6",
           blue: "#3B82F6",
           pink: "#EC4899",
           orange: "#F97316",
@@ -61,10 +61,10 @@ export default {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'gradient-primary': 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
-        'gradient-secondary': 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
-        'gradient-success': 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-        'gradient-error': 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)',
+        'gradient-secondary': 'linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%)',
+        'gradient-success': 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        'gradient-error': 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
       },
       keyframes: {
         'fade-up': {
