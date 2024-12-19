@@ -193,69 +193,60 @@ export type Database = {
           correct_answer: string
           created_at: string
           difficulty: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_name: string | null
           exam_year: number | null
-          explanation: string | null
+          explanation: string
           id: string
           image_url: string | null
-          is_ai_generated: boolean | null
           is_from_previous_exam: boolean | null
           option_a: string
           option_b: string
           option_c: string
           option_d: string
           option_e: string
-          secondary_id: string | null
           status: string | null
           subject: string
-          subject_matter: string | null
           text: string
-          theme: string | null
           topic: string | null
         }
         Insert: {
           correct_answer: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_name?: string | null
           exam_year?: number | null
-          explanation?: string | null
+          explanation: string
           id?: string
           image_url?: string | null
-          is_ai_generated?: boolean | null
           is_from_previous_exam?: boolean | null
           option_a: string
           option_b: string
           option_c: string
           option_d: string
           option_e: string
-          secondary_id?: string | null
           status?: string | null
           subject: string
-          subject_matter?: string | null
           text: string
-          theme?: string | null
           topic?: string | null
         }
         Update: {
           correct_answer?: string
           created_at?: string
           difficulty?: Database["public"]["Enums"]["question_difficulty"] | null
+          exam_name?: string | null
           exam_year?: number | null
-          explanation?: string | null
+          explanation?: string
           id?: string
           image_url?: string | null
-          is_ai_generated?: boolean | null
           is_from_previous_exam?: boolean | null
           option_a?: string
           option_b?: string
           option_c?: string
           option_d?: string
           option_e?: string
-          secondary_id?: string | null
           status?: string | null
           subject?: string
-          subject_matter?: string | null
           text?: string
-          theme?: string | null
           topic?: string | null
         }
         Relationships: []
@@ -350,15 +341,7 @@ export type Database = {
           theme?: string
           topic?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "subject_structure_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "subject_structure"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       uploaded_pdfs: {
         Row: {
@@ -413,12 +396,6 @@ export type Database = {
           has_login: boolean
         }[]
       }
-      get_next_subject_sequence: {
-        Args: {
-          p_subject: string
-        }
-        Returns: number
-      }
       get_questions_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -460,12 +437,6 @@ export type Database = {
           display_order: number
           has_children: boolean
         }[]
-      }
-      get_subject_prefix: {
-        Args: {
-          p_subject: string
-        }
-        Returns: string
       }
       get_subjects_count: {
         Args: Record<PropertyKey, never>
