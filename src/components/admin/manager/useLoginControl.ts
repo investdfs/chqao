@@ -15,40 +15,44 @@ export const useLoginControl = () => {
     queryFn: async () => {
       console.log('Fetching student login data...');
       
-      // First get all students
-      const { data: students, error: studentsError } = await supabase
-        .from('students')
-        .select('id, name, email');
-
-      if (studentsError) {
-        console.error('Error fetching students:', studentsError);
-        throw studentsError;
-      }
-
-      // Then get login data for each student
-      const { data: logins, error: loginsError } = await supabase
+      const { data: logins, error } = await supabase
         .from('student_logins')
-        .select('student_id, login_date')
+        .select(`
+          student_id,
+          login_date,
+          students (
+            id,
+            name,
+            email
+          )
+        `)
         .order('login_date', { ascending: false });
 
-      if (loginsError) {
-        console.error('Error fetching student logins:', loginsError);
-        throw loginsError;
+      if (error) {
+        console.error('Error fetching student logins:', error);
+        throw error;
       }
 
       // Process the data to get the last login and total logins for each student
       const studentMap = new Map<string, LoginData>();
 
-      students.forEach((student) => {
-        const studentLogins = logins.filter(login => login.student_id === student.id);
-        
-        if (studentLogins.length > 0) {
-          studentMap.set(student.id, {
-            id: student.id,
+      logins.forEach((login) => {
+        const studentId = login.student_id;
+        const student = login.students;
+
+        if (!studentMap.has(studentId)) {
+          studentMap.set(studentId, {
+            id: studentId,
             name: student.name,
             email: student.email,
-            lastLogin: studentLogins[0].login_date,
-            totalLogins: studentLogins.length
+            lastLogin: login.login_date,
+            totalLogins: 1
+          });
+        } else {
+          const existing = studentMap.get(studentId)!;
+          studentMap.set(studentId, {
+            ...existing,
+            totalLogins: existing.totalLogins + 1
           });
         }
       });

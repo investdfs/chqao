@@ -1,29 +1,14 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
 
 export const useAdminManager = () => {
   const { toast } = useToast();
   const [showAdmins, setShowAdmins] = useState(false);
+  const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   
-  const { data: admins = [], isLoading, refetch } = useQuery({
-    queryKey: ['admins'],
-    queryFn: async () => {
-      console.log('Fetching admin data...');
-      const { data, error } = await supabase
-        .from('admins')
-        .select('id, email, name, status')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching admins:', error);
-        throw error;
-      }
-
-      return data;
-    }
-  });
+  const admins = sheetsData?.users.filter(user => user.type === 'admin') || [];
 
   const handleToggleStatus = async (adminId: string) => {
     try {
