@@ -17,125 +17,53 @@ export const QuestionsTreeStats = () => {
     queryKey: ['questions-tree-stats'],
     queryFn: async () => {
       console.log('Fetching questions stats...');
-      const { data, error } = await supabase
-        .rpc('get_questions_stats');
+      
+      // Get questions grouped by subject and topic
+      const { data: questions, error } = await supabase
+        .from('questions')
+        .select('subject, topic, id')
+        .eq('status', 'active');
 
       if (error) {
-        console.error('Error fetching questions stats:', error);
+        console.error('Error fetching questions:', error);
         throw error;
       }
 
-      console.log('Questions stats data:', data);
-      return data;
-    },
-    refetchInterval: 5000 // Atualiza a cada 5 segundos
-  });
+      // Process the data to create subject/topic hierarchy
+      const subjectMap = new Map<string, Map<string, number>>();
 
-  const buildTree = (data: any[]) => {
-    if (!data) return [];
-    
-    const tree: TreeNode[] = [];
-    const subjects = new Map<string, { themes: Map<string, Set<string>>, count: number }>();
-
-    // Group questions by subject, theme, and topic
-    data.forEach(q => {
-      if (!subjects.has(q.subject)) {
-        subjects.set(q.subject, { themes: new Map(), count: 0 });
-      }
-      const subject = subjects.get(q.subject)!;
-      subject.count += q.count || 0;
-
-      if (q.theme) {
-        if (!subject.themes.has(q.theme)) {
-          subject.themes.set(q.theme, new Set());
+      questions.forEach(q => {
+        if (!subjectMap.has(q.subject)) {
+          subjectMap.set(q.subject, new Map());
         }
-        if (q.topic) {
-          subject.themes.get(q.theme)!.add(q.topic);
-        }
-      }
-    });
-
-    // Build tree structure
-    subjects.forEach((subjectData, subjectName) => {
-      const subjectNode: TreeNode = {
-        name: subjectName,
-        count: subjectData.count,
-        children: []
-      };
-
-      subjectData.themes.forEach((topics, themeName) => {
-        const themeCount = data
-          .filter(q => q.theme === themeName)
-          .reduce((sum, q) => sum + (q.count || 0), 0);
-
-        const themeNode: TreeNode = {
-          name: themeName,
-          count: themeCount,
-          children: Array.from(topics).map(topicName => ({
-            name: topicName,
-            count: data
-              .filter(q => q.topic === topicName)
-              .reduce((sum, q) => sum + (q.count || 0), 0)
-          }))
-        };
-        subjectNode.children?.push(themeNode);
+        
+        const topicMap = subjectMap.get(q.subject)!;
+        const topic = q.topic || 'Sem tópico';
+        topicMap.set(topic, (topicMap.get(topic) || 0) + 1);
       });
 
-      tree.push(subjectNode);
-    });
+      // Convert to tree structure
+      const tree: TreeNode[] = [];
+      subjectMap.forEach((topicMap, subject) => {
+        const subjectNode: TreeNode = {
+          name: subject,
+          count: Array.from(topicMap.values()).reduce((a, b) => a + b, 0),
+          children: []
+        };
 
-    console.log('Built tree structure:', tree);
-    return tree;
-  };
+        topicMap.forEach((count, topic) => {
+          subjectNode.children?.push({
+            name: topic,
+            count: count
+          });
+        });
 
-  const toggleNode = (nodePath: string) => {
-    setExpandedNodes(prev => 
-      prev.includes(nodePath)
-        ? prev.filter(p => p !== nodePath)
-        : [...prev, nodePath]
-    );
-  };
+        tree.push(subjectNode);
+      });
 
-  const renderNode = (node: TreeNode, path: string = '', level: number = 0) => {
-    const isExpanded = expandedNodes.includes(path);
-    const hasChildren = node.children && node.children.length > 0;
-    const paddingLeft = `${level * 1.5}rem`;
-
-    return (
-      <div key={path} className="animate-fade-in">
-        <div
-          className={`
-            flex items-center gap-2 p-2 rounded-lg transition-all
-            ${hasChildren ? 'cursor-pointer hover:bg-primary/5' : 'pl-8'}
-          `}
-          style={{ paddingLeft }}
-          onClick={() => hasChildren && toggleNode(path)}
-        >
-          {hasChildren ? (
-            isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-primary/70" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-primary/70" />
-            )
-          ) : (
-            <div className="w-4" /> // Spacing for alignment
-          )}
-          <span className="flex-1 text-gray-700">{node.name}</span>
-          <span className="text-sm px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-            {node.count} questões
-          </span>
-        </div>
-        
-        {isExpanded && node.children && (
-          <div className="ml-4 border-l-2 border-primary/10">
-            {node.children.map((child, index) =>
-              renderNode(child, `${path}-${index}`, level + 1)
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
+      return tree;
+    }
+  });
 
   if (isLoading) {
     return (
@@ -157,8 +85,6 @@ export const QuestionsTreeStats = () => {
     );
   }
 
-  const treeData = buildTree(questionsStats || []);
-
   return (
     <Card className="shadow-lg hover:shadow-xl transition-all duration-300">
       <CardHeader>
@@ -168,7 +94,44 @@ export const QuestionsTreeStats = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {treeData.map((node, index) => renderNode(node, index.toString()))}
+        {questionsStats?.map((node, index) => (
+          <div key={index} className="animate-fade-in">
+            <div
+              className="flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer hover:bg-primary/5"
+              onClick={() => setExpandedNodes(prev => 
+                prev.includes(index.toString())
+                  ? prev.filter(p => p !== index.toString())
+                  : [...prev, index.toString()]
+              )}
+            >
+              {expandedNodes.includes(index.toString()) ? (
+                <ChevronDown className="h-4 w-4 text-primary/70" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-primary/70" />
+              )}
+              <span className="flex-1 text-gray-700">{node.name}</span>
+              <span className="text-sm px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                {node.count} questões
+              </span>
+            </div>
+            
+            {expandedNodes.includes(index.toString()) && node.children && (
+              <div className="ml-4 border-l-2 border-primary/10">
+                {node.children.map((child, childIndex) => (
+                  <div
+                    key={childIndex}
+                    className="flex items-center gap-2 p-2 pl-8"
+                  >
+                    <span className="flex-1 text-gray-700">{child.name}</span>
+                    <span className="text-sm px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      {child.count} questões
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </CardContent>
     </Card>
   );
