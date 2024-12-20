@@ -13,6 +13,7 @@ import QuestionPractice from "./pages/QuestionPractice";
 import TestDashboard from "./pages/TestDashboard";
 import PreviousExams from "./pages/PreviousExams";
 import { useAuthStore } from "./stores/authStore";
+import { PreviewUser } from "./types/user";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,7 +26,7 @@ const queryClient = new QueryClient({
 });
 
 // Dados mockados para preview (mantidos para compatibilidade)
-const previewUser = {
+const previewUser: PreviewUser = {
   id: 'preview-user-id',
   email: 'preview@example.com',
   name: 'Usuário Preview',

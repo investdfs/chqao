@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { User } from "@/hooks/useGoogleSheetsData";
+import { User } from "@/types/user";
 
 interface AdminListProps {
   admins: User[];
