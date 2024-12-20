@@ -25,7 +25,6 @@ export const useExamQuestions = () => {
     try {
       console.log("Processando questões para inserção...");
       
-      // Processa cada linha como uma questão separada
       const questionsArray = questions
         .split('\n')
         .filter(line => line.trim())
@@ -40,14 +39,12 @@ export const useExamQuestions = () => {
 
       console.log("Questões parseadas:", questionsArray);
 
-      // Valida cada questão
       questionsArray.forEach((question, index) => {
         if (!validateNewFormat(question)) {
           throw new Error(`Questão ${index + 1} está em formato inválido`);
         }
       });
 
-      // Converte e prepara as questões para inserção
       const questionsToInsert: QuestionInsert[] = questionsArray.map(question => {
         const convertedQuestion = convertNewToOldFormat(question);
         return {
@@ -55,7 +52,7 @@ export const useExamQuestions = () => {
           is_from_previous_exam: true,
           exam_year: parseInt(examYear),
           status: 'active',
-          // Garantindo que todos os campos obrigatórios estejam presentes
+          explanation: convertedQuestion.explanation || 'Sem explicação disponível',
           correct_answer: convertedQuestion.correct_answer,
           option_a: convertedQuestion.option_a,
           option_b: convertedQuestion.option_b,

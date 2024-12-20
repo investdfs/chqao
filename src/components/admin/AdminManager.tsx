@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AdminList } from "./AdminList";
 import { AdminManagerHeader } from "./manager/AdminManagerHeader";
 import { useAdminManager } from "./manager/useAdminManager";
+import { PreviewUser } from "@/types/user";
 
 export const AdminManager = () => {
   const {
@@ -28,7 +29,7 @@ export const AdminManager = () => {
       </CardHeader>
       {showAdmins && (
         <CardContent>
-          <AdminList admins={admins} onToggleStatus={handleToggleStatus} />
+          <AdminList admins={admins as PreviewUser[]} onToggleStatus={handleToggleStatus} />
         </CardContent>
       )}
     </Card>
