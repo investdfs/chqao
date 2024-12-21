@@ -5,7 +5,7 @@ const supabaseUrl = 'https://hletobxssphkhwqpkrif.supabase.co';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 if (!supabaseKey) {
-  console.error('Supabase anon key não encontrada!');
+  console.error('Erro crítico: NEXT_PUBLIC_SUPABASE_ANON_KEY não está definida!');
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
@@ -15,26 +15,40 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     detectSessionInUrl: true,
     flowType: 'pkce'
   },
-  db: {
-    schema: 'public'
-  },
   global: {
     fetch: fetch.bind(globalThis)
   }
 });
 
-// Função auxiliar para verificar o status da conexão
+// Função para verificar a conexão e autenticação
 export const checkSupabaseConnection = async () => {
   try {
     console.log('Verificando conexão com Supabase...');
-    const { data, error } = await supabase
+    
+    // Verifica se há uma sessão ativa
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error('Erro ao verificar sessão:', sessionError);
+      return false;
+    }
+
+    if (!session) {
+      console.warn('Nenhuma sessão ativa encontrada');
+      return false;
+    }
+
+    console.log('Sessão ativa encontrada para:', session.user.email);
+
+    // Tenta fazer uma query simples para verificar a conexão
+    const { error: queryError } = await supabase
       .from('questions')
       .select('id')
       .limit(1);
 
-    if (error) {
-      console.error('Erro ao conectar com Supabase:', error);
-      throw error;
+    if (queryError) {
+      console.error('Erro ao testar conexão:', queryError);
+      return false;
     }
 
     console.log('Conexão com Supabase estabelecida com sucesso!');
@@ -45,7 +59,7 @@ export const checkSupabaseConnection = async () => {
   }
 };
 
-// Verificar conexão ao inicializar
+// Verifica conexão ao inicializar
 checkSupabaseConnection().then((isConnected) => {
   if (!isConnected) {
     console.warn('Não foi possível estabelecer conexão inicial com Supabase');
