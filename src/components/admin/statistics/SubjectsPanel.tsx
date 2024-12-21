@@ -6,10 +6,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const SubjectsPanel = () => {
   const { data: subjectGroups, isLoading } = useSubjectsStats();
 
+  // Calculate total questions
+  const totalQuestions = subjectGroups?.reduce((total, group) => 
+    total + group.totalQuestions, 0) || 0;
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-bold">MATÉRIAS DISPONÍVEIS</CardTitle>
+        <div className="space-y-1">
+          <CardTitle className="text-sm font-bold">MATÉRIAS DISPONÍVEIS</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Total: {totalQuestions} questões
+          </p>
+        </div>
         <Book className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
