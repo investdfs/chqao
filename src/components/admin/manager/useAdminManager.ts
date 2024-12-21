@@ -18,28 +18,6 @@ export const useAdminManager = () => {
       const newStatus = admin.status === 'active' ? 'blocked' : 'active';
       
       console.log('Updating admin status:', { adminId, newStatus });
-      
-      // Check if admin exists first using maybeSingle()
-      const { data: existingAdmin, error: checkError } = await supabase
-        .from('admins')
-        .select('id')
-        .eq('id', adminId)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error('Error checking admin existence:', checkError);
-        throw checkError;
-      }
-
-      if (!existingAdmin) {
-        toast({
-          title: "Erro ao atualizar status",
-          description: "Administrador não encontrado.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       const { error } = await supabase
         .from('admins')
         .update({ status: newStatus })
@@ -66,28 +44,6 @@ export const useAdminManager = () => {
   const handleAddAdmin = async (email: string, name: string) => {
     try {
       console.log('Adding new admin:', { email, name });
-      
-      // Check if admin already exists
-      const { data: existingAdmin, error: checkError } = await supabase
-        .from('admins')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error('Error checking admin existence:', checkError);
-        throw checkError;
-      }
-
-      if (existingAdmin) {
-        toast({
-          title: "Erro ao adicionar administrador",
-          description: "Já existe um administrador com este email.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       const { error } = await supabase
         .from('admins')
         .insert([{ 

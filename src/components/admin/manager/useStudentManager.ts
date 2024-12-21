@@ -80,22 +80,6 @@ export const useStudentManager = () => {
 
   const handleAddStudent = async () => {
     try {
-      // First check if we're authenticated as admin
-      const { data: adminData, error: adminError } = await supabase
-        .from('admins')
-        .select('id')
-        .single();
-
-      if (adminError) {
-        console.error('Error checking admin status:', adminError);
-        toast({
-          title: "Erro de autenticação",
-          description: "Você precisa estar autenticado como administrador.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       console.log('Adding new student:', newStudent);
       const { error } = await supabase
         .from('students')
