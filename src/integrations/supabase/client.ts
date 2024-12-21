@@ -6,14 +6,15 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   auth: {
-    persistSession: true,
     autoRefreshToken: true,
+    persistSession: true,
     detectSessionInUrl: true,
     flowType: 'pkce'
   },
   global: {
     headers: {
-      'x-my-custom-header': 'my-app-name',
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`
     },
   },
   realtime: {
