@@ -17,16 +17,16 @@ export const useQuestionImporterQueries = () => {
       }
 
       console.log("Buscando temas, matérias e assuntos únicos...");
-      const { data: questionsData, error } = await supabase
-        .from("questions")
+      const { data: structureData, error } = await supabase
+        .from("subject_structure")
         .select("theme, subject, topic")
         .throwOnError();
 
       if (error) throw error;
 
-      const uniqueThemes = [...new Set(questionsData.map((q) => q.theme).filter(Boolean))];
-      const uniqueSubjects = [...new Set(questionsData.map((q) => q.subject))];
-      const uniqueTopics = [...new Set(questionsData.map((q) => q.topic).filter(Boolean))];
+      const uniqueThemes = [...new Set(structureData.map((q) => q.theme).filter(Boolean))];
+      const uniqueSubjects = [...new Set(structureData.map((q) => q.subject))];
+      const uniqueTopics = [...new Set(structureData.map((q) => q.topic).filter(Boolean))];
 
       return { uniqueThemes, uniqueSubjects, uniqueTopics };
     } catch (error) {

@@ -1,162 +1,43 @@
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase, checkSupabaseConnection } from "@/integrations/supabase/client";
+import { useQuestionImporterState } from "@/hooks/useQuestionImporterState";
+import { useQuestionImporterQueries } from "@/hooks/useQuestionImporterQueries";
 
 export const useQuestionImporter = () => {
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [showQuestions, setShowQuestions] = useState(false);
-  const [themes, setThemes] = useState<string[]>([]);
-  const [subjects, setSubjects] = useState<string[]>([]);
-  const [topics, setTopics] = useState<string[]>([]);
-  const [selectedTheme, setSelectedTheme] = useState<string>("");
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
-  const [selectedTopic, setSelectedTopic] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState("all");
-  const [showResetDialog, setShowResetDialog] = useState(false);
-  const { toast } = useToast();
+  const state = useQuestionImporterState();
+  const queries = useQuestionImporterQueries();
 
   const fetchThemesSubjectsAndTopics = async () => {
-    try {
-      const isConnected = await checkSupabaseConnection();
-      if (!isConnected) {
-        toast({
-          title: "Erro de conexão",
-          description: "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log("Buscando temas, matérias e assuntos únicos...");
-      const { data: questionsData, error } = await supabase
-        .from("questions")
-        .select("theme, subject, topic")
-        .throwOnError();
-
-      if (error) throw error;
-
-      const uniqueThemes = [...new Set(questionsData.map((q) => q.theme).filter(Boolean))];
-      const uniqueSubjects = [...new Set(questionsData.map((q) => q.subject))];
-      const uniqueTopics = [...new Set(questionsData.map((q) => q.topic).filter(Boolean))];
-
-      setThemes(uniqueThemes);
-      setSubjects(uniqueSubjects);
-      setTopics(uniqueTopics);
-    } catch (error) {
-      console.error("Erro ao buscar dados:", error);
-      toast({
-        title: "Erro ao carregar dados",
-        description: "Ocorreu um erro ao carregar os filtros. Tente novamente mais tarde.",
-        variant: "destructive",
-      });
+    const result = await queries.fetchThemesSubjectsAndTopics();
+    if (result) {
+      state.setThemes(result.uniqueThemes);
+      state.setSubjects(result.uniqueSubjects);
+      state.setTopics(result.uniqueTopics);
     }
   };
 
   const fetchQuestions = async () => {
-    try {
-      const isConnected = await checkSupabaseConnection();
-      if (!isConnected) {
-        toast({
-          title: "Erro de conexão",
-          description: "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log("Buscando questões do banco...");
-      let query = supabase.from("questions").select("*");
-
-      // Se "Todas as questões" estiver selecionado, não aplica nenhum filtro
-      if (searchTerm !== "all") {
-        switch (searchTerm) {
-          case "hidden":
-            // Mostrar apenas questões ocultas
-            query = query.eq("status", "hidden");
-            break;
-          case "exam":
-            // Mostrar apenas questões de provas anteriores
-            query = query.eq("is_from_previous_exam", true);
-            break;
-          case "new":
-            // Mostrar questões inéditas (não ocultas, não excluídas, não de provas)
-            query = query
-              .neq("status", "hidden")
-              .neq("status", "deleted")
-              .eq("is_from_previous_exam", false);
-            break;
-        }
-
-        // Aplicar filtros adicionais apenas se não estiver vazio
-        if (selectedTheme) query = query.eq("theme", selectedTheme);
-        if (selectedSubject) query = query.eq("subject", selectedSubject);
-        if (selectedTopic) query = query.eq("topic", selectedTopic);
-      }
-
-      // Ordenar por data de criação
-      query = query.order("created_at", { ascending: false });
-
-      const { data, error } = await query.throwOnError();
-      if (error) throw error;
-
-      console.log(`Encontradas ${data?.length || 0} questões com os filtros aplicados`);
-      setQuestions(data || []);
-    } catch (error) {
-      console.error("Erro ao buscar questões:", error);
-      toast({
-        title: "Erro ao carregar questões",
-        description: "Ocorreu um erro ao carregar as questões. Tente novamente mais tarde.",
-        variant: "destructive",
-      });
+    const questions = await queries.fetchQuestions({
+      searchTerm: state.searchTerm,
+      selectedTheme: state.selectedTheme,
+      selectedSubject: state.selectedSubject,
+      selectedTopic: state.selectedTopic,
+    });
+    if (questions) {
+      state.setQuestions(questions);
     }
   };
 
   const handleResetDatabase = async () => {
-    try {
-      console.log("Iniciando reset do banco de questões...");
-      const { error } = await supabase
-        .from("questions")
-        .delete()
-        .neq("id", "00000000-0000-0000-0000-000000000000");
-
-      if (error) throw error;
-
-      toast({
-        title: "Banco resetado",
-        description: "Todas as questões foram removidas com sucesso.",
-      });
-
-      setQuestions([]);
-      setShowResetDialog(false);
-    } catch (error) {
-      console.error("Erro ao resetar banco:", error);
-      toast({
-        title: "Erro ao resetar",
-        description: "Não foi possível resetar o banco de questões.",
-        variant: "destructive",
-      });
+    const success = await queries.handleResetDatabase();
+    if (success) {
+      state.setQuestions([]);
+      state.setShowResetDialog(false);
     }
   };
 
   return {
-    questions,
-    showQuestions,
-    setShowQuestions,
-    themes,
-    subjects,
-    topics,
-    selectedTheme,
-    selectedSubject,
-    selectedTopic,
-    searchTerm,
-    showResetDialog,
-    setShowResetDialog,
-    setSelectedTheme,
-    setSelectedSubject,
-    setSelectedTopic,
-    setSearchTerm,
+    ...state,
     fetchQuestions,
     fetchThemesSubjectsAndTopics,
-    handleResetDatabase
+    handleResetDatabase,
   };
 };
