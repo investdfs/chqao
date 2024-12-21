@@ -29,57 +29,50 @@ interface StudyConsistencyProps {
   }>;
 }
 
-export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => {
+export const StudyConsistency = ({ consecutiveDays = 0, studyDays = [] }: StudyConsistencyProps) => {
   const [selectedRange, setSelectedRange] = useState<string>("all");
   const { toast } = useToast();
   
-  const { data: loginDays = [], isError } = useQuery({
+  const { data: loginDays = [] } = useQuery({
     queryKey: ['loginDays'],
     queryFn: async () => {
-      // Primeiro verifica se há uma sessão ativa
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Erro ao verificar sessão:', sessionError);
-        throw new Error('Erro ao verificar autenticação');
-      }
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const userId = sessionData.session?.user?.id;
+        
+        if (!userId) {
+          console.log("Usuário não autenticado");
+          return [];
+        }
 
-      const userId = sessionData.session?.user?.id;
-      
-      if (!userId) {
-        console.log("Usuário não autenticado");
-        throw new Error('Usuário não autenticado');
-      }
+        console.log("Buscando dias de login para o usuário:", userId);
+        
+        const { data, error } = await supabase
+          .rpc('get_login_days', {
+            student_id_param: userId
+          });
 
-      console.log("Buscando dias de login para o usuário:", userId);
-      
-      const { data: loginData, error } = await supabase
-        .rpc('get_login_days', {
-          student_id_param: userId
+        if (error) {
+          console.error('Erro ao buscar dias de login:', error);
+          throw error;
+        }
+
+        console.log("Dias de login encontrados:", data);
+        return data || [];
+      } catch (error) {
+        console.error('Erro na consulta:', error);
+        toast({
+          title: "Erro ao carregar dados",
+          description: "Não foi possível carregar seu histórico de estudos.",
+          variant: "destructive",
         });
-
-      if (error) {
-        console.error('Erro ao buscar dias de login:', error);
-        throw error;
+        return [];
       }
-
-      console.log("Dias de login encontrados:", loginData);
-      return loginData;
     },
-    retry: 1,
     meta: {
-      errorMessage: "Não foi possível carregar seu histórico de estudos. Por favor, tente novamente mais tarde."
+      errorMessage: "Não foi possível carregar seu histórico de estudos."
     }
   });
-
-  // Show error toast if query fails
-  if (isError) {
-    toast({
-      title: "Erro ao carregar dados",
-      description: "Não foi possível carregar seu histórico de estudos. Por favor, tente novamente mais tarde.",
-      variant: "destructive",
-    });
-  }
 
   // Gerar array com todos os dias do mês atual
   const allDays = Array.from({ length: 31 }, (_, i) => {
