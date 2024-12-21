@@ -35,6 +35,14 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   }
 });
 
+// Interface para tipar o resultado da query
+interface QueryResult {
+  error?: {
+    message: string;
+  };
+  data?: unknown;
+}
+
 // Função helper para verificar conectividade
 export const checkSupabaseConnection = async () => {
   try {
@@ -53,10 +61,10 @@ export const checkSupabaseConnection = async () => {
       .single();
 
     // Corrida entre o timeout e a query
-    const result = await Promise.race([queryPromise, timeoutPromise]);
+    const result = await Promise.race([queryPromise, timeoutPromise]) as QueryResult;
     
-    // Verifica se o resultado é da query do Supabase e tem erro
-    if ('error' in result && result.error) {
+    // Verifica se o resultado tem erro
+    if (result?.error) {
       console.error('Erro ao verificar conexão com Supabase:', result.error);
       toast({
         title: "Erro de conexão",
