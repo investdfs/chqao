@@ -14,72 +14,24 @@ interface Update {
 
 export const UpdateHistory = () => {
   const { toast } = useToast();
-  const [updates, setUpdates] = React.useState<Update[]>([]);
-
-  React.useEffect(() => {
-    fetchUpdateHistory();
-  }, []);
-
-  const fetchUpdateHistory = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('update_history')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const formattedUpdates = data.map(update => ({
-        id: update.id,
-        timestamp: update.created_at,
-        changes: formatChanges(update.type, update.changes),
-      }));
-
-      setUpdates(formattedUpdates);
-    } catch (error) {
-      console.error('Erro ao carregar histórico:', error);
-      toast({
-        title: "Erro ao carregar histórico",
-        description: "Não foi possível carregar o histórico de atualizações.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const formatChanges = (type: string, changes: any): string => {
-    switch (type) {
-      case 'exam_reset':
-        return `Reset de provas - Ano: ${changes.year}${changes.subject !== 'all' ? `, Matéria: ${changes.subject}` : ''}`;
-      case 'question_insert':
-        return `Inserção de ${changes.count || 1} questão(ões)`;
-      case 'question_update':
-        return `Atualização de questão`;
-      case 'question_delete':
-        return `Exclusão de questão`;
-      default:
-        return 'Atualização no banco de questões';
-    }
-  };
+  const [updates] = React.useState<Update[]>([
+    {
+      id: "1",
+      timestamp: "2024-03-19 10:00:00",
+      changes: "Importação inicial de questões",
+    },
+    // More updates will be added dynamically
+  ]);
 
   const handleRestore = async (updateId: string) => {
     console.log("Tentando restaurar versão:", updateId);
     
     try {
-      const { data: updateData, error: updateError } = await supabase
-        .from('update_history')
-        .select('*')
-        .eq('id', updateId)
-        .single();
-
-      if (updateError) throw updateError;
-
-      if (updateData.type === 'exam_reset') {
-        // Implement restore logic based on the update type
-        toast({
-          title: "Restauração em desenvolvimento",
-          description: "Esta funcionalidade será implementada em breve.",
-        });
-      }
+      // TODO: Implement restore logic
+      toast({
+        title: "Restauração em desenvolvimento",
+        description: "Esta funcionalidade será implementada em breve.",
+      });
     } catch (error) {
       console.error("Erro ao restaurar versão:", error);
       toast({

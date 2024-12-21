@@ -9,7 +9,6 @@ import { InsertQuestionsButton } from "@/components/admin/questions/InsertQuesti
 import { QuestionsTreeStats } from "@/components/admin/questions/QuestionsTreeStats";
 import { SubjectsPanel } from "@/components/admin/statistics/SubjectsPanel";
 import { AuthToggleCard } from "@/components/admin/AuthToggleCard";
-import { UpdateHistory } from "@/components/admin/questions/UpdateHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
@@ -44,10 +43,7 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <DashboardHeader />
-          <div className="flex items-center gap-4">
-            <UpdateHistory />
-            <SyncDatabaseButton />
-          </div>
+          <SyncDatabaseButton />
         </div>
         
         <StatisticsCards

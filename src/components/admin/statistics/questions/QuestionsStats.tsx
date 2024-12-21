@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 
 interface QuestionsStatsData {
   totalQuestions: number;
@@ -18,98 +17,69 @@ export const useQuestionsStats = () => {
       questions: 0
     }
   });
-  const { toast } = useToast();
 
   const fetchStats = useCallback(async () => {
     try {
-      console.log('Iniciando busca de estatísticas...');
+      console.log('Fetching questions statistics...');
       
-      // Buscar total de questões regulares (apenas ativas)
+      // Fetch total regular questions (only active)
       const { count: regularQuestionsCount, error: regularError } = await supabase
         .from('questions')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'active');
 
       if (regularError) {
-        console.error('Erro ao buscar questões regulares:', regularError);
-        toast({
-          title: "Erro ao carregar estatísticas",
-          description: "Não foi possível carregar as questões regulares.",
-          variant: "destructive"
-        });
+        console.error('Error fetching regular questions:', regularError);
         return;
       }
 
-      console.log(`Total de questões regulares encontradas: ${regularQuestionsCount}`);
+      // Fetch previous exam questions count
+      const { count: examQuestionsCount, error: examError } = await supabase
+        .from('previous_exam_questions')
+        .select('*', { count: 'exact', head: true });
 
-      // Buscar provas anteriores
-      const { data: exams, error: examsError } = await supabase
+      if (examError) {
+        console.error('Error fetching exam questions:', examError);
+        return;
+      }
+
+      // Fetch previous exams statistics
+      const { data: examStats, error: examStatsError } = await supabase
         .from('previous_exams')
-        .select('id');
+        .select(`
+          id,
+          year,
+          previous_exam_questions (
+            count
+          )
+        `);
 
-      if (examsError) {
-        console.error('Erro ao buscar provas:', examsError);
-        toast({
-          title: "Erro ao carregar provas",
-          description: "Não foi possível carregar as provas anteriores.",
-          variant: "destructive"
-        });
+      if (examStatsError) {
+        console.error('Error fetching exam stats:', examStatsError);
         return;
       }
 
-      const totalExams = exams?.length || 0;
-      console.log(`Total de provas anteriores encontradas: ${totalExams}`);
+      const totalExams = examStats?.length || 0;
 
-      // Buscar questões de provas anteriores
-      let examQuestionsCount = 0;
-      if (totalExams > 0) {
-        const examIds = exams.map(exam => exam.id);
-        const { count, error: questionsError } = await supabase
-          .from('previous_exam_questions')
-          .select('*', { count: 'exact', head: true })
-          .in('exam_id', examIds);
-
-        if (questionsError) {
-          console.error('Erro ao buscar questões de provas:', questionsError);
-          toast({
-            title: "Erro ao carregar questões",
-            description: "Não foi possível carregar as questões das provas.",
-            variant: "destructive"
-          });
-          return;
-        }
-
-        examQuestionsCount = count || 0;
-        console.log(`Total de questões de provas encontradas: ${examQuestionsCount}`);
-      }
-
-      const newStats = {
-        totalQuestions: (regularQuestionsCount || 0) + examQuestionsCount,
+      console.log('Statistics updated:', {
+        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
         previousExams: {
           total: totalExams,
-          questions: examQuestionsCount
+          questions: examQuestionsCount || 0
         }
-      };
-
-      console.log('Estatísticas atualizadas:', newStats);
-      setStats(newStats);
-      
-      toast({
-        title: "Estatísticas atualizadas",
-        description: "Os dados foram carregados com sucesso.",
       });
 
+      setStats({
+        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
+        previousExams: {
+          total: totalExams,
+          questions: examQuestionsCount || 0
+        }
+      });
     } catch (error) {
-      console.error('Erro ao buscar estatísticas:', error);
-      toast({
-        title: "Erro ao atualizar estatísticas",
-        description: "Ocorreu um erro ao carregar os dados. Tente novamente.",
-        variant: "destructive"
-      });
-      // Manter as estatísticas anteriores em caso de erro
-      setStats(prev => prev);
+      console.error('Error fetching statistics:', error);
     }
-  }, [toast]);
+  }, []);
 
   return {
     stats,

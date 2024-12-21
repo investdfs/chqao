@@ -23,28 +23,15 @@ export const SyncDatabaseButton = () => {
         'subject-questions-count', // Contador por matéria
       ];
 
-      // Atualiza todas as queries em paralelo com timeout
+      // Atualiza todas as queries em paralelo
       await Promise.all(
-        queriesToRefetch.map(async queryKey => {
+        queriesToRefetch.map(queryKey => {
           console.log(`Atualizando dados de: ${queryKey}`);
-          try {
-            // Adiciona um timeout de 10 segundos para cada requisição
-            const timeoutPromise = new Promise((_, reject) => {
-              setTimeout(() => reject(new Error('Timeout')), 10000);
-            });
-
-            await Promise.race([
-              queryClient.refetchQueries({ 
-                queryKey: [queryKey],
-                type: 'all',
-                exact: false
-              }),
-              timeoutPromise
-            ]);
-          } catch (error) {
-            console.error(`Erro ao atualizar ${queryKey}:`, error);
-            throw new Error(`Falha ao atualizar ${queryKey}`);
-          }
+          return queryClient.refetchQueries({ 
+            queryKey: [queryKey],
+            type: 'all', // Força atualização mesmo se os dados forem recentes
+            exact: false // Atualiza todas as queries que começam com esse prefixo
+          });
         })
       );
 
@@ -61,11 +48,9 @@ export const SyncDatabaseButton = () => {
       });
     } catch (error) {
       console.error('Erro ao atualizar dados:', error);
-      
-      // Mensagem de erro mais detalhada para o usuário
       toast({
         title: "Erro na atualização",
-        description: "Ocorreu um erro de conexão com o servidor. Por favor, verifique sua conexão e tente novamente em alguns instantes.",
+        description: "Ocorreu um erro ao atualizar os dados. Tente novamente.",
         variant: "destructive"
       });
     }

@@ -19,7 +19,6 @@ import { StudyConsistencyChart } from "./StudyConsistencyChart";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 
 interface StudyConsistencyProps {
   consecutiveDays: number;
@@ -29,48 +28,34 @@ interface StudyConsistencyProps {
   }>;
 }
 
-export const StudyConsistency = ({ consecutiveDays = 0, studyDays = [] }: StudyConsistencyProps) => {
+export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => {
   const [selectedRange, setSelectedRange] = useState<string>("all");
-  const { toast } = useToast();
   
   const { data: loginDays = [] } = useQuery({
     queryKey: ['loginDays'],
     queryFn: async () => {
-      try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const userId = sessionData.session?.user?.id;
-        
-        if (!userId) {
-          console.log("Usuário não autenticado");
-          return [];
-        }
-
-        console.log("Buscando dias de login para o usuário:", userId);
-        
-        const { data, error } = await supabase
-          .rpc('get_login_days', {
-            student_id_param: userId
-          });
-
-        if (error) {
-          console.error('Erro ao buscar dias de login:', error);
-          throw error;
-        }
-
-        console.log("Dias de login encontrados:", data);
-        return data || [];
-      } catch (error) {
-        console.error('Erro na consulta:', error);
-        toast({
-          title: "Erro ao carregar dados",
-          description: "Não foi possível carregar seu histórico de estudos.",
-          variant: "destructive",
-        });
+      const { data } = await supabase.auth.getSession();
+      const userId = data.session?.user?.id;
+      
+      if (!userId) {
+        console.log("Usuário não autenticado");
         return [];
       }
-    },
-    meta: {
-      errorMessage: "Não foi possível carregar seu histórico de estudos."
+
+      console.log("Buscando dias de login para o usuário:", userId);
+      
+      const { data: loginData, error } = await supabase
+        .rpc('get_login_days', {
+          student_id_param: userId
+        });
+
+      if (error) {
+        console.error('Erro ao buscar dias de login:', error);
+        return [];
+      }
+
+      console.log("Dias de login encontrados:", loginData);
+      return loginData;
     }
   });
 
