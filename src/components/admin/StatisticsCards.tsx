@@ -123,7 +123,10 @@ export const StatisticsCards = ({
     <div className="max-w-5xl mx-auto px-4">
       <div className="grid grid-cols-3 gap-6">
         <StudentCard totalStudents={initialTotalStudents} />
-        <QuestionsCard totalQuestions={stats.totalQuestions} />
+        <QuestionsCard 
+          totalQuestions={stats.totalQuestions} 
+          stats={stats}
+        />
         <PreviousExamsCard 
           totalExams={stats.previousExams.total}
           totalQuestions={stats.previousExams.questions}
