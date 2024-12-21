@@ -28,7 +28,10 @@ export const useStudentManager = () => {
         .update({ status: newStatus })
         .eq('id', studentId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating student status:', error);
+        throw error;
+      }
       
       toast({
         title: "Status atualizado",
@@ -54,7 +57,10 @@ export const useStudentManager = () => {
         .update(data)
         .eq('id', studentId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating student:', error);
+        throw error;
+      }
 
       toast({
         title: "Aluno atualizado",
@@ -74,12 +80,34 @@ export const useStudentManager = () => {
 
   const handleAddStudent = async () => {
     try {
+      // First check if we're authenticated as admin
+      const { data: adminData, error: adminError } = await supabase
+        .from('admins')
+        .select('id')
+        .single();
+
+      if (adminError) {
+        console.error('Error checking admin status:', adminError);
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar autenticado como administrador.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       console.log('Adding new student:', newStudent);
       const { error } = await supabase
         .from('students')
-        .insert([newStudent]);
+        .insert([{
+          ...newStudent,
+          status: 'active'
+        }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding student:', error);
+        throw error;
+      }
 
       toast({
         title: "Aluno adicionado",
