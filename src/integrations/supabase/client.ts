@@ -25,7 +25,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
       'Content-Type': 'application/json',
     },
   },
-  // Configurações adicionais para melhorar a resiliência
   db: {
     schema: 'public'
   },
@@ -54,10 +53,11 @@ export const checkSupabaseConnection = async () => {
       .single();
 
     // Corrida entre o timeout e a query
-    const { error } = await Promise.race([queryPromise, timeoutPromise]);
+    const result = await Promise.race([queryPromise, timeoutPromise]);
     
-    if (error) {
-      console.error('Erro ao verificar conexão com Supabase:', error);
+    // Verifica se o resultado é da query do Supabase e tem erro
+    if ('error' in result && result.error) {
+      console.error('Erro ao verificar conexão com Supabase:', result.error);
       toast({
         title: "Erro de conexão",
         description: "Não foi possível estabelecer conexão com o servidor. Verifique sua internet.",
