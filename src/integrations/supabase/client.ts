@@ -24,6 +24,11 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   }
 });
 
+interface QueryResult {
+  data: any;
+  error: null | Error;
+}
+
 // Função helper para verificar conectividade
 export const checkSupabaseConnection = async () => {
   const { toast } = useToast();
@@ -32,12 +37,12 @@ export const checkSupabaseConnection = async () => {
     console.log('Verificando conexão com Supabase...');
     
     // Define um timeout de 10 segundos
-    const timeoutPromise = new Promise((_, reject) => {
+    const timeoutPromise = new Promise<QueryResult>((_, reject) => {
       setTimeout(() => reject(new Error('Timeout ao conectar com o servidor')), 10000);
     });
 
     // Tenta fazer uma query simples com retry
-    const queryPromise = async () => {
+    const queryPromise = async (): Promise<QueryResult> => {
       for (let i = 0; i < 3; i++) {
         try {
           const { data, error } = await supabase
@@ -46,18 +51,18 @@ export const checkSupabaseConnection = async () => {
             .limit(1)
             .maybeSingle();
 
-          if (error) throw error;
           return { data, error: null };
         } catch (err) {
           if (i === 2) throw err;
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
+      throw new Error('Todas as tentativas falharam');
     };
 
     const result = await Promise.race([queryPromise(), timeoutPromise]);
     
-    if ('error' in result && result.error) {
+    if (result.error) {
       console.error('Erro ao verificar conexão com Supabase:', result.error);
       toast({
         title: "Erro de conexão",
