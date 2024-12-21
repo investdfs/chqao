@@ -2,10 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from './types';
 
 const supabaseUrl = 'https://hletobxssphkhwqpkrif.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsZXRvYnhzc3Boa2h3cXBrcmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg5NzQwNjAsImV4cCI6MjAyNDU1MDA2MH0.moQHDZC0KGPwCVRFr0LfkJB4_TGXdVp7yLXZgQbVOtE';
 
 if (!supabaseKey) {
-  console.error('Erro crítico: VITE_SUPABASE_ANON_KEY não está definida!');
+  console.error('Erro crítico: Chave do Supabase não está definida!');
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
