@@ -34,14 +34,38 @@ export const ExamsQuestionsSheet = ({
     }
 
     try {
+      // First get the exam IDs for the selected year
+      const { data: exams, error: examsError } = await supabase
+        .from('previous_exams')
+        .select('id')
+        .eq('year', parseInt(year));
+
+      if (examsError) throw examsError;
+
+      if (!exams || exams.length === 0) {
+        console.log(`Nenhuma prova encontrada para o ano ${year}`);
+        setQuestions([]);
+        return;
+      }
+
+      const examIds = exams.map(exam => exam.id);
+      console.log(`Encontradas ${examIds.length} provas para o ano ${year}`);
+
+      // Then get all questions for these exams
       const { data, error } = await supabase
         .from('previous_exam_questions')
-        .select('*')
-        .eq('exam_year', parseInt(year));
+        .select(`
+          *,
+          previous_exams (
+            year,
+            name
+          )
+        `)
+        .in('exam_id', examIds);
 
       if (error) throw error;
 
-      console.log(`${data.length} questões encontradas para o ano ${year}`);
+      console.log(`${data?.length || 0} questões encontradas para o ano ${year}`);
       setQuestions(data || []);
     } catch (error) {
       console.error('Erro ao buscar questões:', error);
