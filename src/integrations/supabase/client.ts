@@ -2,10 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from './types';
 
 const supabaseUrl = 'https://hletobxssphkhwqpkrif.supabase.co';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 if (!supabaseKey) {
-  console.error('Erro crítico: NEXT_PUBLIC_SUPABASE_ANON_KEY não está definida!');
+  console.error('Erro crítico: VITE_SUPABASE_ANON_KEY não está definida!');
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {

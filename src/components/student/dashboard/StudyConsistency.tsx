@@ -67,15 +67,19 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
       return loginData;
     },
     retry: 1,
-    onError: (error) => {
-      console.error('Erro na query de dias de login:', error);
-      toast({
-        title: "Erro ao carregar dados",
-        description: "Não foi possível carregar seu histórico de estudos. Por favor, tente novamente mais tarde.",
-        variant: "destructive",
-      });
+    meta: {
+      errorMessage: "Não foi possível carregar seu histórico de estudos. Por favor, tente novamente mais tarde."
     }
   });
+
+  // Show error toast if query fails
+  if (isError) {
+    toast({
+      title: "Erro ao carregar dados",
+      description: "Não foi possível carregar seu histórico de estudos. Por favor, tente novamente mais tarde.",
+      variant: "destructive",
+    });
+  }
 
   // Gerar array com todos os dias do mês atual
   const allDays = Array.from({ length: 31 }, (_, i) => {
