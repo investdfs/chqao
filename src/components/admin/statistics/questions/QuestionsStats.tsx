@@ -30,54 +30,54 @@ export const useQuestionsStats = () => {
 
       if (regularError) {
         console.error('Error fetching regular questions:', regularError);
-        return;
+        throw regularError;
       }
 
-      // Fetch previous exam questions count
-      const { count: examQuestionsCount, error: examError } = await supabase
-        .from('previous_exam_questions')
-        .select('*', { count: 'exact', head: true });
-
-      if (examError) {
-        console.error('Error fetching exam questions:', examError);
-        return;
-      }
-
-      // Fetch previous exams statistics
-      const { data: examStats, error: examStatsError } = await supabase
+      // First get previous exams count
+      const { data: exams, error: examsError } = await supabase
         .from('previous_exams')
-        .select(`
-          id,
-          year,
-          previous_exam_questions (
-            count
-          )
-        `);
+        .select('id');
 
-      if (examStatsError) {
-        console.error('Error fetching exam stats:', examStatsError);
-        return;
+      if (examsError) {
+        console.error('Error fetching exams:', examsError);
+        throw examsError;
       }
 
-      const totalExams = examStats?.length || 0;
+      const totalExams = exams?.length || 0;
+      console.log(`Found ${totalExams} previous exams`);
 
-      console.log('Statistics updated:', {
-        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
+      // Then get exam questions count if there are any exams
+      let examQuestionsCount = 0;
+      if (totalExams > 0) {
+        const examIds = exams.map(exam => exam.id);
+        const { count, error: questionsError } = await supabase
+          .from('previous_exam_questions')
+          .select('*', { count: 'exact', head: true })
+          .in('exam_id', examIds);
+
+        if (questionsError) {
+          console.error('Error fetching exam questions:', questionsError);
+          throw questionsError;
+        }
+
+        examQuestionsCount = count || 0;
+        console.log(`Found ${examQuestionsCount} exam questions`);
+      }
+
+      const newStats = {
+        totalQuestions: (regularQuestionsCount || 0) + examQuestionsCount,
         previousExams: {
           total: totalExams,
-          questions: examQuestionsCount || 0
+          questions: examQuestionsCount
         }
-      });
+      };
 
-      setStats({
-        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
-        previousExams: {
-          total: totalExams,
-          questions: examQuestionsCount || 0
-        }
-      });
+      console.log('Statistics updated:', newStats);
+      setStats(newStats);
     } catch (error) {
       console.error('Error fetching statistics:', error);
+      // Keep the previous stats in case of error
+      setStats(prev => prev);
     }
   }, []);
 
