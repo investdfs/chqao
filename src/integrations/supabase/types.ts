@@ -343,6 +343,30 @@ export type Database = {
         }
         Relationships: []
       }
+      update_history: {
+        Row: {
+          changes: Json
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          type: Database["public"]["Enums"]["update_type"]
+        }
+        Insert: {
+          changes: Json
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          type: Database["public"]["Enums"]["update_type"]
+        }
+        Update: {
+          changes?: Json
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          type?: Database["public"]["Enums"]["update_type"]
+        }
+        Relationships: []
+      }
       uploaded_pdfs: {
         Row: {
           created_at: string
@@ -480,6 +504,14 @@ export type Database = {
         }
         Returns: string
       }
+      record_update: {
+        Args: {
+          p_type: Database["public"]["Enums"]["update_type"]
+          p_changes: Json
+          p_metadata?: Json
+        }
+        Returns: string
+      }
       reset_student_progress: {
         Args: {
           student_id_param: string
@@ -492,6 +524,11 @@ export type Database = {
       ai_generation_status: "pending" | "processing" | "completed" | "failed"
       question_difficulty: "Fácil" | "Médio" | "Difícil"
       student_status: "active" | "blocked"
+      update_type:
+        | "question_insert"
+        | "exam_reset"
+        | "question_update"
+        | "question_delete"
     }
     CompositeTypes: {
       [_ in never]: never
