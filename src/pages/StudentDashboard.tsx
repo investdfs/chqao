@@ -104,13 +104,13 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
     <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-white">
       <DashboardHeader />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         <StudyModeSelector 
           onPracticeClick={() => setSubjectDialogOpen(true)}
           onExamClick={() => setExamDialogOpen(true)}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
           <PerformanceCard
             correctAnswers={totalCorrect}
@@ -132,9 +132,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
           }))}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SubjectsPanel />
-          <div className="space-y-4">
+          <div className="space-y-8">
             <WeeklyGoals
               studyHours={{
                 current: Number(studyStats?.weekly_study_hours || 0),
