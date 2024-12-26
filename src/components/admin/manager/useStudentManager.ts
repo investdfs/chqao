@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
-import { supabase } from "@/integrations/supabase/client";
+import { validateStudentData, StudentFormData } from "./validation/studentValidation";
+import { createStudent, toggleStudentStatus, updateStudentData } from "./api/studentApi";
 
 export const useStudentManager = () => {
   const { toast } = useToast();
   const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   const [showStudents, setShowStudents] = useState(false);
-  const [newStudent, setNewStudent] = useState({
+  const [newStudent, setNewStudent] = useState<StudentFormData>({
     name: '',
     email: '',
     password: '',
@@ -20,18 +21,7 @@ export const useStudentManager = () => {
       const student = students.find(s => s.id === studentId);
       if (!student) return;
 
-      const newStatus = student.status === "active" ? "blocked" : "active";
-      
-      console.log('Updating student status:', { studentId, newStatus });
-      const { error } = await supabase
-        .from('students')
-        .update({ status: newStatus })
-        .eq('id', studentId);
-
-      if (error) {
-        console.error('Error updating student status:', error);
-        throw error;
-      }
+      await toggleStudentStatus(studentId, student.status);
       
       toast({
         title: "Status atualizado",
@@ -39,7 +29,7 @@ export const useStudentManager = () => {
       });
       
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating student status:', error);
       toast({
         title: "Erro ao atualizar status",
@@ -49,18 +39,9 @@ export const useStudentManager = () => {
     }
   };
 
-  const handleUpdateStudent = async (studentId: string, data: any) => {
+  const handleUpdateStudent = async (studentId: string, data: Partial<StudentFormData>) => {
     try {
-      console.log('Updating student:', { studentId, data });
-      const { error } = await supabase
-        .from('students')
-        .update(data)
-        .eq('id', studentId);
-
-      if (error) {
-        console.error('Error updating student:', error);
-        throw error;
-      }
+      await updateStudentData(studentId, data);
 
       toast({
         title: "Aluno atualizado",
@@ -68,7 +49,7 @@ export const useStudentManager = () => {
       });
       
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating student:', error);
       toast({
         title: "Erro ao atualizar aluno",
@@ -80,64 +61,11 @@ export const useStudentManager = () => {
 
   const handleAddStudent = async () => {
     try {
-      // Validar campos obrigatórios
-      if (!newStudent.email || !newStudent.name || !newStudent.password) {
-        toast({
-          title: "Erro ao adicionar aluno",
-          description: "Todos os campos são obrigatórios.",
-          variant: "destructive"
-        });
+      if (!validateStudentData(newStudent)) {
         return;
       }
 
-      // Validar tamanho mínimo da senha
-      if (newStudent.password.length < 6) {
-        toast({
-          title: "Erro ao adicionar aluno",
-          description: "A senha deve ter no mínimo 6 caracteres.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log('Iniciando cadastro de novo aluno:', { 
-        email: newStudent.email, 
-        name: newStudent.name 
-      });
-
-      // Primeiro criar o usuário na autenticação
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: newStudent.email,
-        password: newStudent.password,
-        options: {
-          data: {
-            name: newStudent.name,
-            type: 'student'
-          }
-        }
-      });
-
-      if (authError) {
-        console.error('Erro ao criar usuário na autenticação:', authError);
-        throw authError;
-      }
-
-      console.log('Usuário criado na autenticação:', authData);
-
-      // Depois inserir na tabela students
-      const { error: studentError } = await supabase
-        .from('students')
-        .insert([{
-          email: newStudent.email,
-          name: newStudent.name,
-          password: newStudent.password,
-          status: 'active',
-        }]);
-
-      if (studentError) {
-        console.error('Erro ao inserir estudante:', studentError);
-        throw studentError;
-      }
+      await createStudent(newStudent);
 
       toast({
         title: "Aluno adicionado",
