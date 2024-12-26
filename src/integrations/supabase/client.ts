@@ -12,17 +12,22 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true
   },
   global: {
     headers: {
       'Content-Type': 'application/json',
     },
   },
+  db: {
+    schema: 'public'
+  }
 });
 
-// Função helper para verificar conectividade
+// Helper function to check connectivity
 export const checkSupabaseConnection = async () => {
   try {
+    console.log('Checking Supabase connection...');
     const { data, error } = await supabase
       .from('questions')
       .select('count')
@@ -30,13 +35,14 @@ export const checkSupabaseConnection = async () => {
       .single();
     
     if (error) {
-      console.error('Erro ao verificar conexão com Supabase:', error);
+      console.error('Error checking Supabase connection:', error);
       return false;
     }
     
+    console.log('Supabase connection successful');
     return true;
   } catch (error) {
-    console.error('Erro ao tentar conectar com Supabase:', error);
+    console.error('Error connecting to Supabase:', error);
     return false;
   }
 };

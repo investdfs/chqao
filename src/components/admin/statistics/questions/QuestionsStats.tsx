@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface QuestionsStatsData {
   totalQuestions: number;
@@ -17,6 +18,7 @@ export const useQuestionsStats = () => {
       questions: 0
     }
   });
+  const { toast } = useToast();
 
   const fetchStats = useCallback(async () => {
     try {
@@ -30,7 +32,7 @@ export const useQuestionsStats = () => {
 
       if (regularError) {
         console.error('Error fetching regular questions:', regularError);
-        return;
+        throw regularError;
       }
 
       // Fetch previous exam questions count
@@ -40,46 +42,41 @@ export const useQuestionsStats = () => {
 
       if (examError) {
         console.error('Error fetching exam questions:', examError);
-        return;
+        throw examError;
       }
 
       // Fetch previous exams statistics
       const { data: examStats, error: examStatsError } = await supabase
         .from('previous_exams')
-        .select(`
-          id,
-          year,
-          previous_exam_questions (
-            count
-          )
-        `);
+        .select('id, year')
+        .order('year', { ascending: false });
 
       if (examStatsError) {
         console.error('Error fetching exam stats:', examStatsError);
-        return;
+        throw examStatsError;
       }
 
       const totalExams = examStats?.length || 0;
 
-      console.log('Statistics updated:', {
+      const updatedStats = {
         totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
         previousExams: {
           total: totalExams,
           questions: examQuestionsCount || 0
         }
-      });
+      };
 
-      setStats({
-        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
-        previousExams: {
-          total: totalExams,
-          questions: examQuestionsCount || 0
-        }
-      });
+      console.log('Statistics updated:', updatedStats);
+      setStats(updatedStats);
     } catch (error) {
       console.error('Error fetching statistics:', error);
+      toast({
+        title: "Erro ao carregar estatísticas",
+        description: "Verifique sua conexão e tente novamente",
+        variant: "destructive"
+      });
     }
-  }, []);
+  }, [toast]);
 
   return {
     stats,

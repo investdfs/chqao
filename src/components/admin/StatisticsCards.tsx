@@ -5,6 +5,7 @@ import { QuestionsCard } from "./statistics/QuestionsCard";
 import { PreviousExamsCard } from "./statistics/PreviousExamsCard";
 import { useQuestionsStats } from "./statistics/questions/QuestionsStats";
 import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 
 interface StatisticsCardsProps {
   totalStudents: number;
@@ -18,19 +19,26 @@ export const StatisticsCards = ({
   const { stats, fetchStats } = useQuestionsStats();
   const channelRef = useRef<any>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Subscribe to query cache updates
   useEffect(() => {
-    // Refetch stats when queries are invalidated
     const unsubscribe = queryClient.getQueryCache().subscribe(() => {
       console.log('Query cache updated, refreshing statistics...');
-      fetchStats();
+      fetchStats().catch(error => {
+        console.error('Error fetching stats:', error);
+        toast({
+          title: "Erro ao atualizar estatísticas",
+          description: "Tente novamente mais tarde",
+          variant: "destructive"
+        });
+      });
     });
 
     return () => {
       unsubscribe();
     };
-  }, [queryClient, fetchStats]);
+  }, [queryClient, fetchStats, toast]);
 
   // Subscribe to real-time database changes
   useEffect(() => {
@@ -41,20 +49,22 @@ export const StatisticsCards = ({
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'questions'
         },
         (payload) => {
           console.log('Question change detected:', payload);
-          fetchStats();
+          fetchStats().catch(error => {
+            console.error('Error fetching stats after change:', error);
+          });
         }
       )
       .subscribe((status) => {
         console.log('Real-time subscription status:', status);
       });
 
-    // Initialize presence channel if not already created
+    // Initialize presence channel
     if (!channelRef.current) {
       console.log('Initializing presence channel...');
       channelRef.current = supabase.channel('online-users', {
@@ -65,7 +75,6 @@ export const StatisticsCards = ({
         },
       });
 
-      // Set up presence handlers
       channelRef.current
         .on('presence', { event: 'sync' }, () => {
           const presenceState = channelRef.current.presenceState();
@@ -87,7 +96,6 @@ export const StatisticsCards = ({
           console.log('User left:', leftPresences);
         });
 
-      // Subscribe and track presence
       channelRef.current.subscribe(async (status: string) => {
         if (status === 'SUBSCRIBED') {
           console.log('Channel subscribed successfully');
@@ -108,7 +116,6 @@ export const StatisticsCards = ({
       });
     }
 
-    // Cleanup function
     return () => {
       console.log('Cleaning up subscriptions...');
       channel.unsubscribe();
