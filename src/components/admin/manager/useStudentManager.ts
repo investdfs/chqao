@@ -80,17 +80,53 @@ export const useStudentManager = () => {
 
   const handleAddStudent = async () => {
     try {
-      console.log('Adding new student:', newStudent);
-      const { error } = await supabase
+      // Validar campos obrigatórios
+      if (!newStudent.email || !newStudent.name || !newStudent.password) {
+        toast({
+          title: "Erro ao adicionar aluno",
+          description: "Todos os campos são obrigatórios.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('Iniciando cadastro de novo aluno:', { 
+        email: newStudent.email, 
+        name: newStudent.name 
+      });
+
+      // Primeiro criar o usuário na autenticação
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: newStudent.email,
+        password: newStudent.password,
+        options: {
+          data: {
+            name: newStudent.name,
+            type: 'student'
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('Erro ao criar usuário na autenticação:', authError);
+        throw authError;
+      }
+
+      console.log('Usuário criado na autenticação:', authData);
+
+      // Depois inserir na tabela students
+      const { error: studentError } = await supabase
         .from('students')
         .insert([{
-          ...newStudent,
-          status: 'active'
+          email: newStudent.email,
+          name: newStudent.name,
+          password: newStudent.password,
+          status: 'active',
         }]);
 
-      if (error) {
-        console.error('Error adding student:', error);
-        throw error;
+      if (studentError) {
+        console.error('Erro ao inserir estudante:', studentError);
+        throw studentError;
       }
 
       toast({
@@ -104,11 +140,11 @@ export const useStudentManager = () => {
         email: '',
         password: '',
       });
-    } catch (error) {
-      console.error('Error adding student:', error);
+    } catch (error: any) {
+      console.error('Erro ao adicionar aluno:', error);
       toast({
         title: "Erro ao adicionar aluno",
-        description: "Ocorreu um erro ao cadastrar o novo aluno.",
+        description: error.message || "Ocorreu um erro ao cadastrar o novo aluno.",
         variant: "destructive"
       });
     }
