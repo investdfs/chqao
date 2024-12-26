@@ -90,6 +90,16 @@ export const useStudentManager = () => {
         return;
       }
 
+      // Validar tamanho mínimo da senha
+      if (newStudent.password.length < 6) {
+        toast({
+          title: "Erro ao adicionar aluno",
+          description: "A senha deve ter no mínimo 6 caracteres.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       console.log('Iniciando cadastro de novo aluno:', { 
         email: newStudent.email, 
         name: newStudent.name 
