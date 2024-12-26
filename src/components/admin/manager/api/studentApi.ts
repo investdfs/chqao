@@ -7,6 +7,7 @@ export const createStudent = async (data: StudentFormData) => {
     name: data.name 
   });
 
+  // Primeiro, criar o usuário na autenticação
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
@@ -25,6 +26,7 @@ export const createStudent = async (data: StudentFormData) => {
 
   console.log('Usuário criado na autenticação:', authData);
 
+  // Depois, inserir na tabela students
   const { error: studentError } = await supabase
     .from('students')
     .insert([{
