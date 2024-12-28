@@ -1,12 +1,11 @@
-import { CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
 import { AddAdminDialog } from "../AddAdminDialog";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface AdminManagerHeaderProps {
   showAdmins: boolean;
   onToggleView: () => void;
-  onAddAdmin: (email: string, name: string) => Promise<void>;
+  onAddAdmin: (email: string, name: string, password: string) => void;
 }
 
 export const AdminManagerHeader = ({
@@ -15,18 +14,23 @@ export const AdminManagerHeader = ({
   onAddAdmin,
 }: AdminManagerHeaderProps) => {
   return (
-    <CardTitle className="flex items-center justify-between">
-      <span>Gerenciar Administradores</span>
-      <div className="flex gap-2">
-        <AddAdminDialog onAdd={onAddAdmin} />
-        <Button 
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <h2 className="text-2xl font-bold">Administradores</h2>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onToggleView}
-          className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2"
+          className="h-8 w-8"
         >
-          <Eye className="h-4 w-4" />
-          {showAdmins ? "Ocultar" : "Ver Admins"}
+          {showAdmins ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
         </Button>
       </div>
-    </CardTitle>
+      <AddAdminDialog onAdd={onAddAdmin} />
+    </div>
   );
 };
