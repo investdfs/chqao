@@ -4,17 +4,16 @@
 
 @layer base {
   :root {
-    --background: 231 24% 14%;
-    --foreground: 0 0% 100%;
+    --background: 240 20% 95%;
+    --foreground: 222 47% 11%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 142 71% 45%;
+    --ring: 222 47% 11%;
     --radius: 0.5rem;
   }
 
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/20;
-    background: linear-gradient(to bottom right, #1A1F2C, #2A2A2A);
+    @apply bg-gradient-to-br from-gray-200 via-violet-100/30 to-indigo-200/20 min-h-screen text-foreground antialiased selection:bg-primary/20;
   }
 
   /* Smooth scrolling */
@@ -28,7 +27,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-card rounded-full;
+    @apply bg-gray-200 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb {
@@ -46,41 +45,41 @@
 
   .btn-secondary {
     @apply bg-secondary text-primary px-6 py-3 rounded-lg font-medium 
-           hover:bg-secondary-hover transition-all shadow-sm hover:shadow-md 
+           hover:bg-primary-light transition-all shadow-sm hover:shadow-md 
            disabled:opacity-50 disabled:cursor-not-allowed hover:translate-y-[-2px]
            active:translate-y-0;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 rounded-lg border border-secondary/30
+    @apply w-full px-4 py-3 rounded-lg border border-gray-200 
            focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
-           shadow-sm transition-all duration-200 bg-card/80 backdrop-blur-sm;
+           shadow-sm transition-all duration-200 bg-gray-100/80 backdrop-blur-sm;
   }
 
   .card {
-    @apply bg-card/70 backdrop-blur-md rounded-xl shadow-sm 
+    @apply bg-gray-100/70 backdrop-blur-md rounded-xl shadow-sm 
            hover:shadow-md transition-all duration-300 p-6 
-           hover:translate-y-[-2px] border border-white/10
-           hover:bg-gradient-to-br hover:from-card hover:to-primary/5;
+           hover:translate-y-[-2px] border border-white/20
+           hover:bg-gradient-to-br hover:from-gray-50/90 hover:to-primary/5;
   }
 
   .question-option {
-    @apply flex items-center gap-4 p-4 rounded-lg border border-secondary/30 
-           hover:border-primary hover:bg-primary/10 cursor-pointer 
+    @apply flex items-center gap-4 p-4 rounded-lg border border-gray-300/80 
+           hover:border-primary hover:bg-primary-light/20 cursor-pointer 
            transition-all shadow-sm hover:translate-y-[-2px] backdrop-blur-sm
-           hover:shadow-md hover:shadow-primary/5 bg-card/70;
+           hover:shadow-md hover:shadow-primary/5 bg-gray-100/70;
   }
 
   .question-option.correct {
-    @apply border-success bg-success-light backdrop-blur-sm;
+    @apply border-success bg-success-light/50 backdrop-blur-sm;
   }
 
   .question-option.incorrect {
-    @apply border-error bg-error-light backdrop-blur-sm;
+    @apply border-error bg-error-light/50 backdrop-blur-sm;
   }
 
   .table-row-hover {
-    @apply hover:bg-primary/10 transition-colors duration-150;
+    @apply hover:bg-primary-light/20 transition-colors duration-150;
   }
 
   .status-badge {
@@ -97,7 +96,7 @@
 
   /* Glass effect */
   .glass {
-    @apply bg-card/70 backdrop-blur-lg border border-white/10 shadow-sm
+    @apply bg-gray-100/70 backdrop-blur-lg border border-white/20 shadow-sm
            hover:shadow-md transition-all duration-300;
   }
 
@@ -110,7 +109,7 @@
 
   /* Shimmer effect */
   .shimmer {
-    @apply animate-shimmer bg-gradient-to-r from-card via-secondary to-card 
+    @apply animate-shimmer bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 
            bg-[length:200%_100%] rounded-lg;
   }
 }
