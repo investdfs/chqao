@@ -14,20 +14,20 @@ export const useAdminManager = () => {
     try {
       const admin = admins.find(a => a.id === adminId);
       if (!admin) {
-        console.error('Admin not found:', adminId);
+        console.error('Admin não encontrado:', adminId);
         return;
       }
 
       const newStatus = admin.status === 'active' ? 'blocked' : 'active';
       
-      console.log('Updating admin status:', { adminId, newStatus });
+      console.log('Atualizando status do admin:', { adminId, newStatus });
       const { error } = await supabase
         .from('admins')
         .update({ status: newStatus })
         .eq('id', adminId);
 
       if (error) {
-        console.error('Error updating admin status:', error);
+        console.error('Erro ao atualizar status do admin:', error);
         throw error;
       }
       
@@ -38,7 +38,7 @@ export const useAdminManager = () => {
       
       refetch();
     } catch (error) {
-      console.error('Error updating admin status:', error);
+      console.error('Erro ao atualizar status do admin:', error);
       toast({
         title: "Erro ao atualizar status",
         description: "Ocorreu um erro ao atualizar o status do administrador.",
@@ -49,9 +49,9 @@ export const useAdminManager = () => {
 
   const handleAddAdmin = async (email: string, name: string, password: string) => {
     try {
-      console.log('Adding new admin:', { email, name });
+      console.log('Adicionando novo admin:', { email, name });
       
-      // First check if admin already exists
+      // Verifica se já existe um admin com este email
       const { data: existingAdmin, error: checkError } = await supabase
         .from('admins')
         .select('*')
@@ -59,7 +59,7 @@ export const useAdminManager = () => {
         .single();
 
       if (checkError && checkError.code !== 'PGRST116') {
-        console.error('Error checking existing admin:', checkError);
+        console.error('Erro ao verificar admin existente:', checkError);
         throw checkError;
       }
 
@@ -82,7 +82,7 @@ export const useAdminManager = () => {
         }]);
 
       if (error) {
-        console.error('Error adding admin:', error);
+        console.error('Erro ao adicionar admin:', error);
         throw error;
       }
 
@@ -93,7 +93,7 @@ export const useAdminManager = () => {
       
       refetch();
     } catch (error) {
-      console.error('Error adding admin:', error);
+      console.error('Erro ao adicionar admin:', error);
       toast({
         title: "Erro ao adicionar administrador",
         description: "Ocorreu um erro ao cadastrar o novo administrador.",

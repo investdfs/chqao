@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 export interface User {
@@ -17,25 +17,12 @@ export const useGoogleSheetsData = () => {
   return useQuery({
     queryKey: ['users'],
     queryFn: async () => {
-      console.log('Verificando conexão com Supabase...');
+      console.log('Iniciando busca de usuários...');
       
-      const isConnected = await checkSupabaseConnection();
-      if (!isConnected) {
-        toast({
-          title: "Erro de conexão",
-          description: "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
-          variant: "destructive",
-        });
-        throw new Error('Falha na conexão com o Supabase');
-      }
-
-      console.log('Buscando usuários do Supabase...');
-      
-      // Busca administradores com retry
+      // Busca administradores
       const { data: admins, error: adminsError } = await supabase
         .from('admins')
-        .select('*')
-        .throwOnError();
+        .select('*');
 
       if (adminsError) {
         console.error('Erro ao buscar administradores:', adminsError);
@@ -47,11 +34,12 @@ export const useGoogleSheetsData = () => {
         throw adminsError;
       }
 
-      // Busca estudantes com retry
+      console.log('Administradores encontrados:', admins?.length || 0);
+
+      // Busca estudantes
       const { data: students, error: studentsError } = await supabase
         .from('students')
-        .select('*')
-        .throwOnError();
+        .select('*');
 
       if (studentsError) {
         console.error('Erro ao buscar estudantes:', studentsError);
@@ -63,8 +51,10 @@ export const useGoogleSheetsData = () => {
         throw studentsError;
       }
 
-      // Transforma os dados para manter o formato esperado
-      const users = [
+      console.log('Estudantes encontrados:', students?.length || 0);
+
+      // Combina os resultados
+      const users: User[] = [
         ...(admins || []).map(admin => ({
           ...admin,
           type: 'admin' as const
@@ -75,9 +65,11 @@ export const useGoogleSheetsData = () => {
         }))
       ];
 
-      console.log('Usuários carregados com sucesso:', users);
+      console.log('Total de usuários carregados:', users.length);
       return { users };
     },
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
+    staleTime: 3000, // Considera os dados desatualizados após 3 segundos
     retry: 3,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
