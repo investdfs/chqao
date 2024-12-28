@@ -13,7 +13,10 @@ export const useAdminManager = () => {
   const handleToggleStatus = async (adminId: string) => {
     try {
       const admin = admins.find(a => a.id === adminId);
-      if (!admin) return;
+      if (!admin) {
+        console.error('Admin not found:', adminId);
+        return;
+      }
 
       const newStatus = admin.status === 'active' ? 'blocked' : 'active';
       
@@ -23,7 +26,10 @@ export const useAdminManager = () => {
         .update({ status: newStatus })
         .eq('id', adminId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating admin status:', error);
+        throw error;
+      }
       
       toast({
         title: "Status atualizado",
@@ -41,19 +47,44 @@ export const useAdminManager = () => {
     }
   };
 
-  const handleAddAdmin = async (email: string, name: string) => {
+  const handleAddAdmin = async (email: string, name: string, password: string) => {
     try {
       console.log('Adding new admin:', { email, name });
+      
+      // First check if admin already exists
+      const { data: existingAdmin, error: checkError } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing admin:', checkError);
+        throw checkError;
+      }
+
+      if (existingAdmin) {
+        toast({
+          title: "Erro ao adicionar administrador",
+          description: "Já existe um administrador com este email.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('admins')
         .insert([{ 
           email, 
           name,
-          password: Math.random().toString(36).slice(-8),
+          password,
           status: 'active'
         }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding admin:', error);
+        throw error;
+      }
 
       toast({
         title: "Administrador adicionado",
