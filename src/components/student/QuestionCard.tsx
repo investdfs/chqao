@@ -2,7 +2,6 @@ import { useEffect, memo, useState } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
-import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 import { useQuestion } from "@/contexts/QuestionContext";
 
 interface QuestionOption {
@@ -36,7 +35,6 @@ const QuestionCard = memo(({
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
-  studentId,
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
@@ -47,25 +45,21 @@ const QuestionCard = memo(({
     wrongAnswers: 0
   });
 
-  const {
-    selectedAnswer,
-    setSelectedAnswer,
-    hasAnswered,
-    handleAnswer,
-    handleReset
-  } = useQuestionAnswer({
-    questionId: question.id,
-    studentId
-  });
+  // Estados locais para controle da resposta
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [hasAnswered, setHasAnswered] = useState(false);
 
+  // Reset do estado quando a questão muda
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
-    handleReset();
+    setSelectedAnswer("");
+    setHasAnswered(false);
   }, [question.id]);
 
-  // Atualiza as estatísticas quando uma questão é respondida
-  useEffect(() => {
-    if (hasAnswered) {
+  // Função para lidar com a resposta
+  const handleAnswer = () => {
+    if (!hasAnswered && selectedAnswer) {
+      setHasAnswered(true);
       const isCorrect = selectedAnswer === question.correctAnswer;
       setSessionStats(prev => ({
         totalQuestions: prev.totalQuestions + 1,
@@ -73,7 +67,13 @@ const QuestionCard = memo(({
         wrongAnswers: prev.wrongAnswers + (isCorrect ? 0 : 1)
       }));
     }
-  }, [hasAnswered, selectedAnswer, question.correctAnswer]);
+  };
+
+  // Função para resetar a resposta atual
+  const handleReset = () => {
+    setSelectedAnswer("");
+    setHasAnswered(false);
+  };
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
@@ -97,7 +97,6 @@ const QuestionCard = memo(({
         onPreviousQuestion={onPreviousQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
-        studentId={studentId}
       />
     </div>
   );
