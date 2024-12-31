@@ -5,6 +5,7 @@ import { Eye, EyeOff, Moon, User, ArrowLeft, GraduationCap } from "lucide-react"
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { useExamMode } from "../../contexts/ExamModeContext";
+import SessionStats from "@/components/student/question/SessionStats";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +24,22 @@ import {
 interface QuestionHeaderProps {
   isFocusMode: boolean;
   onFocusModeToggle: () => void;
+  sessionStats?: {
+    totalQuestions: number;
+    correctAnswers: number;
+    wrongAnswers: number;
+  };
 }
 
-const QuestionHeader = ({ isFocusMode, onFocusModeToggle }: QuestionHeaderProps) => {
+const QuestionHeader = ({ 
+  isFocusMode, 
+  onFocusModeToggle,
+  sessionStats = {
+    totalQuestions: 0,
+    correctAnswers: 0,
+    wrongAnswers: 0
+  }
+}: QuestionHeaderProps) => {
   const { setTheme, theme } = useTheme();
   const navigate = useNavigate();
   const { isExamMode, toggleExamMode } = useExamMode();
@@ -47,73 +61,81 @@ const QuestionHeader = ({ isFocusMode, onFocusModeToggle }: QuestionHeaderProps)
   return (
     <>
       <Card className="p-4 mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/previous-exams")}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar
-            </Button>
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/previous-exams")}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Button>
 
-            <Button
-              variant={isExamMode ? "default" : "outline"}
-              size="sm"
-              onClick={handleExamModeToggle}
-              className="flex items-center gap-2"
-            >
-              <GraduationCap className="h-4 w-4" />
-              {isExamMode ? "Desativar" : "Ativar"} Modo Prova
-            </Button>
+              <Button
+                variant={isExamMode ? "default" : "outline"}
+                size="sm"
+                onClick={handleExamModeToggle}
+                className="flex items-center gap-2"
+              >
+                <GraduationCap className="h-4 w-4" />
+                {isExamMode ? "Desativar" : "Ativar"} Modo Prova
+              </Button>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  Modos de Estudo
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem onClick={onFocusModeToggle} className="flex items-center gap-2">
-                  {isFocusMode ? (
-                    <>
-                      <EyeOff className="h-4 w-4" />
-                      Desativar Foco
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="h-4 w-4" />
-                      Ativar Foco
-                    </>
-                  )}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Eye className="h-4 w-4" />
+                    Modos de Estudo
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem onClick={onFocusModeToggle} className="flex items-center gap-2">
+                    {isFocusMode ? (
+                      <>
+                        <EyeOff className="h-4 w-4" />
+                        Desativar Foco
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4" />
+                        Ativar Foco
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/student-dashboard")}
-              className="flex items-center gap-2"
-            >
-              <User className="h-4 w-4" />
-              Painel do Aluno
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/student-dashboard")}
+                className="flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                Painel do Aluno
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                <Moon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              <Moon className="h-4 w-4" />
-            </Button>
-          </div>
+          <SessionStats 
+            totalQuestions={sessionStats.totalQuestions}
+            correctAnswers={sessionStats.correctAnswers}
+            wrongAnswers={sessionStats.wrongAnswers}
+          />
         </div>
       </Card>
 
