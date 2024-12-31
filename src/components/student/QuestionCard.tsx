@@ -40,7 +40,26 @@ const QuestionCard = memo(({
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
-  const { sessionStats, updateSessionStats } = useQuestion();
+  // Recupera as estatísticas do localStorage ou usa valores iniciais
+  const getStoredStats = () => {
+    const stored = localStorage.getItem('sessionStats');
+    return stored ? JSON.parse(stored) : {
+      totalQuestions: 0,
+      correctAnswers: 0,
+      wrongAnswers: 0
+    };
+  };
+
+  const updateStoredStats = (isCorrect: boolean) => {
+    const currentStats = getStoredStats();
+    const newStats = {
+      totalQuestions: currentStats.totalQuestions + 1,
+      correctAnswers: currentStats.correctAnswers + (isCorrect ? 1 : 0),
+      wrongAnswers: currentStats.wrongAnswers + (isCorrect ? 0 : 1)
+    };
+    localStorage.setItem('sessionStats', JSON.stringify(newStats));
+    return newStats;
+  };
 
   const {
     selectedAnswer,
@@ -61,9 +80,9 @@ const QuestionCard = memo(({
   useEffect(() => {
     if (hasAnswered) {
       const isCorrect = selectedAnswer === question.correctAnswer;
-      updateSessionStats(isCorrect);
+      updateStoredStats(isCorrect);
     }
-  }, [hasAnswered, selectedAnswer, question.correctAnswer, updateSessionStats]);
+  }, [hasAnswered, selectedAnswer, question.correctAnswer]);
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
@@ -74,7 +93,7 @@ const QuestionCard = memo(({
       <QuestionHeader
         isFocusMode={false}
         onFocusModeToggle={() => {}}
-        sessionStats={sessionStats}
+        sessionStats={getStoredStats()}
       />
       <QuestionContent
         question={question}
