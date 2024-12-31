@@ -6,6 +6,7 @@ import NavigationButtons from "./NavigationButtons";
 import QuestionFeedback from "./QuestionFeedback";
 import { QuestionCommentsDialog } from "./QuestionCommentsDialog";
 import PreviousAnswerInfo from "./PreviousAnswerInfo";
+import QuestionStats from "./QuestionStats";
 
 interface QuestionContentProps {
   question: {
@@ -29,6 +30,11 @@ interface QuestionContentProps {
   questionNumber: number;
   totalQuestions: number;
   studentId?: string;
+  sessionStats: {
+    totalAnswered: number;
+    correctAnswers: number;
+    incorrectAnswers: number;
+  };
 }
 
 const QuestionContent = memo(({
@@ -43,6 +49,7 @@ const QuestionContent = memo(({
   questionNumber,
   totalQuestions,
   studentId,
+  sessionStats,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
@@ -52,6 +59,12 @@ const QuestionContent = memo(({
         <QuestionCommentsDialog questionId={question.id} />
         
         <div className="space-y-6">
+          <QuestionStats 
+            totalQuestions={sessionStats.totalAnswered}
+            correctAnswers={sessionStats.correctAnswers}
+            incorrectAnswers={sessionStats.incorrectAnswers}
+          />
+
           {studentId && (
             <PreviousAnswerInfo 
               questionId={question.id} 
