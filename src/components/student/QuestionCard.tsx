@@ -1,4 +1,4 @@
-import { useEffect, memo } from "react";
+import { useEffect, memo, useState } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
@@ -40,26 +40,12 @@ const QuestionCard = memo(({
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
-  // Recupera as estatísticas do localStorage ou usa valores iniciais
-  const getStoredStats = () => {
-    const stored = localStorage.getItem('sessionStats');
-    return stored ? JSON.parse(stored) : {
-      totalQuestions: 0,
-      correctAnswers: 0,
-      wrongAnswers: 0
-    };
-  };
-
-  const updateStoredStats = (isCorrect: boolean) => {
-    const currentStats = getStoredStats();
-    const newStats = {
-      totalQuestions: currentStats.totalQuestions + 1,
-      correctAnswers: currentStats.correctAnswers + (isCorrect ? 1 : 0),
-      wrongAnswers: currentStats.wrongAnswers + (isCorrect ? 0 : 1)
-    };
-    localStorage.setItem('sessionStats', JSON.stringify(newStats));
-    return newStats;
-  };
+  // Estado local para as estatísticas da sessão
+  const [sessionStats, setSessionStats] = useState({
+    totalQuestions: 0,
+    correctAnswers: 0,
+    wrongAnswers: 0
+  });
 
   const {
     selectedAnswer,
@@ -77,10 +63,15 @@ const QuestionCard = memo(({
     handleReset();
   }, [question.id]);
 
+  // Atualiza as estatísticas quando uma questão é respondida
   useEffect(() => {
     if (hasAnswered) {
       const isCorrect = selectedAnswer === question.correctAnswer;
-      updateStoredStats(isCorrect);
+      setSessionStats(prev => ({
+        totalQuestions: prev.totalQuestions + 1,
+        correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
+        wrongAnswers: prev.wrongAnswers + (isCorrect ? 0 : 1)
+      }));
     }
   }, [hasAnswered, selectedAnswer, question.correctAnswer]);
 
@@ -93,7 +84,7 @@ const QuestionCard = memo(({
       <QuestionHeader
         isFocusMode={false}
         onFocusModeToggle={() => {}}
-        sessionStats={getStoredStats()}
+        sessionStats={sessionStats}
       />
       <QuestionContent
         question={question}
