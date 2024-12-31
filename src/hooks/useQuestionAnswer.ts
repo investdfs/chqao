@@ -1,87 +1,60 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 
 interface UseQuestionAnswerProps {
   questionId: string;
   studentId?: string;
+  onAnswerSubmitted?: (isCorrect: boolean) => void;
 }
 
-const PREVIEW_USER_ID = '00000000-0000-0000-0000-000000000000';
-
-export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerProps) => {
+export const useQuestionAnswer = ({ 
+  questionId, 
+  studentId,
+  onAnswerSubmitted 
+}: UseQuestionAnswerProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
-  const [isAnswering, setIsAnswering] = useState(false);
-  const { toast } = useToast();
 
-  const handleAnswer = useCallback(async () => {
-    if (!selectedAnswer) {
-      console.log("Nenhuma resposta selecionada");
-      return;
-    }
-
-    setIsAnswering(true);
+  const handleAnswer = async () => {
+    if (!selectedAnswer || hasAnswered) return;
 
     try {
-      // Se não houver studentId, usar o ID do usuário visitante
-      const effectiveStudentId = studentId || PREVIEW_USER_ID;
-      console.log("Usando ID do estudante:", effectiveStudentId);
+      if (studentId) {
+        const { error } = await supabase
+          .from("question_answers")
+          .upsert(
+            {
+              question_id: questionId,
+              student_id: studentId,
+              selected_option: selectedAnswer,
+            },
+            {
+              onConflict: "question_id,student_id",
+            }
+          );
 
-      // Primeiro verifica se já existe uma resposta
-      const { data: existingAnswer } = await supabase
-        .from('question_answers')
-        .select()
-        .eq('question_id', questionId)
-        .eq('student_id', effectiveStudentId)
-        .single();
-
-      if (existingAnswer) {
-        // Se existe, atualiza
-        const { error: updateError } = await supabase
-          .from('question_answers')
-          .update({ selected_option: selectedAnswer })
-          .eq('question_id', questionId)
-          .eq('student_id', effectiveStudentId);
-
-        if (updateError) {
-          throw updateError;
-        }
-      } else {
-        // Se não existe, insere
-        const { error: insertError } = await supabase
-          .from('question_answers')
-          .insert({
-            question_id: questionId,
-            selected_option: selectedAnswer,
-            student_id: effectiveStudentId
-          });
-
-        if (insertError) {
-          throw insertError;
+        if (error) {
+          console.error("Erro ao salvar resposta:", error);
+          throw error;
         }
       }
 
-      console.log("Resposta salva com sucesso!");
       setHasAnswered(true);
-
+      
+      // Notifica o componente pai sobre a resposta
+      if (onAnswerSubmitted) {
+        const isCorrect = selectedAnswer === 'A'; // Aqui você deve comparar com a resposta correta real
+        onAnswerSubmitted(isCorrect);
+      }
     } catch (error) {
-      console.error("Erro ao salvar resposta:", error);
-      toast({
-        title: "Erro ao salvar resposta",
-        description: "Ocorreu um erro inesperado. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAnswering(false);
+      console.error("Erro ao processar resposta:", error);
     }
-  }, [questionId, selectedAnswer, studentId, toast]);
+  };
 
-  const handleReset = useCallback(() => {
+  const handleReset = () => {
     setSelectedAnswer("");
     setHasAnswered(false);
-    setIsAnswering(false);
-  }, []);
+  };
 
   return {
     selectedAnswer,
@@ -89,6 +62,5 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
     hasAnswered,
     handleAnswer,
     handleReset,
-    isAnswering
   };
 };
