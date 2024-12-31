@@ -1,4 +1,4 @@
-import { useEffect, memo } from "react";
+import { useEffect, memo, useState } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
@@ -39,16 +39,36 @@ const QuestionCard = memo(({
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
+  const [sessionStats, setSessionStats] = useState({
+    totalAnswered: 0,
+    correctAnswers: 0,
+    incorrectAnswers: 0
+  });
+
   const {
     selectedAnswer,
     setSelectedAnswer,
     hasAnswered,
-    handleAnswer,
+    handleAnswer: originalHandleAnswer,
     handleReset
   } = useQuestionAnswer({
     questionId: question.id,
     studentId
   });
+
+  const handleAnswer = async () => {
+    await originalHandleAnswer();
+    
+    // Update session stats after answering
+    setSessionStats(prev => {
+      const isCorrect = selectedAnswer === question.correctAnswer;
+      return {
+        totalAnswered: prev.totalAnswered + 1,
+        correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
+        incorrectAnswers: prev.incorrectAnswers + (isCorrect ? 0 : 1)
+      };
+    });
+  };
 
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
@@ -77,6 +97,7 @@ const QuestionCard = memo(({
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
         studentId={studentId}
+        sessionStats={sessionStats}
       />
     </div>
   );
