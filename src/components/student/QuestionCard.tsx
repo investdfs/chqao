@@ -25,7 +25,6 @@ interface QuestionCardProps {
   questionNumber: number;
   totalQuestions: number;
   isUserBlocked?: boolean;
-  studentId?: string;
 }
 
 const QuestionCard = memo(({
@@ -35,10 +34,10 @@ const QuestionCard = memo(({
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
-  studentId,
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
+  // Este estado é apenas para o contador local da sessão
   const [sessionStats, setSessionStats] = useState({
     totalQuestions: 0,
     correctAnswers: 0,
@@ -52,8 +51,7 @@ const QuestionCard = memo(({
     handleAnswer,
     handleReset
   } = useQuestionAnswer({
-    questionId: question.id,
-    studentId
+    questionId: question.id
   });
 
   useEffect(() => {
@@ -61,6 +59,7 @@ const QuestionCard = memo(({
     handleReset();
   }, [question.id]);
 
+  // Atualiza apenas as estatísticas locais da sessão
   useEffect(() => {
     if (hasAnswered) {
       setSessionStats(prev => ({
@@ -93,7 +92,6 @@ const QuestionCard = memo(({
         onPreviousQuestion={onPreviousQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
-        studentId={studentId}
       />
     </div>
   );
