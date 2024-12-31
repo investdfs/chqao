@@ -1,4 +1,4 @@
-import { useEffect, memo, useState } from "react";
+import { useEffect, memo } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
@@ -25,6 +25,7 @@ interface QuestionCardProps {
   questionNumber: number;
   totalQuestions: number;
   isUserBlocked?: boolean;
+  studentId?: string;
 }
 
 const QuestionCard = memo(({
@@ -34,15 +35,9 @@ const QuestionCard = memo(({
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
+  studentId,
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
-
-  // Este estado é apenas para o contador local da sessão
-  const [sessionStats, setSessionStats] = useState({
-    totalQuestions: 0,
-    correctAnswers: 0,
-    wrongAnswers: 0
-  });
 
   const {
     selectedAnswer,
@@ -51,24 +46,14 @@ const QuestionCard = memo(({
     handleAnswer,
     handleReset
   } = useQuestionAnswer({
-    questionId: question.id
+    questionId: question.id,
+    studentId
   });
 
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
     handleReset();
   }, [question.id]);
-
-  // Atualiza apenas as estatísticas locais da sessão
-  useEffect(() => {
-    if (hasAnswered) {
-      setSessionStats(prev => ({
-        totalQuestions: prev.totalQuestions + 1,
-        correctAnswers: prev.correctAnswers + (selectedAnswer === question.correctAnswer ? 1 : 0),
-        wrongAnswers: prev.wrongAnswers + (selectedAnswer !== question.correctAnswer ? 1 : 0)
-      }));
-    }
-  }, [hasAnswered, selectedAnswer, question.correctAnswer]);
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
@@ -79,7 +64,6 @@ const QuestionCard = memo(({
       <QuestionHeader
         isFocusMode={false}
         onFocusModeToggle={() => {}}
-        sessionStats={sessionStats}
       />
       <QuestionContent
         question={question}
@@ -92,6 +76,7 @@ const QuestionCard = memo(({
         onPreviousQuestion={onPreviousQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
+        studentId={studentId}
       />
     </div>
   );

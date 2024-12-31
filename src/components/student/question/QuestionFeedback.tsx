@@ -10,6 +10,11 @@ interface QuestionFeedbackProps {
   explanation: string;
   onReset: () => void;
   questionId: string;
+  sessionStats?: {
+    correctAnswers: number;
+    totalAnswers: number;
+    answerDistribution: Record<string, number>;
+  };
 }
 
 const QuestionFeedback = ({
@@ -19,6 +24,11 @@ const QuestionFeedback = ({
   explanation,
   onReset,
   questionId,
+  sessionStats = {
+    correctAnswers: 0,
+    totalAnswers: 0,
+    answerDistribution: {},
+  },
 }: QuestionFeedbackProps) => {
   const [showStats, setShowStats] = useState(false);
 
@@ -69,11 +79,7 @@ const QuestionFeedback = ({
       <SessionStatsDialog
         open={showStats}
         onOpenChange={setShowStats}
-        sessionStats={{
-          correctAnswers: 0,
-          totalAnswers: 0,
-          answerDistribution: {}
-        }}
+        sessionStats={sessionStats}
       />
     </div>
   );
