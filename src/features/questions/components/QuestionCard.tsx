@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { QuestionContent } from "./question/QuestionContent";
-import { BlockedUserCard } from "./question/BlockedUserCard";
+import QuestionContent from "./question/QuestionContent";
+import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestion } from "@/contexts/QuestionContext";
+
+interface QuestionOption {
+  id: string;
+  text: string;
+}
 
 interface QuestionCardProps {
   question: {
     id: string;
     text: string;
-    option_a: string;
-    option_b: string;
-    option_c: string;
-    option_d: string;
-    option_e: string;
-    correct_answer: string;
+    options: QuestionOption[];
+    correctAnswer: string;
     explanation: string;
   };
   onNextQuestion: () => void;
@@ -20,6 +21,7 @@ interface QuestionCardProps {
   questionNumber: number;
   totalQuestions: number;
   isUserBlocked?: boolean;
+  showQuestionId?: boolean;
 }
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
@@ -29,10 +31,11 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
+  showQuestionId = false,
 }) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
-  // Estado local para estatísticas da sessão
+  // Estado local para as estatísticas da sessão atual (temporário)
   const [sessionStats, setSessionStats] = useState({
     totalQuestions: 0,
     correctAnswers: 0,
@@ -54,7 +57,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   const handleAnswer = () => {
     if (!hasAnswered && selectedAnswer) {
       setHasAnswered(true);
-      const isCorrect = selectedAnswer === question.correct_answer;
+      const isCorrect = selectedAnswer === question.correctAnswer;
       setSessionStats(prev => ({
         totalQuestions: prev.totalQuestions + 1,
         correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
@@ -74,7 +77,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 max-w-4xl w-full mx-auto">
+    <div className="space-y-6">
       <QuestionContent
         question={question}
         selectedAnswer={selectedAnswer}
@@ -87,6 +90,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         onPreviousQuestion={onPreviousQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
+        showQuestionId={showQuestionId}
       />
     </div>
   );
