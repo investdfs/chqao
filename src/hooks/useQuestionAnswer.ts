@@ -28,24 +28,38 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
       const effectiveStudentId = studentId || PREVIEW_USER_ID;
       console.log("Usando ID do estudante:", effectiveStudentId);
 
-      // First try to delete any existing answer
-      await supabase
+      // Primeiro verifica se já existe uma resposta
+      const { data: existingAnswer } = await supabase
         .from('question_answers')
-        .delete()
+        .select()
         .eq('question_id', questionId)
-        .eq('student_id', effectiveStudentId);
+        .eq('student_id', effectiveStudentId)
+        .single();
 
-      // Then insert the new answer
-      const { error: insertError } = await supabase
-        .from('question_answers')
-        .insert({
-          question_id: questionId,
-          selected_option: selectedAnswer,
-          student_id: effectiveStudentId
-        });
+      if (existingAnswer) {
+        // Se existe, atualiza
+        const { error: updateError } = await supabase
+          .from('question_answers')
+          .update({ selected_option: selectedAnswer })
+          .eq('question_id', questionId)
+          .eq('student_id', effectiveStudentId);
 
-      if (insertError) {
-        throw insertError;
+        if (updateError) {
+          throw updateError;
+        }
+      } else {
+        // Se não existe, insere
+        const { error: insertError } = await supabase
+          .from('question_answers')
+          .insert({
+            question_id: questionId,
+            selected_option: selectedAnswer,
+            student_id: effectiveStudentId
+          });
+
+        if (insertError) {
+          throw insertError;
+        }
       }
 
       console.log("Resposta salva com sucesso!");

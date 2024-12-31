@@ -19,15 +19,18 @@ export const PreviewDialog = ({ question, open, onOpenChange }: PreviewDialogPro
             question={{
               id: question.id,
               text: question.text,
-              options: [
-                { id: "A", text: question.option_a },
-                { id: "B", text: question.option_b },
-                { id: "C", text: question.option_c },
-                { id: "D", text: question.option_d },
-                { id: "E", text: question.option_e }
-              ],
-              correctAnswer: question.correct_answer,
-              explanation: question.explanation
+              option_a: question.option_a,
+              option_b: question.option_b,
+              option_c: question.option_c,
+              option_d: question.option_d,
+              option_e: question.option_e,
+              correct_answer: question.correct_answer,
+              explanation: question.explanation,
+              subject: question.subject,
+              topic: question.topic,
+              exam_year: question.exam_year,
+              is_from_previous_exam: question.is_from_previous_exam,
+              image_url: question.image_url
             }}
             onNextQuestion={() => {}}
             onPreviousQuestion={() => {}}

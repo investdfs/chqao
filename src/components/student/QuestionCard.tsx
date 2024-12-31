@@ -2,7 +2,7 @@ import { useEffect, memo, useState } from "react";
 import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
-import { useQuestion } from "@/contexts/QuestionContext";
+import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
 interface QuestionOption {
   id: string;
@@ -35,45 +35,41 @@ const QuestionCard = memo(({
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
+  studentId,
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
-  // Estado local para as estatísticas da sessão
   const [sessionStats, setSessionStats] = useState({
     totalQuestions: 0,
     correctAnswers: 0,
     wrongAnswers: 0
   });
 
-  // Estados locais para controle da resposta
-  const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [hasAnswered, setHasAnswered] = useState(false);
+  const {
+    selectedAnswer,
+    setSelectedAnswer,
+    hasAnswered,
+    handleAnswer,
+    handleReset
+  } = useQuestionAnswer({
+    questionId: question.id,
+    studentId
+  });
 
-  // Reset do estado quando a questão muda
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
-    setSelectedAnswer("");
-    setHasAnswered(false);
+    handleReset();
   }, [question.id]);
 
-  // Função para lidar com a resposta
-  const handleAnswer = () => {
-    if (!hasAnswered && selectedAnswer) {
-      setHasAnswered(true);
-      const isCorrect = selectedAnswer === question.correctAnswer;
+  useEffect(() => {
+    if (hasAnswered) {
       setSessionStats(prev => ({
         totalQuestions: prev.totalQuestions + 1,
-        correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
-        wrongAnswers: prev.wrongAnswers + (isCorrect ? 0 : 1)
+        correctAnswers: prev.correctAnswers + (selectedAnswer === question.correctAnswer ? 1 : 0),
+        wrongAnswers: prev.wrongAnswers + (selectedAnswer !== question.correctAnswer ? 1 : 0)
       }));
     }
-  };
-
-  // Função para resetar a resposta atual
-  const handleReset = () => {
-    setSelectedAnswer("");
-    setHasAnswered(false);
-  };
+  }, [hasAnswered, selectedAnswer, question.correctAnswer]);
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
@@ -97,6 +93,7 @@ const QuestionCard = memo(({
         onPreviousQuestion={onPreviousQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
+        studentId={studentId}
       />
     </div>
   );

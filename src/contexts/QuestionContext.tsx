@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { useQuestionPractice } from '@/hooks/useQuestionPractice';
 
 interface Question {
@@ -9,12 +9,6 @@ interface Question {
   options: Array<{ id: string; text: string }>;
   correctAnswer: string;
   explanation: string;
-}
-
-interface SessionStats {
-  totalQuestions: number;
-  correctAnswers: number;
-  wrongAnswers: number;
 }
 
 interface QuestionContextData {
@@ -29,9 +23,6 @@ interface QuestionContextData {
   currentQuestion: Question | null;
   selectedExamYear?: number;
   setSelectedExamYear: (year: number) => void;
-  sessionStats: SessionStats;
-  updateSessionStats: (isCorrect: boolean) => void;
-  resetSessionStats: () => void;
 }
 
 const QuestionContext = createContext<QuestionContextData | undefined>(undefined);
@@ -49,28 +40,6 @@ export function QuestionProvider({ children }: { children: ReactNode }) {
     selectedExamYear,
     setSelectedExamYear
   } = useQuestionPractice();
-
-  const [sessionStats, setSessionStats] = useState<SessionStats>({
-    totalQuestions: 0,
-    correctAnswers: 0,
-    wrongAnswers: 0
-  });
-
-  const updateSessionStats = (isCorrect: boolean) => {
-    setSessionStats(prev => ({
-      totalQuestions: prev.totalQuestions + 1,
-      correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
-      wrongAnswers: prev.wrongAnswers + (isCorrect ? 0 : 1)
-    }));
-  };
-
-  const resetSessionStats = () => {
-    setSessionStats({
-      totalQuestions: 0,
-      correctAnswers: 0,
-      wrongAnswers: 0
-    });
-  };
 
   const currentQuestion = questions?.[currentQuestionIndex] ? {
     id: questions[currentQuestionIndex].id,
@@ -101,10 +70,7 @@ export function QuestionProvider({ children }: { children: ReactNode }) {
         handlePreviousQuestion,
         currentQuestion,
         selectedExamYear,
-        setSelectedExamYear,
-        sessionStats,
-        updateSessionStats,
-        resetSessionStats
+        setSelectedExamYear
       }}
     >
       {children}
