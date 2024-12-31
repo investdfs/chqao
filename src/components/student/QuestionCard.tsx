@@ -3,7 +3,7 @@ import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
-import { useSessionStats } from "@/hooks/useSessionStats";
+import { useQuestion } from "@/contexts/QuestionContext";
 
 interface QuestionOption {
   id: string;
@@ -40,7 +40,7 @@ const QuestionCard = memo(({
 }: QuestionCardProps) => {
   console.log("Renderizando QuestionCard para questão:", question.id);
 
-  const { stats, updateStats } = useSessionStats();
+  const { sessionStats, updateSessionStats } = useQuestion();
 
   const {
     selectedAnswer,
@@ -61,9 +61,9 @@ const QuestionCard = memo(({
   useEffect(() => {
     if (hasAnswered) {
       const isCorrect = selectedAnswer === question.correctAnswer;
-      updateStats(isCorrect);
+      updateSessionStats(isCorrect);
     }
-  }, [hasAnswered, selectedAnswer, question.correctAnswer, updateStats]);
+  }, [hasAnswered, selectedAnswer, question.correctAnswer, updateSessionStats]);
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
@@ -74,7 +74,7 @@ const QuestionCard = memo(({
       <QuestionHeader
         isFocusMode={false}
         onFocusModeToggle={() => {}}
-        sessionStats={stats}
+        sessionStats={sessionStats}
       />
       <QuestionContent
         question={question}
