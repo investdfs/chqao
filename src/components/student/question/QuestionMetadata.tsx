@@ -1,17 +1,26 @@
 interface QuestionMetadataProps {
-  id: string;  // Changed from number to string
+  id: string;
   subject?: string;
   topic?: string;
   source?: string;
+  showId?: boolean; // Added this prop
 }
 
-const QuestionMetadata = ({ id, subject, topic, source }: QuestionMetadataProps) => {
+const QuestionMetadata = ({ 
+  id, 
+  subject, 
+  topic, 
+  source,
+  showId = true // Default to true to maintain existing behavior
+}: QuestionMetadataProps) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-primary dark:text-blue-400">
-          Q.{id}
-        </span>
+        {showId && (
+          <span className="text-sm font-medium text-primary dark:text-blue-400">
+            Q.{id}
+          </span>
+        )}
         {subject && (
           <>
             <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
