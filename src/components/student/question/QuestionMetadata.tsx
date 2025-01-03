@@ -3,7 +3,9 @@ interface QuestionMetadataProps {
   subject?: string;
   topic?: string;
   source?: string;
-  showId?: boolean; // Added this prop
+  examYear?: number;
+  isFromPreviousExam?: boolean;
+  showId?: boolean;
 }
 
 const QuestionMetadata = ({ 
@@ -11,31 +13,31 @@ const QuestionMetadata = ({
   subject, 
   topic, 
   source,
-  showId = true // Default to true to maintain existing behavior
+  examYear,
+  isFromPreviousExam,
+  showId = true
 }: QuestionMetadataProps) => {
+  const examInfo = isFromPreviousExam && examYear 
+    ? `EIPS/CHQAO ${examYear} (Q${id.toString().padStart(4, '0')})`
+    : `Q.${id}`;
+
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
       <div className="flex items-center gap-2">
         {showId && (
-          <span className="text-sm font-medium text-primary dark:text-blue-400">
-            Q.{id}
+          <span className="hidden sm:inline font-medium text-primary/70 dark:text-blue-400/70">
+            {examInfo}
           </span>
         )}
         {subject && (
-          <>
-            <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{subject}</span>
-          </>
+          <span>{subject}</span>
         )}
         {topic && (
-          <>
-            <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{topic}</span>
-          </>
+          <span className="hidden sm:inline">• {topic}</span>
         )}
       </div>
       {source && (
-        <span className="text-xs text-gray-500 dark:text-gray-400">{source}</span>
+        <span className="text-[10px]">{source}</span>
       )}
     </div>
   );

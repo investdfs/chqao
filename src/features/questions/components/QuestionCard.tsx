@@ -21,6 +21,7 @@ interface QuestionCardProps {
   totalQuestions: number;
   studentId?: string;
   isUserBlocked?: boolean;
+  showQuestionId?: boolean;
 }
 
 const QuestionCard = ({
@@ -31,6 +32,7 @@ const QuestionCard = ({
   totalQuestions,
   studentId,
   isUserBlocked = false,
+  showQuestionId = false,
 }: QuestionCardProps) => {
   const [sessionStats, setSessionStats] = useState({
     totalAnswered: 0,
@@ -52,7 +54,6 @@ const QuestionCard = ({
   const handleAnswer = async () => {
     await originalHandleAnswer();
     
-    // Update session stats after answering
     setSessionStats(prev => {
       const isCorrect = selectedAnswer === question.correctAnswer;
       return {
@@ -81,6 +82,7 @@ const QuestionCard = ({
       totalQuestions={totalQuestions}
       studentId={studentId}
       sessionStats={sessionStats}
+      showQuestionId={showQuestionId}
     />
   );
 };
