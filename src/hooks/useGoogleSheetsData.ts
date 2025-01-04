@@ -22,7 +22,8 @@ export const useGoogleSheetsData = () => {
       // Busca administradores
       const { data: admins, error: adminsError } = await supabase
         .from('admins')
-        .select('*');
+        .select('*')
+        .order('name');
 
       if (adminsError) {
         console.error('Erro ao buscar administradores:', adminsError);
@@ -39,7 +40,8 @@ export const useGoogleSheetsData = () => {
       // Busca estudantes
       const { data: students, error: studentsError } = await supabase
         .from('students')
-        .select('*');
+        .select('*')
+        .order('name');
 
       if (studentsError) {
         console.error('Erro ao buscar estudantes:', studentsError);
@@ -66,10 +68,15 @@ export const useGoogleSheetsData = () => {
       ];
 
       console.log('Total de usuários carregados:', users.length);
+      
+      if (users.length === 0) {
+        console.log('Nenhum usuário encontrado. Verifique as políticas de RLS.');
+      }
+      
       return { users };
     },
-    refetchInterval: 5000, // Atualiza a cada 5 segundos
-    staleTime: 3000, // Considera os dados desatualizados após 3 segundos
+    refetchInterval: 5000,
+    staleTime: 3000,
     retry: 3,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });

@@ -6,6 +6,8 @@ import { StudentList } from "./StudentList";
 import { useStudentManager } from "./manager/useStudentManager";
 import { AddStudentForm } from "./manager/AddStudentForm";
 import { LoginControlDialog } from "./manager/LoginControlDialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export const StudentManager = () => {
   const {
@@ -70,11 +72,20 @@ export const StudentManager = () => {
       </CardHeader>
       {showStudents && (
         <CardContent>
-          <StudentList 
-            students={students} 
-            onToggleStatus={handleToggleStatus}
-            onUpdateStudent={handleUpdateStudent}
-          />
+          {students.length === 0 ? (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Nenhum aluno encontrado. Verifique se você tem as permissões necessárias.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <StudentList 
+              students={students} 
+              onToggleStatus={handleToggleStatus}
+              onUpdateStudent={handleUpdateStudent}
+            />
+          )}
         </CardContent>
       )}
     </Card>
