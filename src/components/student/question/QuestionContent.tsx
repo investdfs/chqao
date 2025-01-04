@@ -35,6 +35,7 @@ interface QuestionContentProps {
     correctAnswers: number;
     incorrectAnswers: number;
   };
+  showQuestionId?: boolean;
 }
 
 const QuestionContent = memo(({
@@ -50,6 +51,7 @@ const QuestionContent = memo(({
   totalQuestions,
   studentId,
   sessionStats,
+  showQuestionId = false,
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
@@ -77,6 +79,7 @@ const QuestionContent = memo(({
             subject={question.subject}
             topic={question.topic}
             source={question.source}
+            showId={showQuestionId}
           />
 
           <div className="text-base dark:text-gray-200 text-left">
