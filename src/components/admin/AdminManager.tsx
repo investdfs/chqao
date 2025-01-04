@@ -21,7 +21,7 @@ export const AdminManager = () => {
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow">
-      <CardHeader>
+      <CardHeader className="pb-4">
         <AdminManagerHeader
           showAdmins={showAdmins}
           onToggleView={() => setShowAdmins(!showAdmins)}

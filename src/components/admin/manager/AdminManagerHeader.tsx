@@ -21,7 +21,7 @@ export const AdminManagerHeader = ({
           variant="ghost"
           size="icon"
           onClick={onToggleView}
-          className="h-8 w-8"
+          className="h-8 w-8 hover:bg-secondary"
         >
           {showAdmins ? (
             <ChevronUp className="h-4 w-4" />
