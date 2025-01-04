@@ -16,7 +16,20 @@ export const AdminManager = () => {
   } = useAdminManager();
 
   if (isLoading) {
-    return <div>Carregando...</div>;
+    return (
+      <Card className="shadow-lg hover:shadow-xl transition-shadow">
+        <CardHeader className="pb-4">
+          <AdminManagerHeader
+            showAdmins={showAdmins}
+            onToggleView={() => setShowAdmins(!showAdmins)}
+            onAddAdmin={handleAddAdmin}
+          />
+        </CardHeader>
+        <CardContent>
+          <div>Carregando...</div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -28,9 +41,9 @@ export const AdminManager = () => {
           onAddAdmin={handleAddAdmin}
         />
       </CardHeader>
-      {showAdmins && (
-        <CardContent>
-          {admins.length === 0 ? (
+      <CardContent>
+        {showAdmins ? (
+          admins.length === 0 ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -39,9 +52,15 @@ export const AdminManager = () => {
             </Alert>
           ) : (
             <AdminList admins={admins} onToggleStatus={handleToggleStatus} />
-          )}
-        </CardContent>
-      )}
+          )
+        ) : (
+          <Alert>
+            <AlertDescription>
+              Clique no botão acima para visualizar a lista de administradores.
+            </AlertDescription>
+          </Alert>
+        )}
+      </CardContent>
     </Card>
   );
 };

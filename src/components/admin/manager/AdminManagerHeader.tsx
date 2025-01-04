@@ -18,11 +18,12 @@ export const AdminManagerHeader = ({
       <div className="flex items-center gap-4">
         <h2 className="text-2xl font-bold">Administradores</h2>
         <Button
-          variant="ghost"
-          size="icon"
+          variant="outline"
+          size="sm"
           onClick={onToggleView}
-          className="h-8 w-8 hover:bg-secondary"
+          className="flex items-center gap-2"
         >
+          {showAdmins ? "Ocultar Lista" : "Mostrar Lista"}
           {showAdmins ? (
             <ChevronUp className="h-4 w-4" />
           ) : (
