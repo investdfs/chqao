@@ -22,7 +22,7 @@ export const useAuthLogin = () => {
 
       console.log('Resultado da busca por estudante:', { student, studentError });
 
-      if (studentError) {
+      if (studentError && studentError.code !== 'PGRST116') {
         console.error('Erro ao buscar estudante:', studentError);
         throw studentError;
       }
@@ -37,7 +37,7 @@ export const useAuthLogin = () => {
 
         console.log('Resultado da busca por admin:', { admin, adminError });
 
-        if (adminError) {
+        if (adminError && adminError.code !== 'PGRST116') {
           console.error('Erro ao buscar admin:', adminError);
           throw adminError;
         }
@@ -82,6 +82,15 @@ export const useAuthLogin = () => {
         return;
       }
 
+      if (student.status === 'blocked') {
+        toast({
+          title: "Acesso bloqueado",
+          description: "Sua conta está bloqueada. Entre em contato com um administrador.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Verificar senha do estudante
       const { data: studentAuth, error: studentAuthError } = await supabase
         .from('students')
@@ -94,15 +103,6 @@ export const useAuthLogin = () => {
         toast({
           title: "Erro ao fazer login",
           description: "Email ou senha incorretos.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (student.status === 'blocked') {
-        toast({
-          title: "Acesso bloqueado",
-          description: "Sua conta está bloqueada. Entre em contato com um administrador.",
           variant: "destructive",
         });
         return;
@@ -123,7 +123,12 @@ export const useAuthLogin = () => {
 
       if (sessionError) {
         console.error('Erro ao verificar sessão:', sessionError);
-        throw sessionError;
+        toast({
+          title: "Erro ao fazer login",
+          description: "Erro ao verificar sessão. Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+        return;
       }
 
       console.log('Resultado da verificação de sessão:', sessionCheck);
