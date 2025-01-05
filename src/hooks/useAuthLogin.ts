@@ -18,23 +18,27 @@ export const useAuthLogin = () => {
         .from('students')
         .select('id, status')
         .eq('email', email)
-        .eq('password', password)
         .single();
 
-      if (studentError && studentError.code !== 'PGRST116') {
+      console.log('Resultado da busca por estudante:', { student, studentError });
+
+      if (studentError) {
+        console.error('Erro ao buscar estudante:', studentError);
         throw studentError;
       }
 
-      // Se não for estudante, tentar como admin
       if (!student) {
+        // Se não for estudante, tentar como admin
         const { data: admin, error: adminError } = await supabase
           .from('admins')
           .select('id, status')
           .eq('email', email)
-          .eq('password', password)
           .single();
 
+        console.log('Resultado da busca por admin:', { admin, adminError });
+
         if (adminError) {
+          console.error('Erro ao buscar admin:', adminError);
           throw adminError;
         }
 
@@ -56,9 +60,51 @@ export const useAuthLogin = () => {
           return;
         }
 
-        // Login de admin bem sucedido
+        // Verificar senha do admin
+        const { data: adminAuth, error: adminAuthError } = await supabase
+          .from('admins')
+          .select('id')
+          .eq('email', email)
+          .eq('password', password)
+          .single();
+
+        if (adminAuthError || !adminAuth) {
+          toast({
+            title: "Erro ao fazer login",
+            description: "Email ou senha incorretos.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         console.log('Login de administrador bem sucedido');
-        navigate('/admin');
+        navigate('/admin-dashboard');
+        return;
+      }
+
+      // Verificar senha do estudante
+      const { data: studentAuth, error: studentAuthError } = await supabase
+        .from('students')
+        .select('id')
+        .eq('email', email)
+        .eq('password', password)
+        .single();
+
+      if (studentAuthError || !studentAuth) {
+        toast({
+          title: "Erro ao fazer login",
+          description: "Email ou senha incorretos.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (student.status === 'blocked') {
+        toast({
+          title: "Acesso bloqueado",
+          description: "Sua conta está bloqueada. Entre em contato com um administrador.",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -76,7 +122,19 @@ export const useAuthLogin = () => {
         });
 
       if (sessionError) {
+        console.error('Erro ao verificar sessão:', sessionError);
         throw sessionError;
+      }
+
+      console.log('Resultado da verificação de sessão:', sessionCheck);
+
+      if (!sessionCheck || sessionCheck.length === 0) {
+        toast({
+          title: "Erro ao fazer login",
+          description: "Erro ao verificar sessão. Tente novamente.",
+          variant: "destructive",
+        });
+        return;
       }
 
       const [canLogin, message] = Object.values(sessionCheck[0]);
@@ -92,7 +150,7 @@ export const useAuthLogin = () => {
 
       // Login de estudante bem sucedido
       console.log('Login de estudante bem sucedido');
-      navigate('/student');
+      navigate('/student-dashboard');
 
     } catch (error) {
       console.error('Erro durante o login:', error);
