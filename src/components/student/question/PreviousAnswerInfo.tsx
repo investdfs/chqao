@@ -10,10 +10,13 @@ interface PreviousAnswerInfoProps {
 }
 
 const PreviousAnswerInfo = memo(({ questionId, studentId }: PreviousAnswerInfoProps) => {
+  console.log("Renderizando PreviousAnswerInfo para questão:", questionId, "e estudante:", studentId);
+
   const { data: previousAnswer } = useQuery({
     queryKey: ['previousAnswer', questionId, studentId],
     queryFn: async () => {
       if (!studentId) return null;
+      console.log("Buscando resposta anterior para questão:", questionId);
 
       const { data, error } = await supabase
         .from('question_answers')
@@ -27,13 +30,14 @@ const PreviousAnswerInfo = memo(({ questionId, studentId }: PreviousAnswerInfoPr
         .eq('student_id', studentId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Erro ao buscar resposta anterior:', error);
         return null;
       }
 
+      console.log("Resposta anterior encontrada:", data);
       return data;
     },
     enabled: !!studentId && !!questionId,
