@@ -7,10 +7,10 @@ import { useAuthLogin } from "@/hooks/useAuthLogin";
 const Login = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
-  const { handleLogin, loading } = useAuthLogin();
+  const { handleLogin, isLoading } = useAuthLogin();
 
   const handleSubmit = (email: string, password: string) => {
-    handleLogin({ email, password }, isAdmin);
+    handleLogin(email, password);
   };
 
   return (
@@ -22,7 +22,7 @@ const Login = () => {
         <CardContent>
           <LoginForm
             onSubmit={handleSubmit}
-            loading={loading}
+            loading={isLoading}
             isAdmin={isAdmin}
             onAdminToggle={setIsAdmin}
           />
