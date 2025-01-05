@@ -4,21 +4,21 @@ import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
-interface QuestionOption {
-  id: string;
-  text: string;
-}
-
 interface QuestionCardProps {
   question: {
     id: string;
     text: string;
-    options: QuestionOption[];
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
     source?: string;
     subject?: string;
     topic?: string;
+    image_url?: string;
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
@@ -61,7 +61,7 @@ const QuestionCard = memo(({
     
     // Update session stats after answering
     setSessionStats(prev => {
-      const isCorrect = selectedAnswer === question.correctAnswer;
+      const isCorrect = selectedAnswer === question.correct_answer;
       return {
         totalAnswered: prev.totalAnswered + 1,
         correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),

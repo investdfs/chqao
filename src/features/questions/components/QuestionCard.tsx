@@ -10,8 +10,12 @@ interface QuestionCardProps {
     subject?: string;
     topic?: string;
     source?: string;
-    options: Array<{ id: string; text: string }>;
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
     image_url?: string;
   };
@@ -55,7 +59,7 @@ const QuestionCard = ({
     await originalHandleAnswer();
     
     setSessionStats(prev => {
-      const isCorrect = selectedAnswer === question.correctAnswer;
+      const isCorrect = selectedAnswer === question.correct_answer;
       return {
         totalAnswered: prev.totalAnswered + 1,
         correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
