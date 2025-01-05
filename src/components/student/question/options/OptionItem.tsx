@@ -39,6 +39,7 @@ export const OptionItem = ({
         <div className="relative flex items-center w-full">
           <RadioGroupItem value={id} id={id} className="absolute left-0" />
           <span className="flex-1 ml-6 text-sm dark:text-gray-200">
+            <span className="font-semibold mr-2">{id})</span>
             {text}
           </span>
           {hasAnswered && (
