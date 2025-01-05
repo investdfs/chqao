@@ -15,8 +15,12 @@ interface QuestionContentProps {
     subject?: string;
     topic?: string;
     source?: string;
-    options: Array<{ id: string; text: string }>;
-    correctAnswer: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    option_e: string;
+    correct_answer: string;
     explanation: string;
     image_url?: string;
   };
@@ -55,8 +59,16 @@ const QuestionContent = memo(({
 }: QuestionContentProps) => {
   console.log("Renderizando QuestionContent para questão:", question.id);
 
+  const options = [
+    { id: "A", text: question.option_a },
+    { id: "B", text: question.option_b },
+    { id: "C", text: question.option_c },
+    { id: "D", text: question.option_d },
+    { id: "E", text: question.option_e },
+  ];
+
   return (
-    <Card className="dark:bg-gray-800 relative">
+    <Card className="animate-fade-in dark:bg-gray-800">
       <CardContent className="p-4 sm:p-6">
         <QuestionCommentsDialog questionId={question.id} />
         
@@ -97,10 +109,10 @@ const QuestionContent = memo(({
           </div>
 
           <QuestionOptions
-            options={question.options}
+            options={options}
             selectedAnswer={selectedAnswer}
             hasAnswered={hasAnswered}
-            correctAnswer={question.correctAnswer}
+            correctAnswer={question.correct_answer}
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
             onAutoAnswer={handleAnswer}
@@ -118,9 +130,9 @@ const QuestionContent = memo(({
 
           {hasAnswered && (
             <QuestionFeedback
-              isCorrect={selectedAnswer === question.correctAnswer}
+              isCorrect={selectedAnswer === question.correct_answer}
               selectedAnswer={selectedAnswer}
-              correctAnswer={question.correctAnswer}
+              correctAnswer={question.correct_answer}
               explanation={question.explanation}
               onReset={handleReset}
               questionId={question.id}
