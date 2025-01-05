@@ -53,7 +53,7 @@ const Index = () => {
               <div className="relative w-full aspect-square max-w-lg mx-auto">
                 <div className="absolute inset-0 bg-gradient-conic from-primary/30 via-primary-light to-transparent animate-spin-slow rounded-full blur-3xl" />
                 <img
-                  src="/lovable-uploads/61997174-9751-4a94-8add-1f70e8b37b84.png"
+                  src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/01/whisk_storyboard2bd719a2e81c47df9d3e5e971e9634.png"
                   alt="Emblema Militar CHQAO"
                   className="relative z-10 w-full h-full object-contain rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300"
                 />
