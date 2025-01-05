@@ -3,103 +3,111 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-const isPreviewMode = window.location.hostname === 'preview.lovable.dev';
-
 export const useAuthLogin = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (formData: LoginFormData, isAdmin: boolean) => {
-    // Se estiver no modo preview, redireciona direto sem autenticação
-    if (isPreviewMode) {
-      console.log("Preview mode: bypassing authentication");
-      navigate(isAdmin ? "/admin-dashboard" : "/student-dashboard");
-      return;
-    }
-
-    setLoading(true);
-    const normalizedEmail = formData.email.toLowerCase().trim();
-    
+  const handleLogin = async (email: string, password: string) => {
     try {
-      console.log("Iniciando processo de login para:", normalizedEmail);
+      setIsLoading(true);
+      console.log('Iniciando processo de login para:', email);
 
-      // Verifica se o usuário existe na tabela correta
-      const { data: existingUser, error: queryError } = await supabase
-        .from(isAdmin ? 'admins' : 'students')
-        .select('*')
-        .eq('email', normalizedEmail)
-        .eq('password', formData.password)
+      // Primeiro, verificar se é um estudante
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('id, status')
+        .eq('email', email)
+        .eq('password', password)
         .single();
 
-      console.log("Resultado da busca do usuário:", { existingUser, queryError });
+      if (studentError && studentError.code !== 'PGRST116') {
+        throw studentError;
+      }
 
-      if (queryError || !existingUser) {
-        console.log("Usuário não encontrado ou senha incorreta");
+      // Se não for estudante, tentar como admin
+      if (!student) {
+        const { data: admin, error: adminError } = await supabase
+          .from('admins')
+          .select('id, status')
+          .eq('email', email)
+          .eq('password', password)
+          .single();
+
+        if (adminError) {
+          throw adminError;
+        }
+
+        if (!admin) {
+          toast({
+            title: "Erro ao fazer login",
+            description: "Email ou senha incorretos.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (admin.status === 'blocked') {
+          toast({
+            title: "Acesso bloqueado",
+            description: "Sua conta está bloqueada. Entre em contato com um administrador.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Login de admin bem sucedido
+        console.log('Login de administrador bem sucedido');
+        navigate('/admin');
+        return;
+      }
+
+      // Verificar sessão do estudante
+      const { data: ipResponse } = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.json());
+      
+      const ip = ipResponse?.ip || 'unknown';
+      console.log('IP do usuário:', ip);
+
+      const { data: sessionCheck, error: sessionError } = await supabase
+        .rpc('check_and_register_session', {
+          p_student_id: student.id,
+          p_ip_address: ip
+        });
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      const [canLogin, message] = Object.values(sessionCheck[0]);
+
+      if (!canLogin) {
         toast({
           title: "Acesso negado",
-          description: isAdmin ? "Credenciais de administrador inválidas." : "Email ou senha incorretos.",
-          variant: "destructive"
+          description: message,
+          variant: "destructive",
         });
-        setLoading(false);
         return;
       }
 
-      if (existingUser.status === 'blocked') {
-        console.log("Usuário bloqueado:", existingUser);
-        toast({
-          title: "Acesso bloqueado",
-          description: isAdmin 
-            ? "Sua conta de administrador está bloqueada."
-            : "Sua conta está bloqueada. Entre em contato com o suporte.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
+      // Login de estudante bem sucedido
+      console.log('Login de estudante bem sucedido');
+      navigate('/student');
 
-      // Se não estiver em modo preview, tenta fazer login no Supabase Auth
-      if (!isPreviewMode) {
-        console.log("Tentando fazer login no Supabase Auth...");
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: normalizedEmail,
-          password: formData.password,
-        });
-
-        if (signInError) {
-          console.error('Erro no login:', signInError);
-          throw signInError;
-        }
-      }
-
-      console.log("Login realizado com sucesso!");
-      toast({
-        title: "Login realizado com sucesso!",
-        description: isAdmin ? "Bem-vindo, Administrador!" : "Bem-vindo ao CHQAO!",
-      });
-
-      navigate(isAdmin ? "/admin-dashboard" : "/student-dashboard", {
-        state: { userStatus: existingUser.status }
-      });
-    } catch (error: any) {
-      console.error('Error during login:', error);
+    } catch (error) {
+      console.error('Erro durante o login:', error);
       toast({
         title: "Erro ao fazer login",
-        description: error.message || "Por favor, tente novamente.",
-        variant: "destructive"
+        description: "Ocorreu um erro durante o login. Tente novamente.",
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return {
+    isLoading,
     handleLogin,
-    loading
   };
 };

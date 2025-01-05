@@ -9,6 +9,38 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      active_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: string
+          last_seen: string | null
+          student_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address: string
+          last_seen?: string | null
+          student_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: string
+          last_seen?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admins: {
         Row: {
           created_at: string
@@ -402,6 +434,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_and_register_session: {
+        Args: {
+          p_student_id: string
+          p_ip_address: string
+        }
+        Returns: {
+          can_login: boolean
+          message: string
+        }[]
+      }
+      cleanup_inactive_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_answer_counts: {
         Args: {
           question_id: string
