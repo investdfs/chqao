@@ -18,28 +18,38 @@ export const useAuthLogin = () => {
         .from('students')
         .select('id, status')
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
       console.log('Resultado da busca por estudante:', { student, studentError });
 
-      if (studentError && studentError.code !== 'PGRST116') {
+      if (studentError) {
         console.error('Erro ao buscar estudante:', studentError);
-        throw studentError;
+        toast({
+          title: "Erro ao fazer login",
+          description: "Ocorreu um erro ao verificar suas credenciais.",
+          variant: "destructive",
+        });
+        return;
       }
 
+      // Se não for estudante, tentar como admin
       if (!student) {
-        // Se não for estudante, tentar como admin
         const { data: admin, error: adminError } = await supabase
           .from('admins')
           .select('id, status')
           .eq('email', email)
-          .single();
+          .maybeSingle();
 
         console.log('Resultado da busca por admin:', { admin, adminError });
 
-        if (adminError && adminError.code !== 'PGRST116') {
+        if (adminError) {
           console.error('Erro ao buscar admin:', adminError);
-          throw adminError;
+          toast({
+            title: "Erro ao fazer login",
+            description: "Ocorreu um erro ao verificar suas credenciais.",
+            variant: "destructive",
+          });
+          return;
         }
 
         if (!admin) {
@@ -66,7 +76,7 @@ export const useAuthLogin = () => {
           .select('id')
           .eq('email', email)
           .eq('password', password)
-          .single();
+          .maybeSingle();
 
         if (adminAuthError || !adminAuth) {
           toast({
@@ -97,7 +107,7 @@ export const useAuthLogin = () => {
         .select('id')
         .eq('email', email)
         .eq('password', password)
-        .single();
+        .maybeSingle();
 
       if (studentAuthError || !studentAuth) {
         toast({
@@ -130,8 +140,6 @@ export const useAuthLogin = () => {
         });
         return;
       }
-
-      console.log('Resultado da verificação de sessão:', sessionCheck);
 
       if (!sessionCheck || sessionCheck.length === 0) {
         toast({
