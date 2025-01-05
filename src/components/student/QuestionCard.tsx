@@ -70,9 +70,11 @@ const QuestionCard = memo(({
     });
   };
 
+  // Reset state when question changes
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
     handleReset();
+    setSelectedAnswer(''); // Explicitly reset selected answer
   }, [question.id]);
 
   if (isUserBlocked) {
