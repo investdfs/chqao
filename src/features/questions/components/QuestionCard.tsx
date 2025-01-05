@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import QuestionContent from "@/components/student/question/QuestionContent";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 import BlockedUserCard from "./question/BlockedUserCard";
@@ -67,6 +67,13 @@ const QuestionCard = ({
       };
     });
   };
+
+  // Reset state when question changes
+  useEffect(() => {
+    console.log("Question ID mudou para:", question.id, "- resetando estado");
+    handleReset();
+    setSelectedAnswer('');
+  }, [question.id]);
 
   if (isUserBlocked) {
     return <BlockedUserCard />;
