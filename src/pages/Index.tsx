@@ -53,9 +53,9 @@ const Index = () => {
               <div className="relative w-full aspect-square max-w-lg mx-auto">
                 <div className="absolute inset-0 bg-gradient-conic from-primary/30 via-primary-light to-transparent animate-spin-slow rounded-full blur-3xl" />
                 <img
-                  src="/placeholder.svg"
-                  alt="Estudante praticando questões"
-                  className="relative z-10 w-full h-full object-cover rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300"
+                  src="/lovable-uploads/61997174-9751-4a94-8add-1f70e8b37b84.png"
+                  alt="Emblema Militar CHQAO"
+                  className="relative z-10 w-full h-full object-contain rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </div>
