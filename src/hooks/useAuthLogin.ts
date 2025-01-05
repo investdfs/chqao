@@ -119,51 +119,63 @@ export const useAuthLogin = () => {
       }
 
       // Verificar sessão do estudante
-      const { data: ipResponse } = await fetch('https://api.ipify.org?format=json')
-        .then(res => res.json());
-      
-      const ip = ipResponse?.ip || 'unknown';
-      console.log('IP do usuário:', ip);
+      try {
+        const { data: ipResponse } = await fetch('https://api.ipify.org?format=json')
+          .then(res => res.json());
+        
+        const ip = ipResponse?.ip || 'unknown';
+        console.log('IP do usuário:', ip);
 
-      const { data: sessionCheck, error: sessionError } = await supabase
-        .rpc('check_and_register_session', {
-          p_student_id: student.id,
-          p_ip_address: ip
-        });
+        const { data: sessionCheck, error: sessionError } = await supabase
+          .rpc('check_and_register_session', {
+            p_student_id: student.id,
+            p_ip_address: ip
+          });
 
-      if (sessionError) {
-        console.error('Erro ao verificar sessão:', sessionError);
+        console.log('Resultado da verificação de sessão:', { sessionCheck, sessionError });
+
+        if (sessionError) {
+          console.error('Erro ao verificar sessão:', sessionError);
+          toast({
+            title: "Erro ao fazer login",
+            description: "Erro ao verificar sessão. Tente novamente mais tarde.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (!sessionCheck || sessionCheck.length === 0) {
+          toast({
+            title: "Erro ao fazer login",
+            description: "Erro ao verificar sessão. Tente novamente.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const [canLogin, message] = Object.values(sessionCheck[0]);
+
+        if (!canLogin) {
+          toast({
+            title: "Acesso negado",
+            description: message,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Login de estudante bem sucedido
+        console.log('Login de estudante bem sucedido');
+        navigate('/student-dashboard');
+
+      } catch (error) {
+        console.error('Erro ao verificar IP ou sessão:', error);
         toast({
           title: "Erro ao fazer login",
           description: "Erro ao verificar sessão. Tente novamente mais tarde.",
           variant: "destructive",
         });
-        return;
       }
-
-      if (!sessionCheck || sessionCheck.length === 0) {
-        toast({
-          title: "Erro ao fazer login",
-          description: "Erro ao verificar sessão. Tente novamente.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const [canLogin, message] = Object.values(sessionCheck[0]);
-
-      if (!canLogin) {
-        toast({
-          title: "Acesso negado",
-          description: message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Login de estudante bem sucedido
-      console.log('Login de estudante bem sucedido');
-      navigate('/student-dashboard');
 
     } catch (error) {
       console.error('Erro durante o login:', error);
