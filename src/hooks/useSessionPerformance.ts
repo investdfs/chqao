@@ -12,6 +12,12 @@ export const useSessionPerformance = () => {
     const total = correctAnswers + incorrectAnswers;
     const percentage = total > 0 ? (correctAnswers / total) * 100 : 0;
 
+    console.log("Saving session performance:", {
+      correctAnswers,
+      incorrectAnswers,
+      percentage
+    });
+
     const { error } = await supabase
       .from('study_sessions')
       .insert({

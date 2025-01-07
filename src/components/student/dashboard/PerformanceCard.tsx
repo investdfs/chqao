@@ -17,9 +17,11 @@ export const PerformanceCard = ({
   incorrectAnswers = 0, 
   percentage = 0 
 }: PerformanceCardProps) => {
+  // Fetch study sessions history with real-time updates
   const { data: history = [] } = useQuery<StudySession[]>({
     queryKey: ['performance-history'],
     queryFn: async () => {
+      console.log("Fetching performance history");
       const { data, error } = await supabase
         .from('study_sessions')
         .select('*')
@@ -30,8 +32,12 @@ export const PerformanceCard = ({
         return [];
       }
 
+      console.log("Performance history fetched:", data);
       return data;
-    }
+    },
+    // Enable real-time updates
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true
   });
 
   return (

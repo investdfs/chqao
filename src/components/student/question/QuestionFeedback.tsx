@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Check, X, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SessionStatsDialog } from "@/features/questions/components/stats/SessionStatsDialog";
+import { useSessionPerformance } from "@/hooks/useSessionPerformance";
+import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface QuestionFeedbackProps {
   isCorrect: boolean;
@@ -31,6 +34,34 @@ const QuestionFeedback = ({
   },
 }: QuestionFeedbackProps) => {
   const [showStats, setShowStats] = useState(false);
+  const { saveSessionPerformance } = useSessionPerformance();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleExit = async () => {
+    console.log("Saving session performance:", sessionStats);
+    
+    try {
+      await saveSessionPerformance(
+        sessionStats.correctAnswers,
+        sessionStats.totalAnswers - sessionStats.correctAnswers
+      );
+
+      toast({
+        title: "Sessão finalizada",
+        description: "Seu desempenho foi registrado com sucesso!",
+      });
+
+      navigate("/student-dashboard");
+    } catch (error) {
+      console.error("Error saving session:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao salvar sessão",
+        description: "Não foi possível salvar seu desempenho."
+      });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -72,6 +103,9 @@ const QuestionFeedback = ({
           <Button variant="outline" size="sm" onClick={() => setShowStats(true)}>
             <BarChart className="h-4 w-4 mr-2" />
             Estatísticas
+          </Button>
+          <Button variant="default" size="sm" onClick={handleExit}>
+            Sair
           </Button>
         </div>
       </div>
