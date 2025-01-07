@@ -314,25 +314,31 @@ export type Database = {
       }
       students: {
         Row: {
+          completed_cycles: number | null
           created_at: string
           email: string
           id: string
+          login_count: number | null
           name: string
           password: string
           status: Database["public"]["Enums"]["student_status"] | null
         }
         Insert: {
+          completed_cycles?: number | null
           created_at?: string
           email: string
           id?: string
+          login_count?: number | null
           name?: string
           password: string
           status?: Database["public"]["Enums"]["student_status"] | null
         }
         Update: {
+          completed_cycles?: number | null
           created_at?: string
           email?: string
           id?: string
+          login_count?: number | null
           name?: string
           password?: string
           status?: Database["public"]["Enums"]["student_status"] | null

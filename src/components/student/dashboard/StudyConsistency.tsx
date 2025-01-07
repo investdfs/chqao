@@ -31,48 +31,40 @@ interface StudyConsistencyProps {
 export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => {
   const [selectedRange, setSelectedRange] = useState<string>("all");
   
-  const { data: loginDays = [] } = useQuery({
-    queryKey: ['loginDays'],
+  const { data: studentStats } = useQuery({
+    queryKey: ['studentStats'],
     queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
-      const userId = data.session?.user?.id;
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
       
       if (!userId) {
         console.log("Usuário não autenticado");
-        return [];
+        return null;
       }
 
-      console.log("Buscando dias de login para o usuário:", userId);
+      console.log("Buscando estatísticas do estudante:", userId);
       
-      const { data: loginData, error } = await supabase
-        .rpc('get_login_days', {
-          student_id_param: userId
-        });
+      const { data, error } = await supabase
+        .from('students')
+        .select('login_count, completed_cycles')
+        .eq('id', userId)
+        .single();
 
       if (error) {
-        console.error('Erro ao buscar dias de login:', error);
-        return [];
+        console.error('Erro ao buscar estatísticas:', error);
+        return null;
       }
 
-      console.log("Dias de login encontrados:", loginData);
-      return loginData;
+      console.log("Estatísticas encontradas:", data);
+      return data;
     }
   });
 
-  // Gerar array com todos os dias do mês atual
-  const allDays = Array.from({ length: 31 }, (_, i) => {
-    const currentDate = new Date();
-    currentDate.setDate(i + 1);
-    
-    // Encontrar se existe login para este dia
-    const loginDay = loginDays.find(day => {
-      const dayDate = new Date(day.date);
-      return dayDate.getDate() === (i + 1);
-    });
-
+  // Gerar array com todos os 30 slots do ciclo
+  const allDays = Array.from({ length: 30 }, (_, i) => {
     return {
-      date: currentDate.toISOString(),
-      studied: loginDay?.has_login || false
+      position: i + 1,
+      completed: (studentStats?.login_count || 0) > i
     };
   });
 
@@ -85,7 +77,7 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium">
-          CONSTÂNCIA NOS ESTUDOS - PROGRESSO MENSAL
+          PROGRESSO DE ACESSOS - CICLO ATUAL
         </CardTitle>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -102,16 +94,20 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Análise de Estudos do Mês</DialogTitle>
+                <DialogTitle>Análise de Acessos</DialogTitle>
               </DialogHeader>
-              <StudyConsistencyChart studyDays={allDays} />
+              <StudyConsistencyChart studyDays={allDays.map(day => ({
+                date: day.position.toString(),
+                studied: day.completed
+              }))} />
             </DialogContent>
           </Dialog>
         </div>
       </CardHeader>
       <CardContent>
         <p className="text-sm mb-4">
-          Você está há {consecutiveDays} dias sem falhar!
+          Ciclos completados: {studentStats?.completed_cycles || 0} | 
+          Acessos no ciclo atual: {studentStats?.login_count || 0}/30
         </p>
         <div className="md:hidden mb-4">
           <Select value={selectedRange} onValueChange={setSelectedRange}>
@@ -119,12 +115,12 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
               <SelectValue placeholder="Selecione a semana" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos os dias</SelectItem>
-              <SelectItem value="1">Semana 1 (1-7)</SelectItem>
-              <SelectItem value="2">Semana 2 (8-14)</SelectItem>
-              <SelectItem value="3">Semana 3 (15-21)</SelectItem>
-              <SelectItem value="4">Semana 4 (22-28)</SelectItem>
-              <SelectItem value="5">Semana 5 (29-31)</SelectItem>
+              <SelectItem value="all">Todos os acessos</SelectItem>
+              <SelectItem value="1">Acessos 1-7</SelectItem>
+              <SelectItem value="2">Acessos 8-14</SelectItem>
+              <SelectItem value="3">Acessos 15-21</SelectItem>
+              <SelectItem value="4">Acessos 22-28</SelectItem>
+              <SelectItem value="5">Acessos 29-30</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -139,10 +135,10 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
               </span>
               <div
                 className={`w-8 h-8 rounded-sm flex items-center justify-center relative transition-colors ${
-                  day.studied ? 'bg-success/20' : 'bg-error/20'
+                  day.completed ? 'bg-success/20' : 'bg-error/20'
                 }`}
               >
-                {day.studied ? (
+                {day.completed ? (
                   <Check className="w-4 h-4 text-success" />
                 ) : (
                   <X className="w-4 h-4 text-error" />
@@ -162,10 +158,10 @@ export const StudyConsistency = ({ consecutiveDays }: StudyConsistencyProps) => 
               </span>
               <div
                 className={`w-8 h-8 rounded-sm flex items-center justify-center relative transition-colors ${
-                  day.studied ? 'bg-success/20' : 'bg-error/20'
+                  day.completed ? 'bg-success/20' : 'bg-error/20'
                 }`}
               >
-                {day.studied ? (
+                {day.completed ? (
                   <Check className="w-4 h-4 text-success" />
                 ) : (
                   <X className="w-4 h-4 text-error" />
