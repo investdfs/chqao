@@ -3,25 +3,15 @@ import { ChartBar } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PerformanceHistoryDialog } from "./PerformanceHistoryDialog";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { PieChart, Pie, Cell } from "recharts";
 
-interface PerformanceCardProps {
-  correctAnswers: number;
-  incorrectAnswers: number;
-  percentage: number;
-}
-
-export const PerformanceCard = ({ 
-  correctAnswers: initialCorrect = 0, 
-  incorrectAnswers: initialIncorrect = 0, 
-  percentage: initialPercentage = 0 
-}: PerformanceCardProps) => {
+export const PerformanceCard = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // First, get the current user
+  // Primeiro, get the current user
   useEffect(() => {
     const getCurrentUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser();
@@ -37,90 +27,75 @@ export const PerformanceCard = ({
     getCurrentUser();
   }, []);
 
-  // Fetch question answers history
-  const { data: performance = { totalCorrect: 0, totalIncorrect: 0, percentage: 0 } } = useQuery({
-    queryKey: ['question-performance', userId],
+  // Buscar dados de todas as sessões de estudo do usuário
+  const { data: studySessions = [] } = useQuery({
+    queryKey: ['study-sessions', userId],
     queryFn: async () => {
       if (!userId) {
         console.log("Aguardando ID do usuário...");
-        return { totalCorrect: 0, totalIncorrect: 0, percentage: 0 };
+        return [];
       }
 
-      console.log("Buscando histórico de respostas para usuário:", userId);
+      console.log("Buscando sessões de estudo para usuário:", userId);
       
-      const { data: answers, error } = await supabase
-        .from('question_answers')
-        .select(`
-          *,
-          questions!inner (
-            correct_answer
-          )
-        `)
-        .eq('student_id', userId);
+      const { data: sessions, error } = await supabase
+        .from('study_sessions')
+        .select('*')
+        .eq('student_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao buscar histórico de respostas:', error);
+        console.error('Erro ao buscar sessões:', error);
         toast({
           variant: "destructive",
-          title: "Erro ao carregar histórico",
-          description: "Não foi possível carregar seu histórico de desempenho."
+          title: "Erro ao carregar sessões",
+          description: "Não foi possível carregar seu histórico de sessões."
         });
-        return { totalCorrect: 0, totalIncorrect: 0, percentage: 0 };
+        return [];
       }
 
-      const correctAnswers = answers.filter(
-        answer => answer.selected_option === answer.questions.correct_answer
-      ).length;
-
-      const totalAnswers = answers.length;
-      const incorrectAnswers = totalAnswers - correctAnswers;
-      const percentage = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
-
-      console.log("Desempenho calculado:", {
-        userId,
-        correctAnswers,
-        incorrectAnswers,
-        percentage,
-        totalAnswers
-      });
-
-      return {
-        totalCorrect: correctAnswers,
-        totalIncorrect: incorrectAnswers,
-        percentage
-      };
+      return sessions;
     },
-    enabled: !!userId,
-    refetchInterval: 5000,
-    refetchOnWindowFocus: true,
-    retry: 3
+    enabled: !!userId
   });
 
-  // Set up real-time subscription for question answers updates
+  // Calcular totais
+  const totalCorrect = studySessions.reduce((sum, session) => sum + session.correct_answers, 0);
+  const totalIncorrect = studySessions.reduce((sum, session) => sum + session.incorrect_answers, 0);
+  const totalQuestions = totalCorrect + totalIncorrect;
+  const percentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+  // Configurar dados para o gráfico
+  const pieData = [
+    { name: "Acertos", value: totalCorrect, color: "#10B981" },
+    { name: "Erros", value: totalIncorrect, color: "#EF4444" }
+  ];
+
+  // Set up real-time subscription
   useEffect(() => {
     if (!userId) return;
 
-    console.log("Configurando subscription para question_answers do usuário:", userId);
+    console.log("Configurando subscription para study_sessions do usuário:", userId);
     
     const channel = supabase
-      .channel('question-answers-changes')
+      .channel('study-sessions-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'question_answers',
+          table: 'study_sessions',
           filter: `student_id=eq.${userId}`
         },
         (payload) => {
-          console.log('Mudança detectada em question_answers:', payload);
-          // A mudança foi detectada, o useQuery irá refetch automaticamente
+          console.log('Mudança detectada em study_sessions:', payload);
+          // QueryClient irá refetch automaticamente
         }
       )
       .subscribe();
 
     return () => {
-      console.log("Limpando subscription de question_answers");
+      console.log("Limpando subscription de study_sessions");
       supabase.removeChannel(channel);
     };
   }, [userId]);
@@ -128,18 +103,47 @@ export const PerformanceCard = ({
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">DESEMPENHO GERAL</CardTitle>
+        <CardTitle className="text-sm font-medium">RESUMO DE TODAS AS SESSÕES</CardTitle>
         <ChartBar className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-success">{performance.totalCorrect} Acertos</span>
-          <span className="text-error">{performance.totalIncorrect} Erros</span>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="text-sm text-muted-foreground">Total de questões</div>
+            <div className="text-2xl font-bold">{totalQuestions}</div>
+            <div className="flex justify-between text-sm">
+              <span className="text-success">Acertos: {totalCorrect}</span>
+              <span className="text-error">Erros: {totalIncorrect}</span>
+            </div>
+            <Progress value={percentage} className="h-2" />
+            <div className="text-center text-sm text-muted-foreground">
+              Aproveitamento: {percentage}%
+            </div>
+          </div>
+          
+          <div className="flex justify-center items-center">
+            <div style={{ width: 100, height: 100 }}>
+              <PieChart width={100} height={100}>
+                <Pie
+                  data={pieData}
+                  cx={50}
+                  cy={50}
+                  innerRadius={25}
+                  outerRadius={40}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </div>
+          </div>
         </div>
-        <Progress value={performance.percentage} className="h-2" />
-        <div className="text-2xl font-bold text-center">{performance.percentage}%</div>
-        <div className="text-center mt-2">
-          <PerformanceHistoryDialog history={[]} />
+
+        <div className="text-xs text-center text-muted-foreground">
+          Dados acumulados de todas as suas sessões de estudo
         </div>
       </CardContent>
     </Card>
