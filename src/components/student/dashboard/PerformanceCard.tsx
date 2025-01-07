@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartBar } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { PerformanceHistoryDialog } from "./PerformanceHistoryDialog";
 
 interface PerformanceCardProps {
   correctAnswers: number;
@@ -13,6 +16,23 @@ export const PerformanceCard = ({
   incorrectAnswers = 0, 
   percentage = 0 
 }: PerformanceCardProps) => {
+  const { data: history = [] } = useQuery({
+    queryKey: ['performance-history'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('study_sessions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching performance history:', error);
+        return [];
+      }
+
+      return data;
+    }
+  });
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -26,6 +46,9 @@ export const PerformanceCard = ({
         </div>
         <Progress value={percentage} className="h-2" />
         <div className="text-2xl font-bold text-center">{percentage}%</div>
+        <div className="text-center mt-2">
+          <PerformanceHistoryDialog history={history} />
+        </div>
       </CardContent>
     </Card>
   );
