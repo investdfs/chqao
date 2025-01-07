@@ -59,9 +59,9 @@ export const PerformanceCard = () => {
       return sessions;
     },
     enabled: !!userId,
-    staleTime: 0,
     refetchOnMount: true,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchInterval: 1000 // Refetch a cada 1 segundo
   });
 
   // Set up real-time subscription
