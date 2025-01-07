@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartBar } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +10,7 @@ import { PieChart, Pie, Cell } from "recharts";
 export const PerformanceCard = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Primeiro, get the current user
   useEffect(() => {
@@ -28,7 +29,7 @@ export const PerformanceCard = () => {
   }, []);
 
   // Buscar dados de todas as sessões de estudo do usuário
-  const { data: studySessions = [] } = useQuery({
+  const { data: studySessions = [], isLoading } = useQuery({
     queryKey: ['study-sessions', userId],
     queryFn: async () => {
       if (!userId) {
@@ -54,9 +55,12 @@ export const PerformanceCard = () => {
         return [];
       }
 
+      console.log("Sessões encontradas:", sessions);
       return sessions;
     },
-    enabled: !!userId
+    enabled: !!userId,
+    staleTime: 0, // Sempre buscar dados frescos
+    cacheTime: 0  // Não manter cache
   });
 
   // Calcular totais
@@ -89,7 +93,8 @@ export const PerformanceCard = () => {
         },
         (payload) => {
           console.log('Mudança detectada em study_sessions:', payload);
-          // QueryClient irá refetch automaticamente
+          // Força a atualização dos dados
+          queryClient.invalidateQueries({ queryKey: ['study-sessions', userId] });
         }
       )
       .subscribe();
@@ -98,7 +103,24 @@ export const PerformanceCard = () => {
       console.log("Limpando subscription de study_sessions");
       supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, queryClient]);
+
+  if (isLoading) {
+    return (
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-8 bg-gray-200 rounded"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
