@@ -5,6 +5,7 @@ import { SessionStatsDialog } from "@/features/questions/components/stats/Sessio
 import { useSessionPerformance } from "@/hooks/useSessionPerformance";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface QuestionFeedbackProps {
   isCorrect: boolean;
@@ -37,15 +38,19 @@ const QuestionFeedback = ({
   const { saveSessionPerformance } = useSessionPerformance();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleExit = async () => {
-    console.log("Saving session performance:", sessionStats);
+    console.log("Salvando desempenho da sessão:", sessionStats);
     
     try {
       await saveSessionPerformance(
         sessionStats.correctAnswers,
         sessionStats.totalAnswers - sessionStats.correctAnswers
       );
+
+      // Força a atualização dos dados de performance
+      await queryClient.invalidateQueries({ queryKey: ['performance-history'] });
 
       toast({
         title: "Sessão finalizada",
@@ -54,7 +59,7 @@ const QuestionFeedback = ({
 
       navigate("/student-dashboard");
     } catch (error) {
-      console.error("Error saving session:", error);
+      console.error("Erro ao salvar sessão:", error);
       toast({
         variant: "destructive",
         title: "Erro ao salvar sessão",
