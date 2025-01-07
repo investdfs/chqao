@@ -60,7 +60,7 @@ export const PerformanceCard = () => {
     },
     enabled: !!userId,
     staleTime: 0, // Sempre buscar dados frescos
-    cacheTime: 0  // Não manter cache
+    gcTime: 0  // Não manter cache (anteriormente cacheTime)
   });
 
   // Calcular totais
