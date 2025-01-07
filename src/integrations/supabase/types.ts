@@ -339,6 +339,41 @@ export type Database = {
         }
         Relationships: []
       }
+      study_sessions: {
+        Row: {
+          correct_answers: number
+          created_at: string
+          id: string
+          incorrect_answers: number
+          percentage: number
+          student_id: string
+        }
+        Insert: {
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          incorrect_answers?: number
+          percentage?: number
+          student_id: string
+        }
+        Update: {
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          incorrect_answers?: number
+          percentage?: number
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subject_structure: {
         Row: {
           created_at: string | null

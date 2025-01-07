@@ -2,14 +2,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { StudySession } from "@/types/database/study-sessions";
 
 interface PerformanceHistoryDialogProps {
-  history: Array<{
-    created_at: string;
-    correct_answers: number;
-    incorrect_answers: number;
-    percentage: number;
-  }>;
+  history: StudySession[];
 }
 
 export const PerformanceHistoryDialog = ({ history }: PerformanceHistoryDialogProps) => {

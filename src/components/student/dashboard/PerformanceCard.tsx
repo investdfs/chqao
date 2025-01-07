@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PerformanceHistoryDialog } from "./PerformanceHistoryDialog";
+import { StudySession } from "@/types/database/study-sessions";
 
 interface PerformanceCardProps {
   correctAnswers: number;
@@ -16,7 +17,7 @@ export const PerformanceCard = ({
   incorrectAnswers = 0, 
   percentage = 0 
 }: PerformanceCardProps) => {
-  const { data: history = [] } = useQuery({
+  const { data: history = [] } = useQuery<StudySession[]>({
     queryKey: ['performance-history'],
     queryFn: async () => {
       const { data, error } = await supabase

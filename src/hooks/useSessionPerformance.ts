@@ -17,7 +17,8 @@ export const useSessionPerformance = () => {
       .insert({
         correct_answers: correctAnswers,
         incorrect_answers: incorrectAnswers,
-        percentage
+        percentage,
+        student_id: (await supabase.auth.getUser()).data.user?.id
       });
 
     if (error) {
