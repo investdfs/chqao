@@ -101,7 +101,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2A2F4F] via-[#393B61] to-[#2A2F4F]">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1F2C] via-[#2A2F3F] to-[#1A1F2C]">
       <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
