@@ -4,7 +4,6 @@ import { Progress } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PerformanceHistoryDialog } from "./PerformanceHistoryDialog";
-import { StudySession } from "@/types/database/study-sessions";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -38,100 +37,109 @@ export const PerformanceCard = ({
     getCurrentUser();
   }, []);
 
-  // Fetch study sessions history with real-time updates
-  const { data: history = [], refetch } = useQuery({
-    queryKey: ['performance-history', userId],
+  // Fetch question answers history
+  const { data: performance = { totalCorrect: 0, totalIncorrect: 0, percentage: 0 } } = useQuery({
+    queryKey: ['question-performance', userId],
     queryFn: async () => {
       if (!userId) {
         console.log("Aguardando ID do usuário...");
-        return [];
+        return { totalCorrect: 0, totalIncorrect: 0, percentage: 0 };
       }
 
-      console.log("Buscando histórico de desempenho para usuário:", userId);
+      console.log("Buscando histórico de respostas para usuário:", userId);
       
-      const { data, error } = await supabase
-        .from('study_sessions')
-        .select('*')
-        .eq('student_id', userId)
-        .order('created_at', { ascending: false });
+      const { data: answers, error } = await supabase
+        .from('question_answers')
+        .select(`
+          *,
+          questions!inner (
+            correct_answer
+          )
+        `)
+        .eq('student_id', userId);
 
       if (error) {
-        console.error('Erro ao buscar histórico de desempenho:', error);
+        console.error('Erro ao buscar histórico de respostas:', error);
         toast({
           variant: "destructive",
           title: "Erro ao carregar histórico",
           description: "Não foi possível carregar seu histórico de desempenho."
         });
-        return [];
+        return { totalCorrect: 0, totalIncorrect: 0, percentage: 0 };
       }
 
-      console.log("Histórico de desempenho carregado:", data);
-      return data;
+      const correctAnswers = answers.filter(
+        answer => answer.selected_option === answer.questions.correct_answer
+      ).length;
+
+      const totalAnswers = answers.length;
+      const incorrectAnswers = totalAnswers - correctAnswers;
+      const percentage = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+
+      console.log("Desempenho calculado:", {
+        userId,
+        correctAnswers,
+        incorrectAnswers,
+        percentage,
+        totalAnswers
+      });
+
+      return {
+        totalCorrect: correctAnswers,
+        totalIncorrect: incorrectAnswers,
+        percentage
+      };
     },
-    enabled: !!userId, // Only run query when we have a userId
+    enabled: !!userId,
     refetchInterval: 5000,
     refetchOnWindowFocus: true,
     retry: 3
   });
 
-  // Set up real-time subscription for study sessions updates
+  // Set up real-time subscription for question answers updates
   useEffect(() => {
     if (!userId) return;
 
-    console.log("Configurando subscription para study_sessions do usuário:", userId);
+    console.log("Configurando subscription para question_answers do usuário:", userId);
     
     const channel = supabase
-      .channel('study-sessions-changes')
+      .channel('question-answers-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'study_sessions',
+          table: 'question_answers',
           filter: `student_id=eq.${userId}`
         },
         (payload) => {
-          console.log('Mudança detectada em study_sessions:', payload);
-          refetch();
+          console.log('Mudança detectada em question_answers:', payload);
+          // A mudança foi detectada, o useQuery irá refetch automaticamente
         }
       )
       .subscribe();
 
     return () => {
-      console.log("Limpando subscription de study_sessions");
+      console.log("Limpando subscription de question_answers");
       supabase.removeChannel(channel);
     };
-  }, [userId, refetch]);
-
-  // Calcula o desempenho total incluindo o histórico
-  const totalCorrect = history.reduce((sum, session) => sum + session.correct_answers, initialCorrect);
-  const totalIncorrect = history.reduce((sum, session) => sum + session.incorrect_answers, initialIncorrect);
-  const totalAnswers = totalCorrect + totalIncorrect;
-  const totalPercentage = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
-
-  console.log("Desempenho calculado:", {
-    userId,
-    totalCorrect,
-    totalIncorrect,
-    totalPercentage,
-    historyLength: history.length
-  });
+  }, [userId]);
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">DESEMPENHO</CardTitle>
+        <CardTitle className="text-sm font-medium">DESEMPENHO GERAL</CardTitle>
         <ChartBar className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-success">{totalCorrect} Acertos</span>
-          <span className="text-error">{totalIncorrect} Erros</span>
+          <span className="text-success">{performance.totalCorrect} Acertos</span>
+          <span className="text-error">{performance.totalIncorrect} Erros</span>
         </div>
-        <Progress value={totalPercentage} className="h-2" />
-        <div className="text-2xl font-bold text-center">{totalPercentage}%</div>
+        <Progress value={performance.percentage} className="h-2" />
+        <div className="text-2xl font-bold text-center">{performance.percentage}%</div>
         <div className="text-center mt-2">
-          <PerformanceHistoryDialog history={history} />
+          <PerformanceHistoryDialog history={[]} />
         </div>
       </CardContent>
     </Card>
