@@ -59,21 +59,10 @@ export const PerformanceCard = () => {
       return sessions;
     },
     enabled: !!userId,
-    staleTime: 0, // Sempre buscar dados frescos
-    gcTime: 0  // Não manter cache (anteriormente cacheTime)
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
-
-  // Calcular totais
-  const totalCorrect = studySessions.reduce((sum, session) => sum + session.correct_answers, 0);
-  const totalIncorrect = studySessions.reduce((sum, session) => sum + session.incorrect_answers, 0);
-  const totalQuestions = totalCorrect + totalIncorrect;
-  const percentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
-
-  // Configurar dados para o gráfico
-  const pieData = [
-    { name: "Acertos", value: totalCorrect, color: "#10B981" },
-    { name: "Erros", value: totalIncorrect, color: "#EF4444" }
-  ];
 
   // Set up real-time subscription
   useEffect(() => {
@@ -93,7 +82,6 @@ export const PerformanceCard = () => {
         },
         (payload) => {
           console.log('Mudança detectada em study_sessions:', payload);
-          // Força a atualização dos dados
           queryClient.invalidateQueries({ queryKey: ['study-sessions', userId] });
         }
       )
@@ -104,6 +92,18 @@ export const PerformanceCard = () => {
       supabase.removeChannel(channel);
     };
   }, [userId, queryClient]);
+
+  // Calcular totais
+  const totalCorrect = studySessions.reduce((sum, session) => sum + session.correct_answers, 0);
+  const totalIncorrect = studySessions.reduce((sum, session) => sum + session.incorrect_answers, 0);
+  const totalQuestions = totalCorrect + totalIncorrect;
+  const percentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+  // Configurar dados para o gráfico
+  const pieData = [
+    { name: "Acertos", value: totalCorrect, color: "#10B981" },
+    { name: "Erros", value: totalIncorrect, color: "#EF4444" }
+  ];
 
   if (isLoading) {
     return (
