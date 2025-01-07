@@ -5,7 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PerformanceHistoryDialog } from "./PerformanceHistoryDialog";
 import { StudySession } from "@/types/database/study-sessions";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PerformanceCardProps {
   correctAnswers: number;
@@ -18,39 +19,67 @@ export const PerformanceCard = ({
   incorrectAnswers: initialIncorrect = 0, 
   percentage: initialPercentage = 0 
 }: PerformanceCardProps) => {
+  const [userId, setUserId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // First, get the current user
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error('Erro ao obter usuário:', error);
+        return;
+      }
+      if (user) {
+        console.log("Usuário autenticado:", user.id);
+        setUserId(user.id);
+      }
+    };
+    getCurrentUser();
+  }, []);
+
   // Fetch study sessions history with real-time updates
   const { data: history = [], refetch } = useQuery({
-    queryKey: ['performance-history'],
+    queryKey: ['performance-history', userId],
     queryFn: async () => {
-      console.log("Buscando histórico de desempenho");
-      const { data: user } = await supabase.auth.getUser();
-      
-      if (!user.user) {
-        console.log("Usuário não autenticado");
+      if (!userId) {
+        console.log("Aguardando ID do usuário...");
         return [];
       }
 
+      console.log("Buscando histórico de desempenho para usuário:", userId);
+      
       const { data, error } = await supabase
         .from('study_sessions')
         .select('*')
-        .eq('student_id', user.user.id)
+        .eq('student_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Erro ao buscar histórico de desempenho:', error);
+        toast({
+          variant: "destructive",
+          title: "Erro ao carregar histórico",
+          description: "Não foi possível carregar seu histórico de desempenho."
+        });
         return [];
       }
 
       console.log("Histórico de desempenho carregado:", data);
       return data;
     },
-    enabled: true,
+    enabled: !!userId, // Only run query when we have a userId
     refetchInterval: 5000,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    retry: 3
   });
 
   // Set up real-time subscription for study sessions updates
   useEffect(() => {
+    if (!userId) return;
+
+    console.log("Configurando subscription para study_sessions do usuário:", userId);
+    
     const channel = supabase
       .channel('study-sessions-changes')
       .on(
@@ -58,7 +87,8 @@ export const PerformanceCard = ({
         {
           event: '*',
           schema: 'public',
-          table: 'study_sessions'
+          table: 'study_sessions',
+          filter: `student_id=eq.${userId}`
         },
         (payload) => {
           console.log('Mudança detectada em study_sessions:', payload);
@@ -68,9 +98,10 @@ export const PerformanceCard = ({
       .subscribe();
 
     return () => {
+      console.log("Limpando subscription de study_sessions");
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
+  }, [userId, refetch]);
 
   // Calcula o desempenho total incluindo o histórico
   const totalCorrect = history.reduce((sum, session) => sum + session.correct_answers, initialCorrect);
@@ -79,6 +110,7 @@ export const PerformanceCard = ({
   const totalPercentage = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
 
   console.log("Desempenho calculado:", {
+    userId,
     totalCorrect,
     totalIncorrect,
     totalPercentage,
