@@ -112,11 +112,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
-          <PerformanceCard
-            correctAnswers={totalCorrect}
-            incorrectAnswers={totalQuestions - totalCorrect}
-            percentage={Math.round(performancePercentage)}
-          />
+          <PerformanceCard />
           <SyllabusProgressCard
             completedTopics={syllabusProgress?.completed_topics || 0}
             pendingTopics={syllabusProgress?.pending_topics || 0}
