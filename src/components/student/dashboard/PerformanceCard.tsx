@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PerformanceHistoryDialog } from "./PerformanceHistoryDialog";
 import { StudySession } from "@/types/database/study-sessions";
+import { useEffect } from "react";
 
 interface PerformanceCardProps {
   correctAnswers: number;
@@ -18,7 +19,7 @@ export const PerformanceCard = ({
   percentage: initialPercentage = 0 
 }: PerformanceCardProps) => {
   // Fetch study sessions history with real-time updates
-  const { data: history = [] } = useQuery<StudySession[]>({
+  const { data: history = [], refetch } = useQuery({
     queryKey: ['performance-history'],
     queryFn: async () => {
       console.log("Buscando histórico de desempenho");
@@ -43,10 +44,33 @@ export const PerformanceCard = ({
       console.log("Histórico de desempenho carregado:", data);
       return data;
     },
-    // Habilita atualizações em tempo real
+    enabled: true,
     refetchInterval: 5000,
     refetchOnWindowFocus: true
   });
+
+  // Set up real-time subscription for study sessions updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('study-sessions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'study_sessions'
+        },
+        (payload) => {
+          console.log('Mudança detectada em study_sessions:', payload);
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
 
   // Calcula o desempenho total incluindo o histórico
   const totalCorrect = history.reduce((sum, session) => sum + session.correct_answers, initialCorrect);
