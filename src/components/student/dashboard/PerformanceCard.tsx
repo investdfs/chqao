@@ -21,32 +21,40 @@ export const PerformanceCard = ({
   const { data: history = [] } = useQuery<StudySession[]>({
     queryKey: ['performance-history'],
     queryFn: async () => {
-      console.log("Fetching performance history");
-      const { data, error } = await supabase
-        .from('study_sessions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching performance history:', error);
+      console.log("Buscando histórico de desempenho");
+      const { data: user } = await supabase.auth.getUser();
+      
+      if (!user.user) {
+        console.log("Usuário não autenticado");
         return [];
       }
 
-      console.log("Performance history fetched:", data);
+      const { data, error } = await supabase
+        .from('study_sessions')
+        .select('*')
+        .eq('student_id', user.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Erro ao buscar histórico de desempenho:', error);
+        return [];
+      }
+
+      console.log("Histórico de desempenho carregado:", data);
       return data;
     },
-    // Enable real-time updates
+    // Habilita atualizações em tempo real
     refetchInterval: 5000,
     refetchOnWindowFocus: true
   });
 
-  // Calculate total performance including history
+  // Calcula o desempenho total incluindo o histórico
   const totalCorrect = history.reduce((sum, session) => sum + session.correct_answers, initialCorrect);
   const totalIncorrect = history.reduce((sum, session) => sum + session.incorrect_answers, initialIncorrect);
   const totalAnswers = totalCorrect + totalIncorrect;
   const totalPercentage = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
 
-  console.log("Calculated performance:", {
+  console.log("Desempenho calculado:", {
     totalCorrect,
     totalIncorrect,
     totalPercentage,
