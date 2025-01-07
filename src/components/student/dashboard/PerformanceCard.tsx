@@ -13,9 +13,9 @@ interface PerformanceCardProps {
 }
 
 export const PerformanceCard = ({ 
-  correctAnswers = 0, 
-  incorrectAnswers = 0, 
-  percentage = 0 
+  correctAnswers: initialCorrect = 0, 
+  incorrectAnswers: initialIncorrect = 0, 
+  percentage: initialPercentage = 0 
 }: PerformanceCardProps) => {
   // Fetch study sessions history with real-time updates
   const { data: history = [] } = useQuery<StudySession[]>({
@@ -40,6 +40,19 @@ export const PerformanceCard = ({
     refetchOnWindowFocus: true
   });
 
+  // Calculate total performance including history
+  const totalCorrect = history.reduce((sum, session) => sum + session.correct_answers, initialCorrect);
+  const totalIncorrect = history.reduce((sum, session) => sum + session.incorrect_answers, initialIncorrect);
+  const totalAnswers = totalCorrect + totalIncorrect;
+  const totalPercentage = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+
+  console.log("Calculated performance:", {
+    totalCorrect,
+    totalIncorrect,
+    totalPercentage,
+    historyLength: history.length
+  });
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -48,11 +61,11 @@ export const PerformanceCard = ({
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-success">{correctAnswers} Acertos</span>
-          <span className="text-error">{incorrectAnswers} Erros</span>
+          <span className="text-success">{totalCorrect} Acertos</span>
+          <span className="text-error">{totalIncorrect} Erros</span>
         </div>
-        <Progress value={percentage} className="h-2" />
-        <div className="text-2xl font-bold text-center">{percentage}%</div>
+        <Progress value={totalPercentage} className="h-2" />
+        <div className="text-2xl font-bold text-center">{totalPercentage}%</div>
         <div className="text-center mt-2">
           <PerformanceHistoryDialog history={history} />
         </div>
