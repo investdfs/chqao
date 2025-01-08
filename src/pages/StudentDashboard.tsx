@@ -8,7 +8,6 @@ import { PerformanceCard } from "@/components/student/dashboard/PerformanceCard"
 import { SyllabusProgressCard } from "@/components/student/dashboard/SyllabusProgressCard";
 import { StudyConsistency } from "@/components/student/dashboard/StudyConsistency";
 import { WeeklyGoals } from "@/components/student/dashboard/WeeklyGoals";
-import { WeeklyStudyChart } from "@/components/student/dashboard/WeeklyStudyChart";
 import { StudyStreak } from "@/components/student/dashboard/StudyStreak";
 import { ProductiveHours } from "@/components/student/dashboard/ProductiveHours";
 import { useStudentStats } from "@/components/student/dashboard/hooks/useStudentStats";
@@ -149,7 +148,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
                 percentage: ((studyStats?.weekly_questions_completed || 0) / (studyStats?.weekly_questions_target || 250)) * 100,
               }}
             />
-            <WeeklyStudyChart data={weeklyStudyData || []} />
           </div>
           <ProductiveHours />
         </div>
