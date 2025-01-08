@@ -7,13 +7,7 @@ import { Brain, Target, TrendingDown, TrendingUp, AlertCircle, Eye } from "lucid
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-
-interface TopicDifficulty {
-  topic: string;
-  subject: string;
-  performance: number;
-  totalQuestions: number;
-}
+import { TopicDifficulty, SubjectStructure } from "./types/difficulty-tags";
 
 const PREVIEW_DATA: TopicDifficulty[] = [
   {
@@ -92,21 +86,26 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
     enabled: !!userId
   });
 
-  const { data: allSubjects } = useQuery({
+  const { data: subjects = [], isError: isSubjectsError } = useQuery({
     queryKey: ['all-subjects'],
     queryFn: async () => {
+      console.log("Buscando todas as matérias...");
       const { data, error } = await supabase
         .from('subject_structure')
         .select('subject')
-        .distinct();
+        .eq('level', 1);
 
-      if (error) throw error;
-      return data.map(item => item.subject);
+      if (error) {
+        console.error("Erro ao buscar matérias:", error);
+        throw error;
+      }
+
+      // Extract unique subjects
+      const uniqueSubjects = [...new Set(data.map(item => item.subject))];
+      console.log("Matérias encontradas:", uniqueSubjects);
+      return uniqueSubjects;
     }
   });
-
-  const studiedSubjects = new Set(topicDifficulties?.map(t => t.subject));
-  const unstudiedSubjects = allSubjects?.filter(subject => !studiedSubjects.has(subject));
 
   if (isLoading) {
     return (
@@ -123,6 +122,9 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
       </Card>
     );
   }
+
+  const studiedSubjects = new Set(topicDifficulties?.map(t => t.subject) || []);
+  const unstudiedSubjects = subjects.filter(subject => !studiedSubjects.has(subject));
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
@@ -178,7 +180,7 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
               <DialogTitle>Análise Completa de Tópicos</DialogTitle>
             </DialogHeader>
             
-            {unstudiedSubjects && unstudiedSubjects.length > 0 && (
+            {unstudiedSubjects.length > 0 && (
               <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-center gap-2 text-amber-800 mb-2">
                   <AlertCircle className="h-5 w-5" />
