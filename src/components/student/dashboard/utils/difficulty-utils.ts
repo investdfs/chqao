@@ -1,5 +1,3 @@
-import { TrendingUp, Target, TrendingDown } from "lucide-react";
-
 export const PREVIEW_DATA = [
   {
     topic: "História do Brasil Império",
@@ -24,17 +22,17 @@ export const PREVIEW_DATA = [
 export const getDifficultyInfo = (performance: number) => {
   if (performance >= 80) return {
     color: "bg-green-100 text-green-800 hover:bg-green-200",
-    icon: <TrendingUp className="h-4 w-4" />,
+    iconType: 'trending-up' as const,
     label: "Bom desempenho"
   };
   if (performance >= 60) return {
     color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-    icon: <Target className="h-4 w-4" />,
+    iconType: 'target' as const,
     label: "Precisa de atenção"
   };
   return {
     color: "bg-red-100 text-red-800 hover:bg-red-200",
-    icon: <TrendingDown className="h-4 w-4" />,
+    iconType: 'trending-down' as const,
     label: "Foco necessário"
   };
 };

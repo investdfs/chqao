@@ -7,7 +7,7 @@ export interface TopicDifficulty {
 
 export interface DifficultyInfo {
   color: string;
-  icon: JSX.Element;
+  iconType: 'trending-up' | 'target' | 'trending-down';
   label: string;
 }
 
