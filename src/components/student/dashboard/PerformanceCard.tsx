@@ -67,8 +67,8 @@ export const PerformanceCard = () => {
         <CardTitle className="text-sm font-medium">RESUMO DE TODAS AS SESSÕES</CardTitle>
         <ChartBar className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+      <CardContent>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PerformanceMetrics
             totalQuestions={totalQuestions}
             totalCorrect={totalCorrect}
@@ -81,7 +81,7 @@ export const PerformanceCard = () => {
           />
         </div>
 
-        <div className="text-xs text-center text-muted-foreground">
+        <div className="text-xs text-center text-muted-foreground mt-4">
           Dados acumulados de todas as suas sessões de estudo
         </div>
       </CardContent>
