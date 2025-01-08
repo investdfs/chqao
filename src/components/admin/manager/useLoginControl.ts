@@ -18,6 +18,7 @@ export const useLoginControl = () => {
       const { data: logins, error } = await supabase
         .from('student_logins')
         .select(`
+          id,
           student_id,
           login_date,
           students (
@@ -36,7 +37,7 @@ export const useLoginControl = () => {
       // Process the data to get the last login and total logins for each student
       const studentMap = new Map<string, LoginData>();
 
-      logins.forEach((login) => {
+      logins?.forEach((login) => {
         const studentId = login.student_id;
         const student = login.students;
 

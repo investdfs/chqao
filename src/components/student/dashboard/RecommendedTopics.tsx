@@ -14,18 +14,41 @@ interface TopicRecommendation {
 
 export const RecommendedTopics = ({ userId }: { userId?: string }) => {
   const navigate = useNavigate();
+  const isPreviewMode = userId === 'preview-user-id';
 
   const { data: recommendations } = useQuery({
     queryKey: ['topic-recommendations', userId],
     queryFn: async () => {
-      if (!userId) return [];
+      if (!userId || isPreviewMode) {
+        console.log("Usando dados de preview para recomendações");
+        return [
+          {
+            topic: "História do Brasil Império",
+            subject: "História do Brasil",
+            correct_percentage: 65.5,
+            total_questions: 12
+          },
+          {
+            topic: "Independência do Brasil",
+            subject: "História do Brasil",
+            correct_percentage: 58.3,
+            total_questions: 8
+          },
+          {
+            topic: "República Velha",
+            subject: "História do Brasil",
+            correct_percentage: 45.0,
+            total_questions: 15
+          }
+        ];
+      }
       
       console.log("Buscando recomendações de tópicos para:", userId);
       
       const { data, error } = await supabase
         .rpc('get_topic_recommendations', {
           student_id_param: userId
-        }) as { data: TopicRecommendation[] | null, error: any };
+        });
 
       if (error) {
         console.error('Erro ao buscar recomendações:', error);

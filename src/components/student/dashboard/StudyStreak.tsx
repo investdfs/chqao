@@ -27,7 +27,7 @@ export const StudyStreak = () => {
       
       const { data: logins, error } = await supabase
         .from('student_logins')
-        .select('login_date')
+        .select('id, login_date')
         .eq('student_id', userId)
         .order('login_date', { ascending: false });
 
@@ -43,24 +43,26 @@ export const StudyStreak = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      for (let i = 0; i < logins.length; i++) {
-        const loginDate = new Date(logins[i].login_date);
-        loginDate.setHours(0, 0, 0, 0);
+      if (logins) {
+        for (let i = 0; i < logins.length; i++) {
+          const loginDate = new Date(logins[i].login_date);
+          loginDate.setHours(0, 0, 0, 0);
 
-        const expectedDate = new Date(today);
-        expectedDate.setDate(today.getDate() - i);
-        expectedDate.setHours(0, 0, 0, 0);
+          const expectedDate = new Date(today);
+          expectedDate.setDate(today.getDate() - i);
+          expectedDate.setHours(0, 0, 0, 0);
 
-        if (loginDate.getTime() === expectedDate.getTime()) {
-          currentStreak++;
-        } else {
-          break;
+          if (loginDate.getTime() === expectedDate.getTime()) {
+            currentStreak++;
+          } else {
+            break;
+          }
         }
       }
 
       return {
         currentStreak,
-        totalLogins: logins.length
+        totalLogins: logins?.length || 0
       };
     },
     refetchInterval: 1000

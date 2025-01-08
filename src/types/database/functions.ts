@@ -35,3 +35,17 @@ export interface WeeklyStudyData {
   question_count: number;
   study_time: string;
 }
+
+export interface TopicRecommendation {
+  topic: string;
+  subject: string;
+  correct_percentage: number;
+  total_questions: number;
+}
+
+export interface StudentLogin {
+  id: string;
+  student_id: string;
+  login_date: string;
+  created_at: string;
+}
