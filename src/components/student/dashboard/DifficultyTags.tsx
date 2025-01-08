@@ -1,19 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Brain, Target, TrendingDown, TrendingUp, AlertCircle, Eye } from "lucide-react";
+import { Brain, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-
-interface TopicDifficulty {
-  topic: string;
-  subject: string;
-  performance: number;
-  totalQuestions: number;
-}
+import { DifficultyCard } from "./components/DifficultyCard";
+import { UnstudiedSubjects } from "./components/UnstudiedSubjects";
+import { TopicDifficulty } from "./types";
 
 const PREVIEW_DATA: TopicDifficulty[] = [
   {
@@ -35,24 +30,6 @@ const PREVIEW_DATA: TopicDifficulty[] = [
     totalQuestions: 15
   }
 ];
-
-const getDifficultyInfo = (performance: number) => {
-  if (performance >= 80) return {
-    color: "bg-green-100 text-green-800 hover:bg-green-200",
-    icon: <TrendingUp className="h-4 w-4" />,
-    label: "Bom desempenho"
-  };
-  if (performance >= 60) return {
-    color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-    icon: <Target className="h-4 w-4" />,
-    label: "Precisa de atenção"
-  };
-  return {
-    color: "bg-red-100 text-red-800 hover:bg-red-200",
-    icon: <TrendingDown className="h-4 w-4" />,
-    label: "Foco necessário"
-  };
-};
 
 interface DifficultyTagsProps {
   userId?: string;
@@ -79,7 +56,7 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
 
       if (error) {
         console.error("Erro ao buscar dificuldades por tópico:", error);
-        throw error;
+        return PREVIEW_DATA;
       }
 
       return data.map((topic: any) => ({
@@ -89,7 +66,7 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
         totalQuestions: topic.total_questions
       }));
     },
-    enabled: !!userId
+    enabled: true
   });
 
   const { data: allSubjects } = useQuery({
@@ -98,10 +75,14 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
       const { data, error } = await supabase
         .from('subject_structure')
         .select('subject')
-        .distinct();
+        .eq('level', 1);
 
-      if (error) throw error;
-      return data.map(item => item.subject);
+      if (error) {
+        console.error("Erro ao buscar matérias:", error);
+        return [];
+      }
+
+      return [...new Set(data.map(item => item.subject))];
     }
   });
 
@@ -143,33 +124,9 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {topicDifficulties?.slice(0, 3).map((topic) => {
-            const difficultyInfo = getDifficultyInfo(topic.performance);
-            return (
-              <div
-                key={topic.topic}
-                className="p-4 rounded-lg bg-gray-50/50 hover:bg-gray-50/80 transition-all duration-300"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1 flex-1">
-                    <h4 className="font-medium text-gray-900">{topic.topic}</h4>
-                    <p className="text-sm text-gray-500">{topic.subject}</p>
-                  </div>
-                  <Badge
-                    variant="secondary"
-                    className={`${difficultyInfo.color} flex items-center gap-1`}
-                  >
-                    {difficultyInfo.icon}
-                    {topic.performance.toFixed(1)}%
-                  </Badge>
-                </div>
-                <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
-                  <span>{difficultyInfo.label}</span>
-                  <span>{topic.totalQuestions} questões respondidas</span>
-                </div>
-              </div>
-            );
-          })}
+          {topicDifficulties?.slice(0, 3).map((topic) => (
+            <DifficultyCard key={topic.topic} topic={topic} />
+          ))}
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -178,54 +135,12 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
               <DialogTitle>Análise Completa de Tópicos</DialogTitle>
             </DialogHeader>
             
-            {unstudiedSubjects && unstudiedSubjects.length > 0 && (
-              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <div className="flex items-center gap-2 text-amber-800 mb-2">
-                  <AlertCircle className="h-5 w-5" />
-                  <h3 className="font-medium">Matérias ainda não estudadas</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {unstudiedSubjects.map((subject) => (
-                    <Badge
-                      key={subject}
-                      variant="secondary"
-                      className="bg-amber-100 text-amber-800"
-                    >
-                      {subject}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+            <UnstudiedSubjects subjects={unstudiedSubjects || []} />
 
             <div className="space-y-4">
-              {topicDifficulties?.map((topic) => {
-                const difficultyInfo = getDifficultyInfo(topic.performance);
-                return (
-                  <div
-                    key={topic.topic}
-                    className="p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-300"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1 flex-1">
-                        <h4 className="font-medium text-gray-900">{topic.topic}</h4>
-                        <p className="text-sm text-gray-500">{topic.subject}</p>
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className={`${difficultyInfo.color} flex items-center gap-1`}
-                      >
-                        {difficultyInfo.icon}
-                        {topic.performance.toFixed(1)}%
-                      </Badge>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
-                      <span>{difficultyInfo.label}</span>
-                      <span>{topic.totalQuestions} questões respondidas</span>
-                    </div>
-                  </div>
-                );
-              })}
+              {topicDifficulties?.map((topic) => (
+                <DifficultyCard key={topic.topic} topic={topic} />
+              ))}
             </div>
           </DialogContent>
         </Dialog>
