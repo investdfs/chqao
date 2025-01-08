@@ -5,15 +5,21 @@ import { TopicDifficulty } from "./types/difficulty-tags";
 
 const PREVIEW_DATA: TopicDifficulty[] = [
   {
-    topic: "Independência do Brasil",
+    topic: "História do Brasil Império",
     subject: "História do Brasil",
     correct_percentage: 65.5,
-    total_questions: 20
+    total_questions: 12
   },
   {
-    topic: "Era Vargas",
+    topic: "Independência do Brasil",
     subject: "História do Brasil",
-    correct_percentage: 45.8,
+    correct_percentage: 58.3,
+    total_questions: 8
+  },
+  {
+    topic: "República Velha",
+    subject: "História do Brasil",
+    correct_percentage: 45.0,
     total_questions: 15
   }
 ];
@@ -24,32 +30,25 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
     queryFn: async () => {
       console.log("Buscando recomendações de tópicos para:", userId);
       
-      // Return preview data if no userId or if it's explicitly a preview
-      if (!userId || userId === 'preview-user-id') {
-        console.log("Usuário não autenticado ou em preview, retornando dados de preview");
+      if (!userId) {
+        console.log("Usuário não autenticado, retornando dados de preview");
         return PREVIEW_DATA;
       }
 
-      try {
-        const { data, error } = await supabase
-          .rpc('get_topic_recommendations', {
-            student_id_param: userId
-          });
+      const { data, error } = await supabase
+        .rpc('get_topic_recommendations', {
+          student_id_param: userId
+        });
 
-        if (error) {
-          console.error("Erro ao buscar recomendações:", error);
-          throw error;
-        }
-
-        console.log("Recomendações encontradas:", data);
-        return data as TopicDifficulty[];
-      } catch (error) {
-        console.error("Erro na consulta:", error);
-        // In case of error, return preview data as fallback
-        return PREVIEW_DATA;
+      if (error) {
+        console.error("Erro ao buscar recomendações:", error);
+        throw error;
       }
+
+      console.log("Recomendações encontradas:", data);
+      return data as TopicDifficulty[];
     },
-    enabled: true // Always enabled to show at least preview data
+    enabled: true // Always enabled to show preview data when no userId
   });
 
   if (isLoading) {
