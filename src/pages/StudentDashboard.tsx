@@ -17,6 +17,8 @@ import { ExamSelectionDialog } from "@/components/student/dialogs/ExamSelectionD
 import { StudyModeSelector } from "@/components/student/dashboard/StudyModeSelector";
 import { RecommendedTopics } from "@/components/student/dashboard/RecommendedTopics";
 import { PerformanceEvolutionCard } from "@/components/student/dashboard/PerformanceEvolutionCard";
+import { StudyCalendar } from "@/components/student/dashboard/StudyCalendar";
+import { DifficultyTags } from "@/components/student/dashboard/DifficultyTags";
 
 interface PreviewUser {
   id: string;
@@ -131,6 +133,11 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
               studied: Math.random() > 0.3,
             }))}
           />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <StudyCalendar userId={userId} />
+          <DifficultyTags userId={userId} />
         </div>
 
         <PerformanceEvolutionCard userId={userId} />
