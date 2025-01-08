@@ -8,7 +8,7 @@ interface StudyModeSelectorProps {
 
 export const StudyModeSelector = ({ onPracticeClick, onExamClick }: StudyModeSelectorProps) => {
   return (
-    <div className="bg-gradient-primary rounded-xl shadow-lg p-8 mb-8 animate-fade-up">
+    <div className="bg-gradient-primary rounded-xl shadow-lg p-8 w-full animate-fade-up">
       <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
         Escolha seu modo de estudo
       </h2>

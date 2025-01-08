@@ -108,16 +108,15 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
       <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="flex justify-between items-center">
-          <StudyModeSelector 
-            onPracticeClick={() => setSubjectDialogOpen(true)}
-            onExamClick={() => setExamDialogOpen(true)}
-          />
-          <div className="flex items-center gap-2">
-            <SubjectsPanel />
-            <ResetProgressButton />
-          </div>
+        <div className="flex justify-end items-center gap-2 mb-8">
+          <SubjectsPanel />
+          <ResetProgressButton />
         </div>
+
+        <StudyModeSelector 
+          onPracticeClick={() => setSubjectDialogOpen(true)}
+          onExamClick={() => setExamDialogOpen(true)}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
