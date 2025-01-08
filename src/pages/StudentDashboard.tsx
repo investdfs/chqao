@@ -16,6 +16,7 @@ import { useStudentPerformance } from "@/components/student/dashboard/hooks/useS
 import { SubjectSelectionDialog } from "@/components/student/dialogs/SubjectSelectionDialog";
 import { ExamSelectionDialog } from "@/components/student/dialogs/ExamSelectionDialog";
 import { StudyModeSelector } from "@/components/student/dashboard/StudyModeSelector";
+import { RecommendedTopics } from "@/components/student/dashboard/RecommendedTopics";
 
 interface PreviewUser {
   id: string;
@@ -131,6 +132,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
             }))}
           />
         </div>
+
+        <RecommendedTopics userId={userId} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-8">
