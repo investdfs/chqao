@@ -1,9 +1,7 @@
-import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
@@ -16,15 +14,13 @@ interface DayPerformance {
   questionsAnswered: number;
 }
 
-const getPerformanceColor = (performance: number) => {
-  if (performance >= 80) return "bg-green-500";
-  if (performance >= 60) return "bg-yellow-500";
-  return "bg-red-500";
-};
-
 const getPerformanceIcon = (performance: number) => {
-  if (performance >= 80) return <CheckCircle className="h-4 w-4 text-green-500" />;
-  if (performance >= 60) return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+  if (performance >= 70) {
+    return <CheckCircle className="h-4 w-4 text-green-500" />;
+  }
+  if (performance >= 50) {
+    return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+  }
   return <XCircle className="h-4 w-4 text-red-500" />;
 };
 
@@ -35,18 +31,22 @@ const PREVIEW_DATA: DayPerformance[] = [
     questionsAnswered: 20
   },
   {
-    date: new Date(Date.now() - 86400000), // Yesterday
+    date: new Date(Date.now() - 86400000),
     performance: 65,
     questionsAnswered: 15
   },
   {
-    date: new Date(Date.now() - 172800000), // 2 days ago
+    date: new Date(Date.now() - 172800000),
     performance: 45,
     questionsAnswered: 10
   }
 ];
 
-export const StudyCalendar = ({ userId }: { userId?: string }) => {
+interface StudyCalendarProps {
+  userId?: string;
+}
+
+export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
   const isPreviewMode = userId === 'preview-user-id';
 
   const { data: studyDays, isLoading } = useQuery({
@@ -60,9 +60,9 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
       console.log("Buscando dados do calendário para usuário:", userId);
       
       const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 1);
-      
-      const { data, error } = await supabase
+      startDate.setDate(startDate.getDate() - 30);
+
+      const { data: answers, error } = await supabase
         .from('question_answers')
         .select(`
           created_at,
@@ -80,8 +80,9 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
         throw error;
       }
 
-      const performanceByDay = data.reduce((acc: Record<string, DayPerformance>, answer) => {
+      const dailyPerformance = answers.reduce((acc: Record<string, DayPerformance>, answer) => {
         const date = format(new Date(answer.created_at), 'yyyy-MM-dd');
+        
         if (!acc[date]) {
           acc[date] = {
             date: new Date(date),
@@ -97,18 +98,18 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
         return acc;
       }, {});
 
-      return Object.values(performanceByDay);
+      return Object.values(dailyPerformance);
     },
     enabled: !!userId
   });
 
   const modifiers = {
-    studied: studyDays?.map(day => day.date) || [],
+    highlight: studyDays?.map(day => day.date) || []
   };
 
   const modifiersStyles = {
-    studied: { 
-      backgroundColor: '#e5e7eb',
+    highlight: {
+      border: '2px solid var(--primary)',
       borderRadius: '50%'
     }
   };
@@ -129,23 +130,7 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Calendário de Estudos</span>
-          <div className="flex gap-2">
-            <Badge variant="outline" className="gap-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              Ótimo
-            </Badge>
-            <Badge variant="outline" className="gap-1">
-              <AlertCircle className="h-4 w-4 text-yellow-500" />
-              Regular
-            </Badge>
-            <Badge variant="outline" className="gap-1">
-              <XCircle className="h-4 w-4 text-red-500" />
-              Precisa Melhorar
-            </Badge>
-          </div>
-        </CardTitle>
+        <CardTitle>Calendário de Estudos</CardTitle>
       </CardHeader>
       <CardContent>
         <Calendar
@@ -174,8 +159,9 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
                   </div>
                 </div>
               );
-            },
+            }
           }}
+          className="rounded-md border"
         />
       </CardContent>
     </Card>

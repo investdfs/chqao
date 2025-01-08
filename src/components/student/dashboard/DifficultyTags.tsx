@@ -1,10 +1,8 @@
-import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, TrendingDown, TrendingUp } from "lucide-react";
 
 interface TopicDifficulty {
   topic: string;
@@ -40,13 +38,11 @@ const getDifficultyColor = (performance: number) => {
   return "bg-red-100 text-red-800 hover:bg-red-200";
 };
 
-const getDifficultyIcon = (performance: number) => {
-  if (performance >= 80) return <TrendingUp className="h-4 w-4" />;
-  if (performance >= 60) return <AlertCircle className="h-4 w-4" />;
-  return <TrendingDown className="h-4 w-4" />;
-};
+interface DifficultyTagsProps {
+  userId?: string;
+}
 
-export const DifficultyTags = ({ userId }: { userId?: string }) => {
+export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
   const isPreviewMode = userId === 'preview-user-id';
 
   const { data: topicDifficulties, isLoading } = useQuery({
@@ -98,27 +94,16 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
         <CardTitle>Tópicos por Dificuldade</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="flex flex-wrap gap-2">
           {topicDifficulties?.map((topic) => (
-            <div key={topic.topic} className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{topic.subject}</span>
-                <Badge 
-                  variant="outline"
-                  className={`${getDifficultyColor(topic.performance)} flex items-center gap-1`}
-                >
-                  {getDifficultyIcon(topic.performance)}
-                  {topic.topic}
-                  <span className="ml-1">({Math.round(topic.performance)}%)</span>
-                </Badge>
-              </div>
-            </div>
+            <Badge
+              key={topic.topic}
+              variant="secondary"
+              className={`${getDifficultyColor(topic.performance)}`}
+            >
+              {topic.topic} ({topic.performance.toFixed(1)}%)
+            </Badge>
           ))}
-          {(!topicDifficulties || topicDifficulties.length === 0) && (
-            <p className="text-center text-muted-foreground">
-              Responda mais questões para ver as dificuldades por tópico
-            </p>
-          )}
         </div>
       </CardContent>
     </Card>
