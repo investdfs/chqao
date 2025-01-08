@@ -37,34 +37,39 @@ interface DifficultyTagsProps {
 
 export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const isPreviewMode = userId === 'preview-user-id';
+  const isPreviewMode = !userId || userId === 'preview-user-id';
 
   const { data: topicDifficulties, isLoading } = useQuery({
     queryKey: ['topic-difficulties', userId],
     queryFn: async () => {
-      if (!userId || isPreviewMode) {
-        console.log("Usando dados de preview para dificuldades");
+      if (isPreviewMode) {
+        console.log("Using preview data for difficulties");
         return PREVIEW_DATA;
       }
 
-      console.log("Buscando dificuldades por tópico para usuário:", userId);
+      console.log("Fetching topic difficulties for user:", userId);
       
-      const { data, error } = await supabase
-        .rpc('get_topic_recommendations', {
-          student_id_param: userId
-        });
+      try {
+        const { data, error } = await supabase
+          .rpc('get_topic_recommendations', {
+            student_id_param: userId
+          });
 
-      if (error) {
-        console.error("Erro ao buscar dificuldades por tópico:", error);
+        if (error) {
+          console.error("Error fetching topic difficulties:", error);
+          return PREVIEW_DATA;
+        }
+
+        return data.map((topic: any) => ({
+          topic: topic.topic,
+          subject: topic.subject,
+          performance: topic.correct_percentage,
+          totalQuestions: topic.total_questions
+        }));
+      } catch (error) {
+        console.error("Error in topic difficulties query:", error);
         return PREVIEW_DATA;
       }
-
-      return data.map((topic: any) => ({
-        topic: topic.topic,
-        subject: topic.subject,
-        performance: topic.correct_percentage,
-        totalQuestions: topic.total_questions
-      }));
     },
     enabled: true
   });
@@ -72,17 +77,23 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
   const { data: allSubjects } = useQuery({
     queryKey: ['all-subjects'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subject_structure')
-        .select('subject')
-        .eq('level', 1);
+      try {
+        const { data, error } = await supabase
+          .from('subject_structure')
+          .select('subject')
+          .eq('level', 1);
 
-      if (error) {
-        console.error("Erro ao buscar matérias:", error);
+        if (error) {
+          console.error("Error fetching subjects:", error);
+          return [];
+        }
+
+        const subjects = data.map(item => item.subject);
+        return [...new Set(subjects)];
+      } catch (error) {
+        console.error("Error in subjects query:", error);
         return [];
       }
-
-      return [...new Set(data.map(item => item.subject))];
     }
   });
 
