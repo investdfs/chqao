@@ -139,7 +139,8 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
                   <span>{topic.totalQuestions} questões respondidas</span>
                 </div>
               </div>
-            ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
