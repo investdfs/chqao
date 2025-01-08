@@ -10,6 +10,7 @@ import { StudyConsistency } from "@/components/student/dashboard/StudyConsistenc
 import { SubjectsPanel } from "@/components/student/dashboard/SubjectsPanel";
 import { WeeklyGoals } from "@/components/student/dashboard/WeeklyGoals";
 import { WeeklyStudyChart } from "@/components/student/dashboard/WeeklyStudyChart";
+import { StudyStreak } from "@/components/student/dashboard/StudyStreak";
 import { useStudentStats } from "@/components/student/dashboard/hooks/useStudentStats";
 import { useStudentPerformance } from "@/components/student/dashboard/hooks/useStudentPerformance";
 import { SubjectSelectionDialog } from "@/components/student/dialogs/SubjectSelectionDialog";
@@ -113,20 +114,23 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
           <PerformanceCard />
+          <StudyStreak />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <SyllabusProgressCard
             completedTopics={syllabusProgress?.completed_topics || 0}
             pendingTopics={syllabusProgress?.pending_topics || 0}
             percentage={Number(syllabusProgress?.progress_percentage) || 0}
           />
+          <StudyConsistency
+            consecutiveDays={studyStats?.consecutive_study_days || 0}
+            studyDays={Array.from({ length: 30 }, (_, i) => ({
+              date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+              studied: Math.random() > 0.3,
+            }))}
+          />
         </div>
-
-        <StudyConsistency
-          consecutiveDays={studyStats?.consecutive_study_days || 0}
-          studyDays={Array.from({ length: 30 }, (_, i) => ({
-            date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-            studied: Math.random() > 0.3,
-          }))}
-        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SubjectsPanel />
