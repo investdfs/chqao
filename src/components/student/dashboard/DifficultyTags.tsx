@@ -24,23 +24,30 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
     queryFn: async () => {
       console.log("Buscando recomendações de tópicos para:", userId);
       
-      if (!userId) {
-        console.log("Usuário não autenticado, retornando dados de preview");
+      // Return preview data if no userId or if it's explicitly a preview
+      if (!userId || userId === 'preview-user-id') {
+        console.log("Usuário não autenticado ou em preview, retornando dados de preview");
         return PREVIEW_DATA;
       }
 
-      const { data, error } = await supabase
-        .rpc('get_topic_recommendations', {
-          student_id_param: userId
-        });
+      try {
+        const { data, error } = await supabase
+          .rpc('get_topic_recommendations', {
+            student_id_param: userId
+          });
 
-      if (error) {
-        console.error("Erro ao buscar recomendações:", error);
-        throw error;
+        if (error) {
+          console.error("Erro ao buscar recomendações:", error);
+          throw error;
+        }
+
+        console.log("Recomendações encontradas:", data);
+        return data as TopicDifficulty[];
+      } catch (error) {
+        console.error("Erro na consulta:", error);
+        // In case of error, return preview data as fallback
+        return PREVIEW_DATA;
       }
-
-      console.log("Recomendações encontradas:", data);
-      return data as TopicDifficulty[];
     },
     enabled: true // Always enabled to show at least preview data
   });
