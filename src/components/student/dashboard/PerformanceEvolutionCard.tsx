@@ -5,11 +5,30 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+const PREVIEW_DATA = [
+  { month: 'Ago', averagePercentage: 65 },
+  { month: 'Set', averagePercentage: 70 },
+  { month: 'Out', averagePercentage: 68 },
+  { month: 'Nov', averagePercentage: 75 },
+  { month: 'Dez', averagePercentage: 78 },
+  { month: 'Jan', averagePercentage: 82 },
+];
+
+const isValidUUID = (uuid: string) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+};
+
 export const PerformanceEvolutionCard = ({ userId }: { userId?: string }) => {
+  const isPreviewMode = userId && !isValidUUID(userId);
+
   const { data: monthlyPerformance = [], isLoading } = useQuery({
     queryKey: ['monthly-performance', userId],
     queryFn: async () => {
-      if (!userId) return [];
+      if (!userId || isPreviewMode) {
+        console.log("Usando dados de preview para evolução mensal");
+        return PREVIEW_DATA;
+      }
 
       console.log("Buscando evolução mensal para usuário:", userId);
 
