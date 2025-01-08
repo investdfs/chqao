@@ -3,6 +3,21 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TopicDifficulty } from "./types/difficulty-tags";
 
+const PREVIEW_DATA: TopicDifficulty[] = [
+  {
+    topic: "Independência do Brasil",
+    subject: "História do Brasil",
+    correct_percentage: 65.5,
+    total_questions: 20
+  },
+  {
+    topic: "Era Vargas",
+    subject: "História do Brasil",
+    correct_percentage: 45.8,
+    total_questions: 15
+  }
+];
+
 export const DifficultyTags = ({ userId }: { userId?: string }) => {
   const { data: topicDifficulties, isLoading, isError } = useQuery({
     queryKey: ['topic-recommendations', userId],
@@ -11,7 +26,7 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
       
       if (!userId) {
         console.log("Usuário não autenticado, retornando dados de preview");
-        return [];
+        return PREVIEW_DATA;
       }
 
       const { data, error } = await supabase
@@ -25,9 +40,9 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
       }
 
       console.log("Recomendações encontradas:", data);
-      return data;
+      return data as TopicDifficulty[];
     },
-    enabled: !!userId
+    enabled: true // Always enabled to show at least preview data
   });
 
   if (isLoading) {
@@ -77,10 +92,10 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
                 <p className="text-xs text-gray-500">{topic.subject}</p>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-xs font-medium">
-                    {topic.performance.toFixed(1)}% de acertos
+                    {topic.correct_percentage.toFixed(1)}% de acertos
                   </span>
                   <span className="text-xs text-gray-500">
-                    {topic.totalQuestions} questões
+                    {topic.total_questions} questões
                   </span>
                 </div>
               </div>

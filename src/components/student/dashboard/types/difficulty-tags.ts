@@ -1,6 +1,6 @@
 export interface TopicDifficulty {
   topic: string;
   subject: string;
-  performance: number;
-  totalQuestions: number;
+  correct_percentage: number;
+  total_questions: number;
 }
