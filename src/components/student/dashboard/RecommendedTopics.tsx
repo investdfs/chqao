@@ -25,7 +25,7 @@ export const RecommendedTopics = ({ userId }: { userId?: string }) => {
       const { data, error } = await supabase
         .rpc('get_topic_recommendations', {
           student_id_param: userId
-        });
+        }) as { data: TopicRecommendation[] | null, error: any };
 
       if (error) {
         console.error('Erro ao buscar recomendações:', error);
@@ -33,7 +33,7 @@ export const RecommendedTopics = ({ userId }: { userId?: string }) => {
       }
 
       console.log("Recomendações encontradas:", data);
-      return data as TopicRecommendation[];
+      return data || [];
     },
     enabled: !!userId
   });
