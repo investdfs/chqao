@@ -7,7 +7,6 @@ import { StudyTimeCard } from "@/components/student/dashboard/StudyTimeCard";
 import { PerformanceCard } from "@/components/student/dashboard/PerformanceCard";
 import { SyllabusProgressCard } from "@/components/student/dashboard/SyllabusProgressCard";
 import { StudyConsistency } from "@/components/student/dashboard/StudyConsistency";
-import { SubjectsPanel } from "@/components/student/dashboard/SubjectsPanel";
 import { WeeklyGoals } from "@/components/student/dashboard/WeeklyGoals";
 import { WeeklyStudyChart } from "@/components/student/dashboard/WeeklyStudyChart";
 import { StudyStreak } from "@/components/student/dashboard/StudyStreak";
@@ -17,7 +16,6 @@ import { useStudentPerformance } from "@/components/student/dashboard/hooks/useS
 import { SubjectSelectionDialog } from "@/components/student/dialogs/SubjectSelectionDialog";
 import { ExamSelectionDialog } from "@/components/student/dialogs/ExamSelectionDialog";
 import { StudyModeSelector } from "@/components/student/dashboard/StudyModeSelector";
-import { ResetProgressButton } from "@/components/student/dashboard/ResetProgressButton";
 
 interface PreviewUser {
   id: string;
@@ -108,11 +106,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
       <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="flex justify-end items-center gap-2 mb-8">
-          <SubjectsPanel />
-          <ResetProgressButton />
-        </div>
-
         <StudyModeSelector 
           onPracticeClick={() => setSubjectDialogOpen(true)}
           onExamClick={() => setExamDialogOpen(true)}

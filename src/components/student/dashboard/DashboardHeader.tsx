@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Book } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ResetProgressButton } from "./ResetProgressButton";
+import { SubjectsPanel } from "./SubjectsPanel";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export const DashboardHeader = () => {
           CHQAO - Estude Praticando
         </h1>
         <div className="flex items-center gap-4">
+          <SubjectsPanel />
           <ResetProgressButton />
           <Button 
             variant="ghost" 
