@@ -16,6 +16,7 @@ import { SubjectSelectionDialog } from "@/components/student/dialogs/SubjectSele
 import { ExamSelectionDialog } from "@/components/student/dialogs/ExamSelectionDialog";
 import { StudyModeSelector } from "@/components/student/dashboard/StudyModeSelector";
 import { RecommendedTopics } from "@/components/student/dashboard/RecommendedTopics";
+import { PerformanceEvolutionCard } from "@/components/student/dashboard/PerformanceEvolutionCard";
 
 interface PreviewUser {
   id: string;
@@ -131,6 +132,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
             }))}
           />
         </div>
+
+        <PerformanceEvolutionCard userId={userId} />
 
         <RecommendedTopics userId={userId} />
 
