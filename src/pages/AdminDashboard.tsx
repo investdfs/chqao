@@ -7,8 +7,8 @@ import { SyncDatabaseButton } from "@/components/admin/SyncDatabaseButton";
 import { QuestionImporter } from "@/components/admin/QuestionImporter";
 import { InsertQuestionsButton } from "@/components/admin/questions/InsertQuestionsButton";
 import { QuestionsTreeStats } from "@/components/admin/questions/QuestionsTreeStats";
-import { SubjectsPanel } from "@/components/admin/statistics/SubjectsPanel";
 import { AuthToggleCard } from "@/components/admin/AuthToggleCard";
+import { SubjectsDialog } from "@/components/admin/statistics/SubjectsDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
@@ -41,9 +41,12 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-[#1A1F2C] p-4">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <DashboardHeader />
-          <SyncDatabaseButton />
+          <div className="flex items-center gap-2">
+            <SubjectsDialog />
+            <SyncDatabaseButton />
+          </div>
         </div>
         
         <StatisticsCards
@@ -52,11 +55,7 @@ const AdminDashboard = () => {
         />
 
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-3">
-            <SubjectsPanel />
-          </div>
-          
-          <div className="col-span-9 space-y-6">
+          <div className="col-span-12 space-y-6">
             <AuthToggleCard />
             <QuestionsTreeStats />
             <AdminManager />
