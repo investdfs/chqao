@@ -7,19 +7,16 @@ import { SyncDatabaseButton } from "@/components/admin/SyncDatabaseButton";
 import { QuestionImporter } from "@/components/admin/QuestionImporter";
 import { InsertQuestionsButton } from "@/components/admin/questions/InsertQuestionsButton";
 import { QuestionsTreeStats } from "@/components/admin/questions/QuestionsTreeStats";
-import { SubjectsDialog } from "@/components/admin/statistics/SubjectsDialog";
+import { SubjectsPanel } from "@/components/admin/statistics/SubjectsPanel";
 import { AuthToggleCard } from "@/components/admin/AuthToggleCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useGoogleSheetsData } from "@/hooks/useGoogleSheetsData";
-import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { BookOpen } from "lucide-react";
 
 const AdminDashboard = () => {
   const { data: sheetsData, isLoading, refetch } = useGoogleSheetsData();
   const [onlineUsers, setOnlineUsers] = useState(0);
-  const [showSubjectsDialog, setShowSubjectsDialog] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -46,17 +43,7 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <DashboardHeader />
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setShowSubjectsDialog(true)}
-              className="flex items-center gap-2"
-              variant="outline"
-            >
-              <BookOpen className="h-4 w-4" />
-              QUESTÕES POR MATÉRIA
-            </Button>
-            <SyncDatabaseButton />
-          </div>
+          <SyncDatabaseButton />
         </div>
         
         <StatisticsCards
@@ -64,8 +51,12 @@ const AdminDashboard = () => {
           onlineUsers={onlineUsers}
         />
 
-        <div className="grid grid-cols-12 gap-6">          
-          <div className="col-span-12 space-y-6">
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-3">
+            <SubjectsPanel />
+          </div>
+          
+          <div className="col-span-9 space-y-6">
             <AuthToggleCard />
             <QuestionsTreeStats />
             <AdminManager />
@@ -98,7 +89,6 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-      <SubjectsDialog open={showSubjectsDialog} onOpenChange={setShowSubjectsDialog} />
     </div>
   );
 };
