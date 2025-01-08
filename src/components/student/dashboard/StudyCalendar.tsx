@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import type { DayContentProps } from "react-day-picker";
 
 interface DayPerformance {
   date: Date;
@@ -27,11 +28,34 @@ const getPerformanceIcon = (performance: number) => {
   return <XCircle className="h-4 w-4 text-red-500" />;
 };
 
+const PREVIEW_DATA: DayPerformance[] = [
+  {
+    date: new Date(),
+    performance: 85,
+    questionsAnswered: 20
+  },
+  {
+    date: new Date(Date.now() - 86400000), // Yesterday
+    performance: 65,
+    questionsAnswered: 15
+  },
+  {
+    date: new Date(Date.now() - 172800000), // 2 days ago
+    performance: 45,
+    questionsAnswered: 10
+  }
+];
+
 export const StudyCalendar = ({ userId }: { userId?: string }) => {
+  const isPreviewMode = userId === 'preview-user-id';
+
   const { data: studyDays, isLoading } = useQuery({
     queryKey: ['study-calendar', userId],
     queryFn: async () => {
-      if (!userId) return [];
+      if (!userId || isPreviewMode) {
+        console.log("Usando dados de preview para calendário");
+        return PREVIEW_DATA;
+      }
 
       console.log("Buscando dados do calendário para usuário:", userId);
       
@@ -44,7 +68,8 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
           created_at,
           questions!inner (
             correct_answer
-          )
+          ),
+          selected_option
         `)
         .eq('student_id', userId)
         .gte('created_at', startDate.toISOString())
@@ -65,7 +90,7 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
           };
         }
         
-        const isCorrect = answer.questions.correct_answer === answer.selected_option;
+        const isCorrect = answer.selected_option === answer.questions.correct_answer;
         acc[date].questionsAnswered++;
         acc[date].performance = (acc[date].performance * (acc[date].questionsAnswered - 1) + (isCorrect ? 100 : 0)) / acc[date].questionsAnswered;
         
@@ -130,12 +155,16 @@ export const StudyCalendar = ({ userId }: { userId?: string }) => {
           modifiers={modifiers}
           modifiersStyles={modifiersStyles}
           components={{
-            DayContent: ({ date }) => {
+            DayContent: ({ date }: DayContentProps) => {
               const dayPerformance = studyDays?.find(
                 d => d.date.toDateString() === date.toDateString()
               );
 
-              if (!dayPerformance) return date.getDate();
+              if (!dayPerformance) {
+                return <div className="relative w-full h-full flex items-center justify-center">
+                  {date.getDate()}
+                </div>;
+              }
 
               return (
                 <div className="relative w-full h-full flex items-center justify-center">

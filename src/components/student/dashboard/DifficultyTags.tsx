@@ -13,6 +13,27 @@ interface TopicDifficulty {
   totalQuestions: number;
 }
 
+const PREVIEW_DATA: TopicDifficulty[] = [
+  {
+    topic: "História do Brasil Império",
+    subject: "História do Brasil",
+    performance: 65.5,
+    totalQuestions: 12
+  },
+  {
+    topic: "Independência do Brasil",
+    subject: "História do Brasil",
+    performance: 58.3,
+    totalQuestions: 8
+  },
+  {
+    topic: "República Velha",
+    subject: "História do Brasil",
+    performance: 45.0,
+    totalQuestions: 15
+  }
+];
+
 const getDifficultyColor = (performance: number) => {
   if (performance >= 80) return "bg-green-100 text-green-800 hover:bg-green-200";
   if (performance >= 60) return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
@@ -26,14 +47,19 @@ const getDifficultyIcon = (performance: number) => {
 };
 
 export const DifficultyTags = ({ userId }: { userId?: string }) => {
+  const isPreviewMode = userId === 'preview-user-id';
+
   const { data: topicDifficulties, isLoading } = useQuery({
     queryKey: ['topic-difficulties', userId],
     queryFn: async () => {
-      if (!userId) return [];
+      if (!userId || isPreviewMode) {
+        console.log("Usando dados de preview para dificuldades");
+        return PREVIEW_DATA;
+      }
 
       console.log("Buscando dificuldades por tópico para usuário:", userId);
       
-      const { data: topicPerformance, error } = await supabase
+      const { data, error } = await supabase
         .rpc('get_topic_recommendations', {
           student_id_param: userId
         });
@@ -43,7 +69,7 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
         throw error;
       }
 
-      return topicPerformance.map((topic: any) => ({
+      return data.map((topic: any) => ({
         topic: topic.topic,
         subject: topic.subject,
         performance: topic.correct_percentage,
