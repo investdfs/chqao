@@ -4,7 +4,3 @@ export interface TopicDifficulty {
   performance: number;
   totalQuestions: number;
 }
-
-export interface SubjectStructure {
-  subject: string;
-}
