@@ -11,6 +11,7 @@ import { SubjectsPanel } from "@/components/student/dashboard/SubjectsPanel";
 import { WeeklyGoals } from "@/components/student/dashboard/WeeklyGoals";
 import { WeeklyStudyChart } from "@/components/student/dashboard/WeeklyStudyChart";
 import { StudyStreak } from "@/components/student/dashboard/StudyStreak";
+import { ProductiveHours } from "@/components/student/dashboard/ProductiveHours";
 import { useStudentStats } from "@/components/student/dashboard/hooks/useStudentStats";
 import { useStudentPerformance } from "@/components/student/dashboard/hooks/useStudentPerformance";
 import { SubjectSelectionDialog } from "@/components/student/dialogs/SubjectSelectionDialog";
@@ -149,6 +150,10 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
             />
             <WeeklyStudyChart data={weeklyStudyData || []} />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8">
+          <ProductiveHours />
         </div>
       </div>
 
