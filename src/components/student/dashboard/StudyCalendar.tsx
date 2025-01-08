@@ -128,41 +128,43 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Calendário de Estudos</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Calendar
-          mode="single"
-          selected={new Date()}
-          locale={ptBR}
-          modifiers={modifiers}
-          modifiersStyles={modifiersStyles}
-          components={{
-            DayContent: ({ date }: DayContentProps) => {
-              const dayPerformance = studyDays?.find(
-                d => d.date.toDateString() === date.toDateString()
-              );
+      <CardContent className="flex-1">
+        <div className="h-full flex flex-col">
+          <Calendar
+            mode="single"
+            selected={new Date()}
+            locale={ptBR}
+            modifiers={modifiers}
+            modifiersStyles={modifiersStyles}
+            components={{
+              DayContent: ({ date }: DayContentProps) => {
+                const dayPerformance = studyDays?.find(
+                  d => d.date.toDateString() === date.toDateString()
+                );
 
-              if (!dayPerformance) {
-                return <div className="relative w-full h-full flex items-center justify-center">
-                  {date.getDate()}
-                </div>;
-              }
+                if (!dayPerformance) {
+                  return <div className="relative w-full h-full flex items-center justify-center">
+                    {date.getDate()}
+                  </div>;
+                }
 
-              return (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <span>{date.getDate()}</span>
-                  <div className="absolute bottom-0 right-0">
-                    {getPerformanceIcon(dayPerformance.performance)}
+                return (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <span>{date.getDate()}</span>
+                    <div className="absolute bottom-0 right-0">
+                      {getPerformanceIcon(dayPerformance.performance)}
+                    </div>
                   </div>
-                </div>
-              );
-            }
-          }}
-          className="rounded-md border"
-        />
+                );
+              }
+            }}
+            className="w-full h-full"
+          />
+        </div>
       </CardContent>
     </Card>
   );
