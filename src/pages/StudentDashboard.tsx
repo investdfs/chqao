@@ -17,6 +17,7 @@ import { useStudentPerformance } from "@/components/student/dashboard/hooks/useS
 import { SubjectSelectionDialog } from "@/components/student/dialogs/SubjectSelectionDialog";
 import { ExamSelectionDialog } from "@/components/student/dialogs/ExamSelectionDialog";
 import { StudyModeSelector } from "@/components/student/dashboard/StudyModeSelector";
+import { ResetProgressButton } from "@/components/student/dashboard/ResetProgressButton";
 
 interface PreviewUser {
   id: string;
@@ -107,10 +108,16 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
       <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <StudyModeSelector 
-          onPracticeClick={() => setSubjectDialogOpen(true)}
-          onExamClick={() => setExamDialogOpen(true)}
-        />
+        <div className="flex justify-between items-center">
+          <StudyModeSelector 
+            onPracticeClick={() => setSubjectDialogOpen(true)}
+            onExamClick={() => setExamDialogOpen(true)}
+          />
+          <div className="flex items-center gap-2">
+            <SubjectsPanel />
+            <ResetProgressButton />
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
@@ -134,7 +141,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <SubjectsPanel />
           <div className="space-y-8">
             <WeeklyGoals
               studyHours={{
@@ -150,9 +156,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
             />
             <WeeklyStudyChart data={weeklyStudyData || []} />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-8">
           <ProductiveHours />
         </div>
       </div>
