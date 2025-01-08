@@ -8,7 +8,7 @@ interface StudyGuideProps {
 
 export const StudyGuide = ({ weakPoints, strongPoints }: StudyGuideProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 border-2 border-primary/20">
       <CardHeader>
         <CardTitle className="gradient-text">Guia de Estudos</CardTitle>
       </CardHeader>

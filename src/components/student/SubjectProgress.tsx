@@ -11,7 +11,7 @@ interface SubjectProgressProps {
 
 export const SubjectProgress = ({ subjects }: SubjectProgressProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 border-2 border-primary/20">
       <CardHeader>
         <CardTitle className="gradient-text">Progresso por Matéria</CardTitle>
       </CardHeader>

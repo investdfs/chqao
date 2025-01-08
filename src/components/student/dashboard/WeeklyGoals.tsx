@@ -16,7 +16,7 @@ interface WeeklyGoalsProps {
 
 export const WeeklyGoals = ({ studyHours, questions }: WeeklyGoalsProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 border-2 border-primary/20">
       <CardHeader>
         <CardTitle className="text-sm font-medium">METAS DE ESTUDO SEMANAL</CardTitle>
       </CardHeader>
