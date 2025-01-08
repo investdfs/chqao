@@ -1,10 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { StudySession } from "@/types/database/study-sessions";
 
 export const usePerformanceStats = (userId: string | null) => {
-  const { toast } = useToast();
-
   return useQuery({
     queryKey: ['study-sessions', userId],
     queryFn: async () => {
@@ -23,20 +21,12 @@ export const usePerformanceStats = (userId: string | null) => {
 
       if (error) {
         console.error('Erro ao buscar sessões:', error);
-        toast({
-          variant: "destructive",
-          title: "Erro ao carregar sessões",
-          description: "Não foi possível carregar seu histórico de sessões."
-        });
-        return [];
+        throw error;
       }
 
       console.log("Sessões encontradas:", sessions);
-      return sessions;
+      return sessions as StudySession[];
     },
-    enabled: !!userId,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    refetchInterval: 1000
+    enabled: !!userId
   });
 };
