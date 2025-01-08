@@ -44,6 +44,8 @@ export const ResetProgressDialog = ({ open, onOpenChange }: ResetProgressDialogP
         throw new Error("Usuário não autenticado");
       }
 
+      console.log("Iniciando reset de progresso para usuário:", session.user.id);
+
       const { error } = await supabase.rpc('reset_student_progress', {
         student_id_param: session.user.id
       });
@@ -55,7 +57,7 @@ export const ResetProgressDialog = ({ open, onOpenChange }: ResetProgressDialogP
         description: "Seu dashboard foi reiniciado. Todas as estatísticas foram zeradas.",
       });
 
-      // Recarrega a página para atualizar os dados
+      // Recarrega a página para atualizar todos os componentes
       window.location.reload();
     } catch (error) {
       console.error("Erro ao resetar progresso:", error);
@@ -83,6 +85,10 @@ export const ResetProgressDialog = ({ open, onOpenChange }: ResetProgressDialogP
             </p>
             <ul className="list-disc pl-6 space-y-2 text-sm">
               <li>Histórico de questões respondidas</li>
+              <li>Evolução do desempenho</li>
+              <li>Tópicos recomendados</li>
+              <li>Calendário de estudos</li>
+              <li>Streak de estudos</li>
               <li>Dias de estudo consecutivos</li>
               <li>Tempo total de estudo</li>
               <li>Estatísticas de desempenho</li>
