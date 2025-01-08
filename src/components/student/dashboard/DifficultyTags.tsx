@@ -5,21 +5,15 @@ import { TopicDifficulty } from "./types/difficulty-tags";
 
 const PREVIEW_DATA: TopicDifficulty[] = [
   {
-    topic: "História do Brasil Império",
-    subject: "História do Brasil",
-    correct_percentage: 65.5,
-    total_questions: 12
-  },
-  {
     topic: "Independência do Brasil",
     subject: "História do Brasil",
-    correct_percentage: 58.3,
-    total_questions: 8
+    correct_percentage: 65.5,
+    total_questions: 20
   },
   {
-    topic: "República Velha",
+    topic: "Era Vargas",
     subject: "História do Brasil",
-    correct_percentage: 45.0,
+    correct_percentage: 45.8,
     total_questions: 15
   }
 ];
@@ -48,7 +42,7 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
       console.log("Recomendações encontradas:", data);
       return data as TopicDifficulty[];
     },
-    enabled: true // Always enabled to show preview data when no userId
+    enabled: true // Always enabled to show at least preview data
   });
 
   if (isLoading) {
