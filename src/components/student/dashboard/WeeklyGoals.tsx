@@ -18,7 +18,7 @@ export const WeeklyGoals = ({ studyHours, questions }: WeeklyGoalsProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-medium sr-only">METAS DE ESTUDO SEMANAL</CardTitle>
+        <CardTitle className="text-sm font-medium">METAS DE ESTUDO SEMANAL</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
