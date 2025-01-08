@@ -1,3 +1,7 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Check, X, Clock } from "lucide-react";
+
 interface PerformanceMetricsProps {
   totalQuestions: number;
   totalCorrect: number;
