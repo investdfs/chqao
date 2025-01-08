@@ -14,7 +14,7 @@ export const SyllabusProgressCard = ({
   percentage = 0 
 }: SyllabusProgressCardProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 border-2 border-primary/20">
+    <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium">PROGRESSO NO EDITAL</CardTitle>
         <GraduationCap className="h-4 w-4 text-muted-foreground" />
