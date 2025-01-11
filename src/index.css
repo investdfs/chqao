@@ -13,7 +13,7 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-gray-200 via-violet-100/30 to-indigo-200/20 min-h-screen text-foreground antialiased selection:bg-primary/20;
+    @apply bg-gradient-to-br from-gray-200 via-primary-light/30 to-primary-light/20 min-h-screen text-foreground antialiased selection:bg-primary/20;
   }
 
   /* Smooth scrolling */
@@ -103,18 +103,16 @@
   /* Gradient text */
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r 
-           from-primary via-accent-purple to-accent-pink 
+           from-primary via-primary-dark to-primary 
            animate-shimmer bg-[length:200%_100%];
   }
 
-  /* Shimmer effect */
   .shimmer {
     @apply animate-shimmer bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 
            bg-[length:200%_100%] rounded-lg;
   }
 }
 
-/* Custom animations */
 @keyframes spin-slow {
   from {
     transform: rotate(0deg);
