@@ -22,7 +22,7 @@ const Register = () => {
 
   const isValidWhatsApp = (number: string) => {
     const digitsOnly = number.replace(/\D/g, '');
-    return digitsOnly.length >= 12; // +55 + DDD + número
+    return digitsOnly.length >= 12;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,9 +101,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-light via-white to-secondary p-4">
-      <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8">
-        <Card className="w-full max-w-md">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-light via-white to-secondary p-4">
+      <div className="w-full max-w-5xl flex flex-col lg:flex-row gap-8">
+        <Card className="w-full lg:max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">Criar Conta</CardTitle>
           </CardHeader>
@@ -223,7 +223,7 @@ const Register = () => {
           </CardContent>
         </Card>
 
-        <div className="hidden md:flex flex-col justify-center space-y-8">
+        <div className="w-full lg:flex-1 space-y-6">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-primary/10">
             <h3 className="text-xl font-semibold text-primary mb-4">
               Por que fornecer seu WhatsApp?
