@@ -66,15 +66,15 @@ const Index = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="lg:w-1/2 relative"
             >
-              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1519389950473-47ba0277781c"
-                  alt="CHQAO Ambiente de Prova"
+                  src="https://i.ibb.co/kQDwNQG/IMGCHQ1.webp"
+                  alt="Militares realizando prova do CHQAO"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent">
-                  <div className="absolute bottom-4 left-4 right-4 text-white text-sm">
-                    <p className="font-medium">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent">
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <p className="font-medium text-base sm:text-lg">
                       Ambiente real de prova CHQAO - Prepare-se adequadamente
                     </p>
                   </div>
