@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
