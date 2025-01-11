@@ -69,14 +69,13 @@ const Register = () => {
       // Criar o registro na tabela students
       const { error: studentError } = await supabase
         .from('students')
-        .insert([
-          {
-            email: formData.email,
-            name: formData.name,
-            whatsapp: formData.whatsapp,
-            status: 'active'
-          }
-        ]);
+        .insert({
+          email: formData.email,
+          name: formData.name,
+          whatsapp: formData.whatsapp,
+          password: formData.password,
+          status: 'active'
+        });
 
       if (studentError) {
         console.error('Erro ao criar registro na tabela students:', studentError);

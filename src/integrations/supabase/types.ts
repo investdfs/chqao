@@ -322,6 +322,7 @@ export type Database = {
           name: string
           password: string
           status: Database["public"]["Enums"]["student_status"] | null
+          whatsapp: string | null
         }
         Insert: {
           completed_cycles?: number | null
@@ -332,6 +333,7 @@ export type Database = {
           name?: string
           password: string
           status?: Database["public"]["Enums"]["student_status"] | null
+          whatsapp?: string | null
         }
         Update: {
           completed_cycles?: number | null
@@ -342,6 +344,7 @@ export type Database = {
           name?: string
           password?: string
           status?: Database["public"]["Enums"]["student_status"] | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
