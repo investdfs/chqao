@@ -1,92 +1,69 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-type SubjectStats = {
+interface SubjectCount {
   subject: string;
-  theme: string | null;
-  topic: string | null;
-  count: number;
-};
+  questionCount: number;
+}
 
-type SubjectGroup = {
+interface SubjectGroup {
   name: string;
   totalQuestions: number;
-  subjects: {
-    subject: string;
-    questionCount: number;
-  }[];
-};
+  subjects: SubjectCount[];
+}
 
 export const useSubjectsStats = () => {
   return useQuery({
-    queryKey: ["subjects-stats"],
+    queryKey: ['subjects-stats'],
     queryFn: async () => {
-      console.log("Fetching subjects statistics...");
+      console.log('Fetching subjects statistics...');
       
-      const { data: stats, error } = await supabase
-        .rpc('get_subjects_count');
+      try {
+        const { data, error } = await supabase
+          .from('questions')
+          .select('subject')
+          .eq('status', 'active')
+          .throwOnError();
 
-      if (error) {
-        console.error("Error fetching subjects stats:", error);
+        if (error) {
+          console.error('Error fetching subjects:', error);
+          throw error;
+        }
+
+        // Process the data
+        const subjectCounts: Record<string, number> = {};
+        data.forEach(question => {
+          const subject = question.subject;
+          subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
+        });
+
+        // Group subjects
+        const groups: Record<string, SubjectGroup> = {};
+        Object.entries(subjectCounts).forEach(([subject, count]) => {
+          const groupName = subject.split(' - ')[0];
+          if (!groups[groupName]) {
+            groups[groupName] = {
+              name: groupName,
+              totalQuestions: 0,
+              subjects: []
+            };
+          }
+          groups[groupName].subjects.push({
+            subject,
+            questionCount: count
+          });
+          groups[groupName].totalQuestions += count;
+        });
+
+        return Object.values(groups).sort((a, b) => b.totalQuestions - a.totalQuestions);
+      } catch (error) {
+        console.error('Error in useSubjectsStats:', error);
         throw error;
       }
-
-      console.log("Raw stats data:", stats);
-
-      // Predefined subject structure
-      const subjectGroups: SubjectGroup[] = [
-        {
-          name: "Conhecimentos Gerais (CHQAO e CHQAO Mus)",
-          totalQuestions: 0,
-          subjects: [
-            { subject: "Língua Portuguesa", questionCount: 0 },
-            { subject: "Geografia do Brasil", questionCount: 0 },
-            { subject: "História do Brasil", questionCount: 0 },
-          ],
-        },
-        {
-          name: "Conhecimentos Profissionais (CHQAO)",
-          totalQuestions: 0,
-          subjects: [
-            { subject: "E-1 - Estatuto dos Militares", questionCount: 0 },
-            { subject: "Licitações e Contratos", questionCount: 0 },
-            { subject: "Regulamento de Administração do Exército (RAE)", questionCount: 0 },
-            { subject: "Direito Militar e Sindicância", questionCount: 0 },
-            { subject: "Código Penal Militar", questionCount: 0 },
-            { subject: "Código de Processo Penal Militar", questionCount: 0 },
-            { subject: "Sindicância", questionCount: 0 },
-          ],
-        },
-        {
-          name: "Conhecimentos Profissionais (CHQAO Mus)",
-          totalQuestions: 0,
-          subjects: [
-            { subject: "Conhecimentos Musicais Gerais", questionCount: 0 },
-            { subject: "Harmonia Elementar (vocal) e Funcional (instrumental)", questionCount: 0 },
-            { subject: "Períodos da História da Música", questionCount: 0 },
-            { subject: "Instrumentação", questionCount: 0 },
-            { subject: "Canto Modulante", questionCount: 0 },
-            { subject: "Transcrição", questionCount: 0 },
-          ],
-        },
-      ];
-
-      // Update question counts from database stats
-      stats?.forEach((stat: { subject: string; count: number }) => {
-        for (const group of subjectGroups) {
-          const subject = group.subjects.find(s => s.subject === stat.subject);
-          if (subject) {
-            subject.questionCount = Number(stat.count);
-            group.totalQuestions += Number(stat.count);
-            break;
-          }
-        }
-      });
-
-      console.log("Processed subject groups:", subjectGroups);
-      return subjectGroups;
     },
-    refetchInterval: 5000, // Atualiza a cada 5 segundos
-    refetchOnWindowFocus: true,
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 30, // 30 seconds
   });
 };

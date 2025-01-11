@@ -8,10 +8,26 @@ import {
 } from "@/components/ui/dialog";
 import { useSubjectsStats } from "@/components/student/dashboard/hooks/useSubjectsStats";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Book } from "lucide-react";
+import { Book, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
 
 export const SubjectsDialog = () => {
-  const { data: subjectGroups, isLoading } = useSubjectsStats();
+  const { data: subjectGroups, isLoading, error, refetch } = useSubjectsStats();
+  const { toast } = useToast();
+
+  // Handle errors with toast notifications
+  useEffect(() => {
+    if (error) {
+      console.error('Error fetching subject stats:', error);
+      toast({
+        title: "Erro ao carregar estatísticas",
+        description: "Tente novamente em alguns instantes",
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
 
   // Calculate total questions
   const totalQuestions = subjectGroups?.reduce(
@@ -43,6 +59,20 @@ export const SubjectsDialog = () => {
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
           </div>
+        ) : error ? (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Erro ao carregar dados. 
+              <Button 
+                variant="link" 
+                className="p-0 h-auto font-normal" 
+                onClick={() => refetch()}
+              >
+                Tentar novamente
+              </Button>
+            </AlertDescription>
+          </Alert>
         ) : (
           <div className="space-y-6">
             {subjectGroups?.map((group, groupIndex) => (
