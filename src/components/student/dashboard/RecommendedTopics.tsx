@@ -1,65 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-interface TopicRecommendation {
-  topic: string;
-  subject: string;
-  correct_percentage: number;
-  total_questions: number;
-}
+import { TopicCard } from "./recommendations/TopicCard";
+import { useTopicRecommendations } from "./recommendations/useTopicRecommendations";
 
 export const RecommendedTopics = ({ userId }: { userId?: string }) => {
   const navigate = useNavigate();
-  const isPreviewMode = userId === 'preview-user-id';
-
-  const { data: recommendations } = useQuery({
-    queryKey: ['topic-recommendations', userId],
-    queryFn: async () => {
-      if (!userId || isPreviewMode) {
-        console.log("Usando dados de preview para recomendações");
-        return [
-          {
-            topic: "História do Brasil Império",
-            subject: "História do Brasil",
-            correct_percentage: 65.5,
-            total_questions: 12
-          },
-          {
-            topic: "Independência do Brasil",
-            subject: "História do Brasil",
-            correct_percentage: 58.3,
-            total_questions: 8
-          },
-          {
-            topic: "República Velha",
-            subject: "História do Brasil",
-            correct_percentage: 45.0,
-            total_questions: 15
-          }
-        ];
-      }
-      
-      console.log("Buscando recomendações de tópicos para:", userId);
-      
-      const { data, error } = await supabase
-        .rpc('get_topic_recommendations', {
-          student_id_param: userId
-        });
-
-      if (error) {
-        console.error('Erro ao buscar recomendações:', error);
-        return [];
-      }
-
-      console.log("Recomendações encontradas:", data);
-      return data || [];
-    },
-    enabled: !!userId
-  });
+  const { data: recommendations = [] } = useTopicRecommendations(userId);
 
   const handleTopicSelect = (subject: string) => {
     navigate("/question-practice", { 
@@ -70,7 +17,7 @@ export const RecommendedTopics = ({ userId }: { userId?: string }) => {
     });
   };
 
-  if (!recommendations?.length) {
+  if (!recommendations.length) {
     return null;
   }
 
@@ -85,29 +32,14 @@ export const RecommendedTopics = ({ userId }: { userId?: string }) => {
       <CardContent>
         <div className="space-y-4">
           {recommendations.map((rec) => (
-            <div 
-              key={rec.topic} 
-              className="p-4 rounded-lg bg-muted/50 space-y-2"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-medium">{rec.topic}</h4>
-                  <p className="text-sm text-muted-foreground">{rec.subject}</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleTopicSelect(rec.subject)}
-                >
-                  Praticar
-                </Button>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">
-                  {rec.correct_percentage.toFixed(1)}%
-                </span> de aproveitamento em {rec.total_questions} questões
-              </div>
-            </div>
+            <TopicCard
+              key={rec.topic}
+              topic={rec.topic}
+              subject={rec.subject}
+              correctPercentage={rec.correct_percentage}
+              totalQuestions={rec.total_questions}
+              onPractice={handleTopicSelect}
+            />
           ))}
         </div>
       </CardContent>
