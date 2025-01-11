@@ -116,7 +116,7 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="h-full">
         <CardHeader>
           <CardTitle>Calendário de Estudos</CardTitle>
         </CardHeader>
@@ -128,11 +128,11 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
   }
 
   return (
-    <Card className="h-full">
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle>Calendário de Estudos</CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="flex-1 p-0">
         <Calendar
           mode="single"
           selected={new Date()}
@@ -161,7 +161,7 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
               );
             }
           }}
-          className="w-full p-0"
+          className="w-full h-full"
         />
       </CardContent>
     </Card>
