@@ -3,27 +3,44 @@ import { motion } from "framer-motion";
 const stats = [
   {
     value: "10.000+",
-    label: "Questões Disponíveis",
+    label: "Questões",
   },
   {
     value: "95%",
-    label: "Taxa de Aprovação",
+    label: "Aprovação",
   },
   {
     value: "50.000+",
-    label: "Alunos Cadastrados",
+    label: "Alunos",
   },
   {
     value: "24/7",
-    label: "Suporte Disponível",
+    label: "Suporte",
   },
 ];
 
 export const StatsSection = () => {
   return (
-    <section className="py-8 sm:py-12 bg-gradient-to-br from-primary-light/20 to-white">
+    <section className="py-4 sm:py-12 bg-gradient-to-br from-primary-light/20 to-white">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Mobile View */}
+        <div className="sm:hidden grid grid-cols-2 gap-2">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              className="bg-white p-3 rounded-lg text-center shadow-sm border border-gray-100"
+            >
+              <div className="text-lg font-bold text-primary">{stat.value}</div>
+              <div className="text-xs text-gray-600">{stat.label}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden sm:grid lg:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
             <motion.div
               key={index}

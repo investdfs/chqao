@@ -1,52 +1,73 @@
 import { motion } from "framer-motion";
-import { Brain, Target, BookOpen, BarChart3, Timer, Star } from "lucide-react";
+import { Brain, Target, BookOpen, BarChart3, Timer, Star, ChevronRight } from "lucide-react";
 
 const features = [
   {
     icon: Brain,
     title: "Estudo Inteligente",
-    description: "Sistema que identifica seus pontos fracos e adapta o conteúdo automaticamente para otimizar seu aprendizado.",
+    description: "Sistema que identifica seus pontos fracos e adapta o conteúdo automaticamente.",
   },
   {
     icon: Target,
     title: "Foco no Objetivo",
-    description: "Questões específicas e atualizadas, focadas no conteúdo que realmente cai na prova do CHQAO.",
+    description: "Questões específicas e atualizadas para o CHQAO.",
   },
   {
     icon: BookOpen,
     title: "Material Completo",
-    description: "Banco de questões extenso com explicações detalhadas e referências para aprofundamento.",
+    description: "Banco de questões extenso com explicações detalhadas.",
   },
   {
     icon: BarChart3,
     title: "Análise Detalhada",
-    description: "Acompanhe seu progresso com estatísticas detalhadas e identifique áreas para melhorar.",
+    description: "Acompanhe seu progresso com estatísticas detalhadas.",
   },
   {
     icon: Timer,
     title: "Gestão do Tempo",
-    description: "Simulados cronometrados e feedback sobre seu ritmo de resolução para otimizar seu tempo de prova.",
+    description: "Simulados cronometrados e feedback sobre seu ritmo.",
   },
   {
     icon: Star,
     title: "Experiência Real",
-    description: "Interface similar à prova oficial e questões no mesmo nível de dificuldade do concurso.",
+    description: "Interface e questões similares à prova oficial.",
   },
 ];
 
 export const FeaturesSection = () => {
   return (
-    <section className="py-8 sm:py-12 bg-white/80 backdrop-blur-sm">
+    <section className="py-4 sm:py-12 bg-white/80 backdrop-blur-sm">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        <div className="text-center mb-4 sm:mb-12">
+          <h2 className="text-xl sm:text-3xl font-bold text-gray-900">
             Por que escolher nossa plataforma?
           </h2>
-          <p className="mt-2 text-base sm:text-lg text-gray-600">
-            Recursos exclusivos para maximizar seu aprendizado
-          </p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        
+        {/* Mobile View */}
+        <div className="sm:hidden space-y-2">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
+            >
+              <div className="bg-primary-light rounded-lg p-2 flex-shrink-0">
+                <feature.icon className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-grow">
+                <h3 className="text-sm font-semibold text-gray-900">{feature.title}</h3>
+                <p className="text-xs text-gray-600 mt-0.5">{feature.description}</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <motion.div
               key={index}
