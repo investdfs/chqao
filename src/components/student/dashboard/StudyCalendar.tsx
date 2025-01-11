@@ -128,11 +128,11 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Calendário de Estudos</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <Calendar
           mode="single"
           selected={new Date()}
@@ -161,7 +161,7 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
               );
             }
           }}
-          className="rounded-md border"
+          className="w-full p-0"
         />
       </CardContent>
     </Card>
