@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { DashboardHeader } from "@/components/student/dashboard/DashboardHeader";
 import { StudyTimeCard } from "@/components/student/dashboard/StudyTimeCard";
 import { PerformanceCard } from "@/components/student/dashboard/PerformanceCard";
-import { SyllabusProgressCard } from "@/components/student/dashboard/SyllabusProgressCard";
-import { StudyConsistency } from "@/components/student/dashboard/StudyConsistency";
 import { WeeklyGoals } from "@/components/student/dashboard/WeeklyGoals";
 import { StudyStreak } from "@/components/student/dashboard/StudyStreak";
 import { ProductiveHours } from "@/components/student/dashboard/ProductiveHours";
@@ -63,11 +61,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
       weekly_questions_target: 250,
       weekly_questions_completed: 150
     },
-    syllabusProgress: {
-      completed_topics: 15,
-      pending_topics: 25,
-      progress_percentage: 37.5
-    },
     weeklyStudyData: Array.from({ length: 7 }, (_, i) => ({
       study_day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
       question_count: Math.floor(Math.random() * 50),
@@ -82,7 +75,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
 
   const { 
     studyStats = isPreviewMode ? previewData.studyStats : undefined, 
-    syllabusProgress = isPreviewMode ? previewData.syllabusProgress : undefined, 
     weeklyStudyData = isPreviewMode ? previewData.weeklyStudyData : undefined 
   } = useStudentStats(isPreviewMode ? undefined : userId);
 
@@ -118,21 +110,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
           <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
           <PerformanceCard />
           <StudyStreak />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <SyllabusProgressCard
-            completedTopics={syllabusProgress?.completed_topics || 0}
-            pendingTopics={syllabusProgress?.pending_topics || 0}
-            percentage={Number(syllabusProgress?.progress_percentage) || 0}
-          />
-          <StudyConsistency
-            consecutiveDays={studyStats?.consecutive_study_days || 0}
-            studyDays={Array.from({ length: 30 }, (_, i) => ({
-              date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-              studied: Math.random() > 0.3,
-            }))}
-          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
