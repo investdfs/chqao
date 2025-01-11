@@ -38,6 +38,8 @@ const RegisterForm = () => {
     setLoading(true);
 
     try {
+      console.log('Iniciando processo de registro para:', formData.email);
+
       if (formData.password !== formData.confirmPassword) {
         toast({
           title: "Erro no cadastro",
@@ -56,6 +58,7 @@ const RegisterForm = () => {
         return;
       }
 
+      // 1. Criar usuário na autenticação do Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -73,9 +76,13 @@ const RegisterForm = () => {
         throw authError;
       }
 
+      console.log('Usuário criado na autenticação:', authData);
+
+      // 2. Criar registro na tabela students
       const { error: studentError } = await supabase
         .from('students')
         .insert({
+          id: authData.user?.id, // Usar o mesmo ID do auth
           email: formData.email,
           name: formData.name,
           whatsapp: formData.whatsapp,
@@ -88,12 +95,42 @@ const RegisterForm = () => {
         throw studentError;
       }
 
+      console.log('Registro criado na tabela students com sucesso');
+
+      // 3. Inicializar dados de estudo
+      const { error: sessionError } = await supabase
+        .from('study_sessions')
+        .insert({
+          student_id: authData.user?.id,
+          correct_answers: 0,
+          incorrect_answers: 0,
+          percentage: 0
+        });
+
+      if (sessionError) {
+        console.error('Erro ao criar sessão de estudo inicial:', sessionError);
+        // Não vamos bloquear o registro por causa deste erro
+      }
+
       toast({
         title: "Conta criada com sucesso!",
         description: "Você já pode fazer login na plataforma.",
       });
       
-      navigate("/login");
+      // 4. Redirecionar para o dashboard após login automático
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInError) {
+        console.error('Erro ao fazer login automático:', signInError);
+        navigate("/login");
+      } else {
+        console.log('Login automático realizado com sucesso');
+        navigate("/student-dashboard");
+      }
+
     } catch (error: any) {
       console.error('Erro durante o registro:', error);
       toast({
