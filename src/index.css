@@ -16,12 +16,10 @@
     @apply bg-gradient-to-br from-gray-200 via-primary-light/30 to-primary-light/20 min-h-screen text-foreground antialiased selection:bg-primary/20;
   }
 
-  /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
   }
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     @apply w-2;
   }
@@ -94,13 +92,11 @@
     @apply bg-error-light text-error;
   }
 
-  /* Glass effect */
   .glass {
     @apply bg-gray-100/70 backdrop-blur-lg border border-white/20 shadow-sm
            hover:shadow-md transition-all duration-300;
   }
 
-  /* Gradient text */
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r 
            from-primary via-primary-dark to-primary 
