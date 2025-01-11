@@ -19,7 +19,7 @@ export const HeroSection = () => {
           >
             <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl">
               <img
-                src="https://i.ibb.co/yks7ww3/IMGCHQ1.png"
+                src="https://i.ibb.co/7rYH9L5/IMGCHQ1.webp"
                 alt="Militares realizando prova do CHQAO"
                 className="w-full h-full object-cover"
               />
