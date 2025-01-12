@@ -38,8 +38,6 @@ export const FileUploadSection = () => {
       const insertedQuestions = await processExcelFile(file);
       setProgress(100);
       
-      console.log("Questões processadas com sucesso:", insertedQuestions);
-
       toast({
         title: "Sucesso!",
         description: `${insertedQuestions.length} questões foram importadas com sucesso.`,

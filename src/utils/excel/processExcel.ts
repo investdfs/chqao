@@ -1,6 +1,8 @@
-import { supabase } from '@/integrations/supabase/client';
 import * as XLSX from 'xlsx';
-import { validateExcelData } from './templateData';
+import { validateQuestionRow } from './validation';
+import { transformToQuestion, insertQuestionBatch } from './transformer';
+
+const BATCH_SIZE = 50;
 
 export const processExcelFile = async (file: File): Promise<any[]> => {
   console.log('Iniciando processamento do arquivo Excel:', file.name);
@@ -13,9 +15,7 @@ export const processExcelFile = async (file: File): Promise<any[]> => {
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: 'binary' });
         const questions: any[] = [];
-        const errors: any[] = [];
         let processedCount = 0;
-        let errorCount = 0;
 
         console.log('Processando planilha Excel...');
 
@@ -31,76 +31,28 @@ export const processExcelFile = async (file: File): Promise<any[]> => {
             const row: any = jsonData[rowIndex];
             if (!row[0]) continue; // Pular linhas vazias
 
-            // Validar dados
-            const validationErrors = validateExcelData(row, sheetName);
+            const validatedData = validateQuestionRow(row, sheetName);
+            const questionData = transformToQuestion(validatedData);
+            questionData.subject = sheetName;
             
-            if (validationErrors.length > 0) {
-              errors.push({
-                row: rowIndex + 1,
-                sheet: sheetName,
-                errors: validationErrors
-              });
-              errorCount++;
-              continue;
-            }
-
-            const question = {
-              theme: row[0],
-              topic: row[1],
-              text: row[2],
-              image_url: row[3] || null,
-              option_a: row[4],
-              option_b: row[5],
-              option_c: row[6],
-              option_d: row[7],
-              option_e: row[8],
-              correct_answer: String(row[9]).toUpperCase(),
-              explanation: row[10],
-              difficulty: row[11] || 'Médio',
-              is_from_previous_exam: row[12]?.toLowerCase() === 'sim',
-              exam_year: row[13] ? parseInt(row[13]) : null,
-              exam_name: row[14] || null,
-              subject: sheetName,
-              status: 'active'
-            };
-
-            questions.push(question);
+            questions.push(questionData);
             processedCount++;
             console.log(`Questão ${processedCount} processada com sucesso`);
           }
-        }
-
-        if (errors.length > 0) {
-          console.error('Erros encontrados durante o processamento:', errors);
-          throw new Error(`Encontrados ${errors.length} erros no arquivo. Verifique o console para detalhes.`);
         }
 
         if (questions.length === 0) {
           throw new Error('Nenhuma questão válida encontrada no arquivo.');
         }
 
-        // Inserir questões em lotes de 50
-        const batchSize = 50;
+        // Inserir questões em lotes
         const results = [];
-        
-        for (let i = 0; i < questions.length; i += batchSize) {
-          const batch = questions.slice(i, i + batchSize);
-          console.log(`Inserindo lote ${Math.floor(i/batchSize) + 1} de ${Math.ceil(questions.length/batchSize)}`);
+        for (let i = 0; i < questions.length; i += BATCH_SIZE) {
+          const batch = questions.slice(i, i + BATCH_SIZE);
+          console.log(`Inserindo lote ${Math.floor(i/BATCH_SIZE) + 1} de ${Math.ceil(questions.length/BATCH_SIZE)}`);
           
-          const { data, error: uploadError } = await supabase
-            .from('questions')
-            .insert(batch)
-            .select();
-
-          if (uploadError) {
-            console.error('Erro ao inserir lote:', uploadError);
-            throw uploadError;
-          }
-
-          if (data) {
-            results.push(...data);
-            console.log(`Lote ${Math.floor(i/batchSize) + 1} inserido com sucesso`);
-          }
+          const insertedQuestions = await insertQuestionBatch(batch);
+          results.push(...insertedQuestions);
         }
 
         console.log(`Importação concluída. ${results.length} questões inseridas com sucesso.`);
