@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { processExcelFile } from "@/utils/excel/processExcel";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const FileUploadSection = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,7 +24,7 @@ export const FileUploadSection = () => {
       return;
     }
 
-    console.log("Iniciando upload do arquivo:", file.name);
+    setError(null);
     setIsUploading(true);
     setProgress(10);
 
@@ -44,6 +46,7 @@ export const FileUploadSection = () => {
       });
     } catch (error) {
       console.error("Erro ao processar arquivo:", error);
+      setError(error.message);
       toast({
         title: "Erro ao importar questões",
         description: error.message || "Verifique se o arquivo está no formato correto e tente novamente.",
@@ -60,6 +63,13 @@ export const FileUploadSection = () => {
 
   return (
     <div className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
         <input
           type="file"

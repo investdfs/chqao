@@ -67,23 +67,28 @@ export const ExcelTemplateSection = () => {
 
       // Add instructions sheet
       const instructions = [
-        ["Instruções para Preenchimento do Banco de Questões CHQAo"],
+        ["Instruções para Preenchimento do Banco de Questões"],
         [""],
         ["1. Cada aba representa uma matéria diferente do concurso"],
         ["2. Organize as questões por Tema e Assunto dentro de cada matéria"],
-        ["3. Mantenha o formato exato das colunas ao adicionar suas questões"],
-        ["4. A coluna 'Resposta Correta' deve conter apenas A, B, C, D ou E"],
-        ["5. A coluna 'Dificuldade' deve ser preenchida com: Fácil, Médio ou Difícil"],
-        ["6. O campo 'URL da Imagem' é opcional - deixe em branco se não houver imagem"],
-        ["7. Para questões de concursos anteriores, marque 'Sim' e preencha o ano e nome"],
-        ["8. Você pode adicionar quantas linhas quiser em cada aba"],
-        ["9. Não modifique o cabeçalho das colunas"],
+        ["3. Campos obrigatórios:"],
+        ["   - Questão"],
+        ["   - Opções A, B, C, D e E"],
+        ["   - Resposta Correta (apenas A, B, C, D ou E)"],
+        ["   - Explicação"],
+        ["4. A coluna 'Dificuldade' aceita apenas: Fácil, Médio ou Difícil"],
+        ["5. Para questões de concursos anteriores:"],
+        ["   - Marque 'Sim' na coluna 'Questão de Concurso Anterior'"],
+        ["   - Preencha o Ano e Nome do Concurso"],
+        ["6. O campo 'URL da Imagem' é opcional"],
+        ["7. Não modifique o nome das colunas ou das abas"],
+        ["8. Em caso de erro, verifique o formato dos dados"],
         [""],
-        ["Observações Importantes:"],
-        ["- Mantenha a linguagem formal militar"],
-        ["- Verifique a precisão técnica das questões"],
-        ["- Inclua explicações detalhadas para cada resposta"],
-        ["- Classifique corretamente a dificuldade das questões"]
+        ["Observações:"],
+        ["- Mantenha a formatação consistente"],
+        ["- Verifique a ortografia"],
+        ["- Revise as respostas antes do upload"],
+        ["- Faça backup do arquivo antes de editar"]
       ];
 
       const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
@@ -116,8 +121,8 @@ export const ExcelTemplateSection = () => {
         <ol className="list-decimal list-inside space-y-1 text-sm">
           <li>Baixe o modelo de planilha clicando no botão abaixo</li>
           <li>Preencha as questões seguindo o formato do modelo</li>
-          <li>Certifique-se de preencher a matéria corretamente para cada questão</li>
-          <li>Não modifique as colunas ou sua ordem</li>
+          <li>Certifique-se de preencher todos os campos obrigatórios</li>
+          <li>Verifique se as respostas e dificuldades estão no formato correto</li>
           <li>Salve o arquivo e faça upload</li>
         </ol>
       </div>

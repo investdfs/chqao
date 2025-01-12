@@ -45,22 +45,47 @@ export const getSampleQuestions = () => [
     concursoAnterior: "Não",
     ano: "",
     nome: ""
-  },
-  {
-    tema: "Regulamento Disciplinar",
-    assunto: "Transgressões Disciplinares",
-    questao: "Sobre as transgressões disciplinares no âmbito militar, analise a seguinte situação: Um militar deixa de comunicar ao superior imediato a alteração de seu endereço residencial. Esta conduta é classificada como:",
-    imagem: "",
-    opcaoA: "Transgressão leve",
-    opcaoB: "Transgressão média",
-    opcaoC: "Transgressão grave",
-    opcaoD: "Não constitui transgressão",
-    opcaoE: "Depende do tempo decorrido sem a comunicação",
-    resposta: "A",
-    explicacao: "De acordo com o Regulamento Disciplinar do Exército, deixar de comunicar ao superior imediato a alteração de endereço residencial é classificada como transgressão leve, pois afeta apenas aspectos administrativos da organização militar.",
-    dificuldade: "Fácil",
-    concursoAnterior: "Sim",
-    ano: "2022",
-    nome: "EsFCEx"
   }
 ];
+
+export const validateExcelData = (row: any, sheetName: string) => {
+  const errors = [];
+  
+  // Campos obrigatórios
+  const requiredFields = {
+    "Questão": row[2],
+    "Opção A": row[4],
+    "Opção B": row[5],
+    "Opção C": row[6],
+    "Opção D": row[7],
+    "Opção E": row[8],
+    "Resposta Correta": row[9],
+    "Explicação": row[10]
+  };
+
+  // Verificar campos obrigatórios
+  Object.entries(requiredFields).forEach(([field, value]) => {
+    if (!value) {
+      errors.push(`Campo "${field}" é obrigatório`);
+    }
+  });
+
+  // Validar resposta correta
+  const validAnswers = ['A', 'B', 'C', 'D', 'E'];
+  if (row[9] && !validAnswers.includes(row[9].toUpperCase())) {
+    errors.push('Resposta Correta deve ser A, B, C, D ou E');
+  }
+
+  // Validar dificuldade
+  const validDifficulties = ['Fácil', 'Médio', 'Difícil'];
+  if (row[11] && !validDifficulties.includes(row[11])) {
+    errors.push('Dificuldade deve ser Fácil, Médio ou Difícil');
+  }
+
+  // Validar ano do concurso
+  if (row[13] && isNaN(parseInt(row[13]))) {
+    errors.push('Ano do Concurso deve ser um número válido');
+  }
+
+  return errors;
+};
