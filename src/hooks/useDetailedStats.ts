@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface DetailedStats {
+export interface DetailedStats {
   subject: string;
   theme: string;
   topic: string;
@@ -11,7 +11,7 @@ interface DetailedStats {
   avg_difficulty: number;
 }
 
-interface SubjectSummary {
+export interface SubjectSummary {
   subject: string;
   total_questions: number;
   active_questions: number;
@@ -26,8 +26,7 @@ export const useDetailedStats = () => {
     queryFn: async () => {
       console.log('Fetching detailed statistics...');
       const { data, error } = await supabase
-        .from('detailed_question_stats')
-        .select('*');
+        .rpc('get_detailed_question_stats');
 
       if (error) {
         console.error('Error fetching detailed stats:', error);
@@ -44,8 +43,7 @@ export const useDetailedStats = () => {
     queryFn: async () => {
       console.log('Fetching subject summary...');
       const { data, error } = await supabase
-        .from('subject_summary')
-        .select('*');
+        .rpc('get_subject_summary');
 
       if (error) {
         console.error('Error fetching subject summary:', error);
