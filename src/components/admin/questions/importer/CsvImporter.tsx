@@ -164,7 +164,7 @@ export const CsvImporter = () => {
               <HelpCircle className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>Formato do CSV</DialogTitle>
               <DialogDescription>
@@ -174,13 +174,17 @@ export const CsvImporter = () => {
                     <p>Gere questões de múltipla escolha no formato CSV com ponto e vírgula (;) como separador, seguindo esta estrutura:</p>
                     <p>Cabeçalho obrigatório:</p>
                     <code className="block bg-background p-2 rounded">
-                      Matéria;Tema;Tópico;Questão;Opção A;Opção B;Opção C;Opção D;Opção E;Resposta Correta;Explicação;Dificuldade;Questão de Concurso;Ano;Nome do Concurso
+                      Matéria;Tema;Assunto;Questão;Opção A;Opção B;Opção C;Opção D;Opção E;Resposta Correta;Explicação;Dificuldade;Questão de Concurso;Ano;Nome do Concurso
                     </code>
                     
                     <p className="font-medium mt-4">Exemplo de prompt:</p>
-                    <div className="bg-background p-2 rounded">
-                      Gere 5 questões de múltipla escolha sobre [MATÉRIA] com foco em [TEMA ESPECÍFICO].
-                      
+                    <div className="bg-background p-2 rounded whitespace-pre-line">
+                      Gere 5 questões de múltipla escolha seguindo exatamente esta estrutura:
+
+                      Matéria: Língua Portuguesa
+                      Tema: Verbos
+                      Assunto: Conjugação Verbal
+
                       Regras:
                       1. Matéria deve ser uma das seguintes:
                       - Língua Portuguesa
@@ -204,8 +208,19 @@ export const CsvImporter = () => {
                       - Sem caracteres especiais
                       - Campos separados por ponto e vírgula
                       
-                      4. Exemplo de linha:
-                      Língua Portuguesa;Interpretação de Texto;Figuras de Linguagem;[texto da questão];[opção A];[opção B];[opção C];[opção D];[opção E];A;[explicação];Médio;Não;;;
+                      4. Exemplo de linha CSV:
+                      Língua Portuguesa;Verbos;Conjugação Verbal;Em relação à conjugação do verbo "fazer" no presente do indicativo, assinale a alternativa correta:;Eu fazo;Eu faz;Eu faço;Eu fasso;Eu fasso;C;A forma correta é "eu faço". O verbo "fazer" é irregular e sua conjugação na primeira pessoa do singular do presente do indicativo é "faço".;Fácil;Não;;;
+                    </div>
+
+                    <div className="mt-4 text-sm text-muted-foreground">
+                      <p className="font-medium">Observações importantes:</p>
+                      <ul className="list-disc list-inside space-y-1 mt-2">
+                        <li>Use um editor de planilhas para criar o arquivo e salve como CSV</li>
+                        <li>Certifique-se de que o separador seja ponto e vírgula (;)</li>
+                        <li>Mantenha a ordem exata das colunas conforme o exemplo</li>
+                        <li>Não use aspas nos textos, a menos que seja absolutamente necessário</li>
+                        <li>Verifique se não há linhas em branco no arquivo</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
