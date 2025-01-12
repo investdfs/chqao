@@ -4,7 +4,7 @@ const WhatsAppBenefits = () => {
       <img
         src="https://i.ibb.co/6bTS4Cg/sdfsdgfdgs.webp"
         alt="Benefícios do WhatsApp"
-        className="w-full h-full object-cover"
+        className="w-[60%] h-full object-cover"
       />
     </div>
   );
