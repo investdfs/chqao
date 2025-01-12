@@ -58,7 +58,10 @@ export const useQuestionImporterQueries = () => {
       }
 
       console.log("Buscando questões do banco com filtros:", filters);
-      let query = supabase.from("questions").select("*");
+      let query = supabase
+        .from("questions")
+        .select()
+        .throwOnError();
 
       if (filters.searchTerm !== "all") {
         switch (filters.searchTerm) {
@@ -94,7 +97,7 @@ export const useQuestionImporterQueries = () => {
 
       query = query.order("created_at", { ascending: false });
 
-      const { data, error } = await query.throwOnError();
+      const { data, error } = await query;
       if (error) throw error;
 
       console.log(`Encontradas ${data?.length || 0} questões com os filtros aplicados`);
