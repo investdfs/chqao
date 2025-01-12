@@ -6,6 +6,7 @@ import { AdminManager } from "@/components/admin/AdminManager";
 import { SyncDatabaseButton } from "@/components/admin/SyncDatabaseButton";
 import { QuestionImporter } from "@/components/admin/QuestionImporter";
 import { QuestionsTreeStats } from "@/components/admin/questions/QuestionsTreeStats";
+import { DetailedStatsPanel } from "@/components/admin/statistics/DetailedStatsPanel";
 import { AuthToggleCard } from "@/components/admin/AuthToggleCard";
 import { SubjectsDialog } from "@/components/admin/statistics/SubjectsDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +56,7 @@ const AdminDashboard = () => {
 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 space-y-6">
+            <DetailedStatsPanel />
             <AuthToggleCard />
             <QuestionsTreeStats />
             <AdminManager />
