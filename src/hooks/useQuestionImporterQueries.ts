@@ -57,7 +57,7 @@ export const useQuestionImporterQueries = () => {
         return null;
       }
 
-      console.log("Buscando questões do banco...");
+      console.log("Buscando questões do banco com filtros:", filters);
       let query = supabase.from("questions").select("*");
 
       if (filters.searchTerm !== "all") {
@@ -69,16 +69,27 @@ export const useQuestionImporterQueries = () => {
             query = query.eq("is_from_previous_exam", true);
             break;
           case "new":
-            query = query
-              .neq("status", "hidden")
+            query = query.neq("status", "hidden")
               .neq("status", "deleted")
               .eq("is_from_previous_exam", false);
             break;
         }
+      }
 
-        if (filters.selectedTheme) query = query.eq("theme", filters.selectedTheme);
-        if (filters.selectedSubject) query = query.eq("subject", filters.selectedSubject);
-        if (filters.selectedTopic) query = query.eq("topic", filters.selectedTopic);
+      // Só adiciona os filtros se eles não estiverem vazios
+      if (filters.selectedTheme && filters.selectedTheme.trim()) {
+        console.log("Aplicando filtro de tema:", filters.selectedTheme);
+        query = query.eq("theme", filters.selectedTheme);
+      }
+      
+      if (filters.selectedSubject && filters.selectedSubject.trim()) {
+        console.log("Aplicando filtro de matéria:", filters.selectedSubject);
+        query = query.eq("subject", filters.selectedSubject);
+      }
+      
+      if (filters.selectedTopic && filters.selectedTopic.trim()) {
+        console.log("Aplicando filtro de tópico:", filters.selectedTopic);
+        query = query.eq("topic", filters.selectedTopic);
       }
 
       query = query.order("created_at", { ascending: false });

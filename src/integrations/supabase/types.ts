@@ -242,6 +242,7 @@ export type Database = {
           status: string | null
           subject: string
           text: string
+          theme: string | null
           topic: string | null
         }
         Insert: {
@@ -265,6 +266,7 @@ export type Database = {
           status?: string | null
           subject: string
           text: string
+          theme?: string | null
           topic?: string | null
         }
         Update: {
@@ -288,6 +290,7 @@ export type Database = {
           status?: string | null
           subject?: string
           text?: string
+          theme?: string | null
           topic?: string | null
         }
         Relationships: []
