@@ -2,8 +2,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, HelpCircle } from "lucide-react";
 import Papa from 'papaparse';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface CsvQuestion {
   subject: string;
@@ -148,16 +156,63 @@ export const CsvImporter = () => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-blue-50 p-4 rounded-lg space-y-2">
-        <h3 className="font-medium">Instruções para importação CSV:</h3>
-        <ol className="list-decimal list-inside space-y-1 text-sm">
-          <li>Use ponto e vírgula (;) como separador</li>
-          <li>A primeira linha deve conter os nomes das colunas</li>
-          <li>Colunas obrigatórias: subject, text, option_a, option_b, option_c, option_d, option_e, correct_answer, explanation</li>
-          <li>Colunas opcionais: topic, theme, difficulty, is_from_previous_exam, exam_year, exam_name</li>
-          <li>Resposta correta deve ser A, B, C, D ou E</li>
-          <li>Dificuldade deve ser Fácil, Médio ou Difícil</li>
-        </ol>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">Importar CSV</h3>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="icon">
+              <HelpCircle className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Formato do CSV</DialogTitle>
+              <DialogDescription>
+                <div className="space-y-4 mt-4">
+                  <p>Para gerar questões no formato CSV correto, use o seguinte prompt com a IA:</p>
+                  <div className="bg-muted p-4 rounded-md space-y-2 text-sm">
+                    <p>Gere questões de múltipla escolha no formato CSV com ponto e vírgula (;) como separador, seguindo esta estrutura:</p>
+                    <p>Cabeçalho obrigatório:</p>
+                    <code className="block bg-background p-2 rounded">
+                      Matéria;Tema;Tópico;Questão;Opção A;Opção B;Opção C;Opção D;Opção E;Resposta Correta;Explicação;Dificuldade;Questão de Concurso;Ano;Nome do Concurso
+                    </code>
+                    
+                    <p className="font-medium mt-4">Exemplo de prompt:</p>
+                    <div className="bg-background p-2 rounded">
+                      Gere 5 questões de múltipla escolha sobre [MATÉRIA] com foco em [TEMA ESPECÍFICO].
+                      
+                      Regras:
+                      1. Matéria deve ser uma das seguintes:
+                      - Língua Portuguesa
+                      - Geografia do Brasil
+                      - História do Brasil
+                      - Estatuto dos Militares
+                      - Licitações e Contratos
+                      - Regulamento de Administração do Exército (RAE)
+                      - Direito Militar e Sindicância
+                      
+                      2. Cada questão deve ter:
+                      - Texto claro e objetivo
+                      - 5 alternativas (A a E)
+                      - Apenas UMA resposta correta
+                      - Explicação detalhada da resposta
+                      - Dificuldade (Fácil, Médio ou Difícil)
+                      
+                      3. Formato:
+                      - Sem formatação especial
+                      - Sem quebras de linha
+                      - Sem caracteres especiais
+                      - Campos separados por ponto e vírgula
+                      
+                      4. Exemplo de linha:
+                      Língua Portuguesa;Interpretação de Texto;Figuras de Linguagem;[texto da questão];[opção A];[opção B];[opção C];[opção D];[opção E];A;[explicação];Médio;Não;;;
+                    </div>
+                  </div>
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
@@ -185,6 +240,9 @@ export const CsvImporter = () => {
               <Upload className="h-8 w-8 text-gray-400" />
               <span className="text-sm text-gray-600">
                 Clique para fazer upload ou arraste um arquivo CSV
+              </span>
+              <span className="text-xs text-gray-500">
+                Use ponto e vírgula (;) como separador
               </span>
             </>
           )}
