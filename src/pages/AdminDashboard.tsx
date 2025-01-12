@@ -5,7 +5,6 @@ import { StudentManager } from "@/components/admin/StudentManager";
 import { AdminManager } from "@/components/admin/AdminManager";
 import { SyncDatabaseButton } from "@/components/admin/SyncDatabaseButton";
 import { QuestionImporter } from "@/components/admin/QuestionImporter";
-import { InsertQuestionsButton } from "@/components/admin/questions/InsertQuestionsButton";
 import { QuestionsTreeStats } from "@/components/admin/questions/QuestionsTreeStats";
 import { AuthToggleCard } from "@/components/admin/AuthToggleCard";
 import { SubjectsDialog } from "@/components/admin/statistics/SubjectsDialog";
@@ -67,9 +66,6 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <QuestionImporter />
-                <div className="mt-4">
-                  <InsertQuestionsButton />
-                </div>
               </CardContent>
             </Card>
 
