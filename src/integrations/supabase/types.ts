@@ -484,7 +484,29 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      detailed_question_stats: {
+        Row: {
+          active_questions: number | null
+          avg_difficulty: number | null
+          exam_questions: number | null
+          subject: string | null
+          theme: string | null
+          topic: string | null
+          total_questions: number | null
+        }
+        Relationships: []
+      }
+      subject_summary: {
+        Row: {
+          active_questions: number | null
+          exam_questions: number | null
+          subject: string | null
+          theme_count: number | null
+          topic_count: number | null
+          total_questions: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_and_register_session: {
