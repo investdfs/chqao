@@ -230,6 +230,9 @@ export type Database = {
           explanation: string
           id: string
           image_url: string | null
+          import_batch_id: string | null
+          import_method: string | null
+          imported_at: string | null
           is_from_previous_exam: boolean | null
           option_a: string
           option_b: string
@@ -250,6 +253,9 @@ export type Database = {
           explanation: string
           id?: string
           image_url?: string | null
+          import_batch_id?: string | null
+          import_method?: string | null
+          imported_at?: string | null
           is_from_previous_exam?: boolean | null
           option_a: string
           option_b: string
@@ -270,6 +276,9 @@ export type Database = {
           explanation?: string
           id?: string
           image_url?: string | null
+          import_batch_id?: string | null
+          import_method?: string | null
+          imported_at?: string | null
           is_from_previous_exam?: boolean | null
           option_a?: string
           option_b?: string
@@ -501,6 +510,18 @@ export type Database = {
           count: number
         }[]
       }
+      get_import_statistics: {
+        Args: {
+          batch_id: string
+        }
+        Returns: {
+          total_questions: number
+          successful_imports: number
+          failed_imports: number
+          import_date: string
+          import_method: string
+        }[]
+      }
       get_login_days: {
         Args: {
           student_id_param: string
@@ -618,6 +639,13 @@ export type Database = {
           student_id_param: string
         }
         Returns: undefined
+      }
+      validate_import_batch: {
+        Args: {
+          p_batch_id: string
+          p_expected_count: number
+        }
+        Returns: boolean
       }
     }
     Enums: {
