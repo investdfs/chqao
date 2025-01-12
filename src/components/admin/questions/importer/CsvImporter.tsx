@@ -5,13 +5,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { Upload, Loader2 } from "lucide-react";
 import Papa from 'papaparse';
 
+interface CsvQuestion {
+  subject: string;
+  text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  option_e: string;
+  correct_answer: string;
+  explanation: string;
+  topic?: string;
+  theme?: string;
+  difficulty?: 'Fácil' | 'Médio' | 'Difícil';
+  is_from_previous_exam?: string;
+  exam_year?: string;
+  exam_name?: string;
+}
+
 export const CsvImporter = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  const processCSV = async (file: File) => {
+  const processCSV = async (file: File): Promise<CsvQuestion[]> => {
     return new Promise((resolve, reject) => {
-      Papa.parse(file, {
+      Papa.parse<CsvQuestion>(file, {
         header: true,
         skipEmptyLines: true,
         complete: (results) => resolve(results.data),
@@ -20,7 +38,7 @@ export const CsvImporter = () => {
     });
   };
 
-  const validateQuestion = (question: any) => {
+  const validateQuestion = (question: CsvQuestion) => {
     const requiredFields = [
       'subject',
       'text',
@@ -34,7 +52,7 @@ export const CsvImporter = () => {
     ];
 
     for (const field of requiredFields) {
-      if (!question[field]) {
+      if (!question[field as keyof CsvQuestion]) {
         throw new Error(`Campo obrigatório faltando: ${field}`);
       }
     }
@@ -73,7 +91,7 @@ export const CsvImporter = () => {
       let successCount = 0;
       let errorCount = 0;
 
-      for (const question of questions as any[]) {
+      for (const question of questions) {
         try {
           validateQuestion(question);
 
@@ -113,7 +131,7 @@ export const CsvImporter = () => {
         variant: successCount > 0 ? "default" : "destructive"
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao processar arquivo CSV:', error);
       toast({
         title: "Erro na importação",
