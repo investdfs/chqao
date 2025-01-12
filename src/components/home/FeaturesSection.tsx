@@ -42,6 +42,19 @@ export const FeaturesSection = () => {
           <h2 className="text-xl sm:text-3xl font-bold text-gray-900">
             Por que escolher nossa plataforma?
           </h2>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6 mb-8 max-w-3xl mx-auto"
+          >
+            <img
+              src="https://i.ibb.co/9T9gGc2/visual-selection-1.webp"
+              alt="Militares estudando"
+              className="w-full rounded-xl shadow-lg"
+            />
+          </motion.div>
         </div>
         
         {/* Mobile View */}
