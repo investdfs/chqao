@@ -4,8 +4,6 @@ import { ImporterTabs } from "./questions/importer/ImporterTabs";
 import { JsonInputs } from "./questions/importer/JsonInputs";
 import { ResetDialog } from "./questions/importer/ResetDialog";
 import { ActionButtons } from "./questions/ActionButtons";
-import { Button } from "@/components/ui/button";
-import { insertHistoryQuestions } from "@/utils/insertHistoryQuestions";
 import { useToast } from "@/components/ui/use-toast";
 
 export const QuestionImporter = () => {
@@ -29,36 +27,10 @@ export const QuestionImporter = () => {
     handleResetDatabase
   } = useQuestionImporter();
 
-  const handleInsertHistoryQuestions = async () => {
-    try {
-      const result = await insertHistoryQuestions();
-      toast({
-        title: "Sucesso!",
-        description: `${result.count} questões de História inseridas com sucesso.`,
-      });
-      fetchQuestions(); // Atualiza a lista de questões
-    } catch (error) {
-      toast({
-        title: "Erro ao inserir questões",
-        description: "Ocorreu um erro ao inserir as questões. Tente novamente.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="space-y-4">
       <JsonInputs />
       <ImporterTabs />
-
-      <div className="flex gap-4">
-        <Button 
-          onClick={handleInsertHistoryQuestions}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          Inserir Questões de História
-        </Button>
-      </div>
 
       <ActionButtons
         questionsCount={questions.length}
