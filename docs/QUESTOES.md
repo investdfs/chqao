@@ -18,10 +18,80 @@ Organização hierárquica:
 - **Tópicos**: Pontos específicos
 - **Dificuldade**: Fácil, Médio, Difícil
 
-## 2. Funcionalidades do Sistema
+## 2. Especificações da Planilha
 
-### 2.1 Para Administradores
-[... keep existing code for admin functionalities]
+### 2.1 Formato do Arquivo
+- **Extensão**: .xlsx ou .xls (Excel 97-2003 ou superior)
+- **Codificação**: UTF-8
+- **Tamanho máximo**: 10MB
+- **Estrutura**: Uma aba por matéria
+
+### 2.2 Colunas Obrigatórias
+1. **Tema** (coluna A)
+   - Texto sem formatação
+   - Máximo 100 caracteres
+   - Exemplo: "Hierarquia Militar"
+
+2. **Assunto** (coluna B)
+   - Texto sem formatação
+   - Máximo 100 caracteres
+   - Exemplo: "Círculos Hierárquicos"
+
+3. **Questão** (coluna C)
+   - Texto sem formatação
+   - Sem quebras de linha
+   - Sem caracteres especiais
+   - Máximo 2000 caracteres
+
+4. **URL da Imagem** (coluna D)
+   - Opcional
+   - Link direto para imagem
+   - Deixar vazio se não houver
+
+5. **Opção A** (coluna E)
+   - Texto sem formatação
+   - Máximo 500 caracteres
+
+6. **Opção B** (coluna F)
+   - Texto sem formatação
+   - Máximo 500 caracteres
+
+7. **Opção C** (coluna G)
+   - Texto sem formatação
+   - Máximo 500 caracteres
+
+8. **Opção D** (coluna H)
+   - Texto sem formatação
+   - Máximo 500 caracteres
+
+9. **Opção E** (coluna I)
+   - Texto sem formatação
+   - Máximo 500 caracteres
+
+10. **Resposta Correta** (coluna J)
+    - Apenas letras: A, B, C, D ou E
+    - Maiúscula obrigatória
+
+11. **Explicação** (coluna K)
+    - Texto sem formatação
+    - Máximo 1000 caracteres
+
+12. **Dificuldade** (coluna L)
+    - Valores aceitos: "Fácil", "Médio" ou "Difícil"
+    - Com acentuação
+
+### 2.3 Colunas Opcionais
+13. **Questão de Concurso** (coluna M)
+    - Valores aceitos: "Sim" ou "Não"
+    - Padrão: "Não"
+
+14. **Ano** (coluna N)
+    - Número inteiro de 4 dígitos
+    - Exemplo: 2023
+
+15. **Nome do Concurso** (coluna O)
+    - Texto livre
+    - Máximo 200 caracteres
 
 ## 3. Instruções para Geração via IA
 
@@ -69,11 +139,16 @@ Use exatamente estes nomes de matérias:
 
 ### 3.3 Validação do Conteúdo
 Antes de importar, verifique se:
-1. Todas as questões têm exatamente 5 alternativas
-2. A resposta correta é uma letra entre A e E
-3. Os nomes das matérias estão exatamente como listado
-4. A dificuldade está como "Fácil", "Médio" ou "Difícil"
-5. Não há células vazias nas colunas obrigatórias
+1. O arquivo está no formato .xlsx ou .xls
+2. Todas as colunas obrigatórias estão presentes
+3. Os nomes das colunas estão exatamente como especificado
+4. Todas as questões têm exatamente 5 alternativas
+5. A resposta correta é uma letra entre A e E
+6. Os nomes das matérias estão exatamente como listado
+7. A dificuldade está como "Fácil", "Médio" ou "Difícil"
+8. Não há células vazias nas colunas obrigatórias
+9. Os textos não contêm formatação HTML ou markdown
+10. Os limites de caracteres são respeitados
 
 ### 3.4 Exemplo de Questão Válida
 ```
@@ -97,6 +172,10 @@ Dificuldade: Médio
 4. Resposta correta fora do padrão A-E
 5. Matérias não listadas no sistema
 6. Dificuldade fora do padrão estabelecido
+7. Células vazias em colunas obrigatórias
+8. Caracteres especiais no texto
+9. Quebras de linha no meio do texto
+10. Ultrapassar limites de caracteres
 
 ### 3.6 Processo de Importação
 1. Gere as questões via IA seguindo o formato
@@ -105,3 +184,10 @@ Dificuldade: Médio
 4. Importe através do painel administrativo
 5. Confirme o sucesso da importação
 6. Verifique as questões importadas
+
+### 3.7 Dicas de Importação
+1. Use o template oficial do sistema
+2. Faça importações em lotes menores (máximo 100 questões)
+3. Verifique a codificação do arquivo
+4. Mantenha backup do arquivo original
+5. Teste algumas questões antes de importar todo o lote
