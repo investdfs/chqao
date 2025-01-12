@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { ResetExamDialog } from "./ResetExamDialog";
-import { ExamsQuestionsSheet } from "./ExamsQuestionsSheet";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PreviousExamsCardProps {
   totalExams: number;
@@ -12,56 +11,90 @@ interface PreviousExamsCardProps {
 }
 
 export const PreviousExamsCard = ({ 
-  totalExams, 
+  totalExams,
   totalQuestions,
-  onReset 
+  onReset
 }: PreviousExamsCardProps) => {
-  const [showResetDialog, setShowResetDialog] = useState(false);
-  const [showQuestionsSheet, setShowQuestionsSheet] = useState(false);
+  const { toast } = useToast();
+
+  const handleResetExams = async () => {
+    try {
+      console.log('Iniciando reset de provas anteriores...');
+      
+      const { error: deleteQuestionsError } = await supabase
+        .from('previous_exam_questions')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      if (deleteQuestionsError) throw deleteQuestionsError;
+
+      const { error: deleteExamsError } = await supabase
+        .from('previous_exams')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      if (deleteExamsError) throw deleteExamsError;
+
+      toast({
+        title: "Provas anteriores resetadas",
+        description: "Todas as provas e questões foram removidas com sucesso.",
+      });
+
+      onReset();
+    } catch (error) {
+      console.error('Erro ao resetar provas:', error);
+      toast({
+        title: "Erro ao resetar provas",
+        description: "Não foi possível remover as provas anteriores.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
-    <>
-      <Card className="shadow-sm hover:shadow-md transition-shadow">
-        <CardHeader className="p-3">
-          <CardTitle className="flex items-center gap-2 text-primary text-sm">
-            <FileText className="h-4 w-4" />
-            Provas Anteriores
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="text-2xl font-bold text-primary">{totalExams}</div>
-          <p className="text-xs text-gray-600">{totalQuestions} questões</p>
-          <div className="mt-2 space-y-1.5">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full text-xs py-1"
-              onClick={() => setShowQuestionsSheet(true)}
-            >
-              Ver Questões
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm" 
-              className="w-full text-xs py-1"
-              onClick={() => setShowResetDialog(true)}
-            >
-              Resetar Banco
-            </Button>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl font-bold">Provas Anteriores</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-500">Total de Provas</p>
+              <p className="text-2xl font-bold">{totalExams}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Total de Questões</p>
+              <p className="text-2xl font-bold">{totalQuestions}</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
 
-      <ResetExamDialog 
-        open={showResetDialog} 
-        onOpenChange={setShowResetDialog}
-        onReset={onReset}
-      />
-
-      <ExamsQuestionsSheet
-        open={showQuestionsSheet}
-        onOpenChange={setShowQuestionsSheet}
-      />
-    </>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="destructive" 
+                className="w-full"
+              >
+                Resetar Provas Anteriores
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. Todas as provas anteriores e suas questões serão removidas permanentemente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleResetExams}>
+                  Confirmar Reset
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
