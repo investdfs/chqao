@@ -52,7 +52,7 @@ export const FeaturesSection = () => {
             <img
               src="https://i.ibb.co/9T9gGc2/visual-selection-1.webp"
               alt="Militares estudando"
-              className="w-full rounded-xl shadow-lg"
+              className="w-full"
             />
           </motion.div>
         </div>
