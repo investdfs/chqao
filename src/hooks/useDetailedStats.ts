@@ -5,19 +5,19 @@ interface DetailedStats {
   subject: string;
   theme: string;
   topic: string;
-  totalQuestions: number;
-  activeQuestions: number;
-  examQuestions: number;
-  avgDifficulty: number;
+  total_questions: number;
+  active_questions: number;
+  exam_questions: number;
+  avg_difficulty: number;
 }
 
 interface SubjectSummary {
   subject: string;
-  totalQuestions: number;
-  activeQuestions: number;
-  examQuestions: number;
-  themeCount: number;
-  topicCount: number;
+  total_questions: number;
+  active_questions: number;
+  exam_questions: number;
+  theme_count: number;
+  topic_count: number;
 }
 
 export const useDetailedStats = () => {
@@ -26,7 +26,8 @@ export const useDetailedStats = () => {
     queryFn: async () => {
       console.log('Fetching detailed statistics...');
       const { data, error } = await supabase
-        .rpc('get_detailed_question_stats');
+        .from('detailed_question_stats')
+        .select('*');
 
       if (error) {
         console.error('Error fetching detailed stats:', error);
@@ -43,7 +44,8 @@ export const useDetailedStats = () => {
     queryFn: async () => {
       console.log('Fetching subject summary...');
       const { data, error } = await supabase
-        .rpc('get_subject_summary');
+        .from('subject_summary')
+        .select('*');
 
       if (error) {
         console.error('Error fetching subject summary:', error);

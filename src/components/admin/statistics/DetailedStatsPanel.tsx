@@ -45,6 +45,14 @@ export const DetailedStatsPanel = () => {
     );
   }
 
+  const groupedStats = detailedStats?.reduce((acc, stat) => {
+    if (!acc[stat.subject]) {
+      acc[stat.subject] = [];
+    }
+    acc[stat.subject].push(stat);
+    return acc;
+  }, {} as Record<string, typeof detailedStats>);
+
   return (
     <Card>
       <CardHeader>
@@ -76,11 +84,11 @@ export const DetailedStatsPanel = () => {
                 {subjectSummary?.map((summary) => (
                   <TableRow key={summary.subject}>
                     <TableCell className="font-medium">{summary.subject}</TableCell>
-                    <TableCell>{summary.totalQuestions}</TableCell>
-                    <TableCell>{summary.activeQuestions}</TableCell>
-                    <TableCell>{summary.examQuestions}</TableCell>
-                    <TableCell>{summary.themeCount}</TableCell>
-                    <TableCell>{summary.topicCount}</TableCell>
+                    <TableCell>{summary.total_questions}</TableCell>
+                    <TableCell>{summary.active_questions}</TableCell>
+                    <TableCell>{summary.exam_questions}</TableCell>
+                    <TableCell>{summary.theme_count}</TableCell>
+                    <TableCell>{summary.topic_count}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -89,68 +97,61 @@ export const DetailedStatsPanel = () => {
 
           <TabsContent value="detailed">
             <div className="space-y-4">
-              {detailedStats?.reduce((acc, stat) => {
-                if (!acc[stat.subject]) {
-                  acc[stat.subject] = [];
-                }
-                acc[stat.subject].push(stat);
-                return acc;
-              }, {} as Record<string, typeof detailedStats>)
-                ?.map(([subject, stats]) => (
-                  <div key={subject} className="border rounded-lg p-4">
-                    <div
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={() => toggleSubject(subject)}
-                    >
-                      {expandedSubjects.includes(subject) ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                      <h3 className="text-lg font-semibold">{subject}</h3>
-                    </div>
-
-                    {expandedSubjects.includes(subject) && (
-                      <div className="mt-4">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Tema/Tópico</TableHead>
-                              <TableHead>Total</TableHead>
-                              <TableHead>Ativas</TableHead>
-                              <TableHead>Provas</TableHead>
-                              <TableHead>Dificuldade Média</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {stats.map((stat, index) => (
-                              <TableRow key={`${stat.theme}-${stat.topic}-${index}`}>
-                                <TableCell>
-                                  <div className="font-medium">{stat.theme}</div>
-                                  <div className="text-sm text-gray-500">{stat.topic}</div>
-                                </TableCell>
-                                <TableCell>{stat.totalQuestions}</TableCell>
-                                <TableCell>{stat.activeQuestions}</TableCell>
-                                <TableCell>{stat.examQuestions}</TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-2">
-                                    <Progress
-                                      value={((stat.avgDifficulty - 1) / 2) * 100}
-                                      className="w-20"
-                                    />
-                                    <span className="text-sm">
-                                      {stat.avgDifficulty.toFixed(1)}
-                                    </span>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
+              {Object.entries(groupedStats || {}).map(([subject, stats]) => (
+                <div key={subject} className="border rounded-lg p-4">
+                  <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => toggleSubject(subject)}
+                  >
+                    {expandedSubjects.includes(subject) ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
                     )}
+                    <h3 className="text-lg font-semibold">{subject}</h3>
                   </div>
-                ))}
+
+                  {expandedSubjects.includes(subject) && (
+                    <div className="mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Tema/Tópico</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Ativas</TableHead>
+                            <TableHead>Provas</TableHead>
+                            <TableHead>Dificuldade Média</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {stats.map((stat, index) => (
+                            <TableRow key={`${stat.theme}-${stat.topic}-${index}`}>
+                              <TableCell>
+                                <div className="font-medium">{stat.theme}</div>
+                                <div className="text-sm text-gray-500">{stat.topic}</div>
+                              </TableCell>
+                              <TableCell>{stat.total_questions}</TableCell>
+                              <TableCell>{stat.active_questions}</TableCell>
+                              <TableCell>{stat.exam_questions}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Progress
+                                    value={((stat.avg_difficulty - 1) / 2) * 100}
+                                    className="w-20"
+                                  />
+                                  <span className="text-sm">
+                                    {stat.avg_difficulty.toFixed(1)}
+                                  </span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </TabsContent>
         </Tabs>

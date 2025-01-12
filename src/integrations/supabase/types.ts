@@ -510,6 +510,18 @@ export type Database = {
           count: number
         }[]
       }
+      get_detailed_question_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          subject: string
+          theme: string
+          topic: string
+          total_questions: number
+          active_questions: number
+          exam_questions: number
+          avg_difficulty: number
+        }[]
+      }
       get_import_statistics: {
         Args: {
           batch_id: string
@@ -571,6 +583,17 @@ export type Database = {
           parent_id: string
           display_order: number
           has_children: boolean
+        }[]
+      }
+      get_subject_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          subject: string
+          total_questions: number
+          active_questions: number
+          exam_questions: number
+          theme_count: number
+          topic_count: number
         }[]
       }
       get_subjects_count: {
