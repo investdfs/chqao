@@ -35,20 +35,15 @@ const AdminDashboard = () => {
   const students = sheetsData?.users.filter(user => user.type === 'student') || [];
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center justify-center">
-        <div className="animate-pulse text-white">Carregando...</div>
-      </div>
-    );
+    return <div>Carregando...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1F2C] via-[#221F26] to-[#1A1F2C]">
-      <div className="max-w-7xl mx-auto p-4 space-y-6">
-        <div className="space-y-6">
+    <div className="min-h-screen bg-[#1A1F2C] p-4">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex justify-between items-center gap-2">
           <DashboardHeader />
-          
-          <div className="flex justify-end items-center gap-2">
+          <div className="flex items-center gap-2">
             <SubjectsDialog />
             <SyncDatabaseButton />
           </div>
@@ -62,25 +57,14 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 space-y-6">
             <DetailedStatsPanel />
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <AuthToggleCard />
-              <QuestionsTreeStats />
-            </div>
+            <AuthToggleCard />
+            <QuestionsTreeStats />
+            <AdminManager />
+            <StudentManager />
 
-            <Card className="bg-white/5 border-white/10">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-white">Gerenciamento de Usuários</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <AdminManager />
-                <StudentManager />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/5 border-white/10">
-              <CardHeader>
-                <CardTitle className="text-white">Importar Questões</CardTitle>
+                <CardTitle>Importar Questões</CardTitle>
               </CardHeader>
               <CardContent>
                 <QuestionImporter />
@@ -88,8 +72,8 @@ const AdminDashboard = () => {
             </Card>
 
             <Accordion type="single" collapsible className="space-y-4">
-              <AccordionItem value="subjects" className="bg-white/5 border-white/10 rounded-lg">
-                <AccordionTrigger className="text-lg font-semibold px-4 text-white">
+              <AccordionItem value="subjects" className="bg-white">
+                <AccordionTrigger className="text-lg font-semibold px-4">
                   Gerenciar Matérias
                 </AccordionTrigger>
                 <AccordionContent>
