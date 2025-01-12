@@ -17,6 +17,7 @@ export interface Question {
   is_from_previous_exam?: boolean | null;
   exam_year?: number | null;
   exam_name?: string | null;
+  theme?: string | null;
 }
 
 export interface PreviousExam {

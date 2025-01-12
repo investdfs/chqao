@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import { validateQuestionRow } from './validation';
-import { transformToQuestion, insertQuestionBatch } from './transformer';
+import { transformToQuestion, type ValidatedData } from './transformer';
+import { insertQuestionBatch } from './transformer';
 
 const BATCH_SIZE = 50;
 
@@ -31,7 +32,7 @@ export const processExcelFile = async (file: File): Promise<any[]> => {
             const row: any = jsonData[rowIndex];
             if (!row[0]) continue; // Pular linhas vazias
 
-            const validatedData = validateQuestionRow(row, sheetName);
+            const validatedData = validateQuestionRow(row, sheetName) as ValidatedData;
             const questionData = transformToQuestion(validatedData);
             questionData.subject = sheetName;
             

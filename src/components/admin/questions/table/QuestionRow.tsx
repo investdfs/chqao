@@ -8,9 +8,9 @@ interface QuestionRowProps {
 export const QuestionRow = ({ question }: QuestionRowProps) => {
   return (
     <TableRow>
-      <TableCell>{question.theme}</TableCell>
+      <TableCell>{question.theme || '-'}</TableCell>
       <TableCell>{question.subject}</TableCell>
-      <TableCell>{question.topic}</TableCell>
+      <TableCell>{question.topic || '-'}</TableCell>
       <TableCell>{question.text}</TableCell>
       <TableCell>{question.correct_answer}</TableCell>
     </TableRow>
