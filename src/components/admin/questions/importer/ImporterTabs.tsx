@@ -1,25 +1,25 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExcelTemplateSection } from "../ExcelTemplateSection";
 import { FileUploadSection } from "../FileUploadSection";
-import { InsertQuestionsButton } from "../InsertQuestionsButton";
-import { InsertPreviousExamQuestionsButton } from "../InsertPreviousExamQuestionsButton";
+import { CsvImporter } from "./CsvImporter";
 
 export const ImporterTabs = () => {
   return (
-    <Tabs defaultValue="regular" className="w-full">
+    <Tabs defaultValue="csv" className="space-y-4">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="regular">Questões Regulares</TabsTrigger>
-        <TabsTrigger value="exams">Questões de Provas</TabsTrigger>
+        <TabsTrigger value="csv">Importar CSV</TabsTrigger>
+        <TabsTrigger value="excel">Importar Excel</TabsTrigger>
       </TabsList>
-
-      <TabsContent value="regular" className="space-y-4">
-        <ExcelTemplateSection />
-        <FileUploadSection />
-        <InsertQuestionsButton />
+      
+      <TabsContent value="csv">
+        <CsvImporter />
       </TabsContent>
 
-      <TabsContent value="exams" className="space-y-4">
-        <InsertPreviousExamQuestionsButton />
+      <TabsContent value="excel">
+        <div className="space-y-4">
+          <ExcelTemplateSection />
+          <FileUploadSection />
+        </div>
       </TabsContent>
     </Tabs>
   );
