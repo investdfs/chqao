@@ -1,7 +1,7 @@
 export interface Question {
   id: string;
   subject: string;
-  topic?: string;
+  topic?: string | null;
   text: string;
   option_a: string;
   option_b: string;
@@ -9,15 +9,14 @@ export interface Question {
   option_d: string;
   option_e: string;
   correct_answer: string;
-  explanation?: string;
+  explanation: string;
   difficulty?: 'Fácil' | 'Médio' | 'Difícil';
   created_at: string;
-  image_url?: string;
-  theme?: string;
-  is_ai_generated?: boolean;
-  status?: string;
-  is_from_previous_exam?: boolean;
+  image_url?: string | null;
+  status?: string | null;
+  is_from_previous_exam?: boolean | null;
   exam_year?: number | null;
+  exam_name?: string | null;
 }
 
 export interface PreviousExam {
