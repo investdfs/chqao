@@ -6,7 +6,9 @@ interface QuestionMetadataProps {
   className?: string;
   examYear?: number;
   isFromPreviousExam?: boolean;
-  showId?: boolean; // New prop to control ID visibility
+  showId?: boolean;
+  theme?: string;
+  difficulty?: 'Fácil' | 'Médio' | 'Difícil';
 }
 
 const QuestionMetadata = ({ 
@@ -17,11 +19,17 @@ const QuestionMetadata = ({
   className = "",
   examYear,
   isFromPreviousExam,
-  showId = true // Default to true to maintain existing behavior
+  showId = true,
+  theme,
+  difficulty
 }: QuestionMetadataProps) => {
   const examInfo = isFromPreviousExam && examYear 
     ? `EIPS/CHQAO ${examYear} (Q${id.toString().padStart(4, '0')})`
     : `Q.${id}`;
+
+  const hierarchyDisplay = [subject, theme, topic, difficulty]
+    .filter(Boolean)
+    .join(' • ');
 
   return (
     <div className={`flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 ${className}`}>
@@ -31,12 +39,7 @@ const QuestionMetadata = ({
             {examInfo}
           </span>
         )}
-        {subject && (
-          <span>{subject}</span>
-        )}
-        {topic && (
-          <span className="hidden sm:inline">• {topic}</span>
-        )}
+        <span>{hierarchyDisplay}</span>
       </div>
       {source && (
         <span className="text-[10px]">{source}</span>
