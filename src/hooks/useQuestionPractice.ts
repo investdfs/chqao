@@ -38,9 +38,6 @@ export const useQuestionPractice = () => {
 
       if (studentError) {
         console.error("Erro ao buscar estudante:", studentError);
-        if (studentError.code === 'PGRST116') {
-          console.log("Estudante não encontrado para o email:", session.user.email);
-        }
         navigate("/login");
         return null;
       }
@@ -57,14 +54,25 @@ export const useQuestionPractice = () => {
       console.log("Buscando questões do Supabase...");
       let query = supabase
         .from('questions')
-        .select('*')
-        .eq('is_from_previous_exam', true);
+        .select(`
+          *,
+          subject_structure!inner (
+            subject,
+            theme,
+            topic
+          )
+        `)
+        .eq('status', 'active')
+        .order('subject', { ascending: true })
+        .order('created_at', { ascending: true });
 
       if (selectedExamYear) {
-        query = query.eq('exam_year', selectedExamYear);
+        query = query
+          .eq('is_from_previous_exam', true)
+          .eq('exam_year', selectedExamYear);
       }
 
-      const { data, error } = await query.order('created_at', { ascending: true });
+      const { data, error } = await query;
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -76,7 +84,7 @@ export const useQuestionPractice = () => {
         throw error;
       }
 
-      console.log(`Questões buscadas com sucesso para o ano ${selectedExamYear}:`, data?.length, "questões");
+      console.log(`Questões buscadas com sucesso:`, data?.length, "questões");
       return data || [];
     },
     enabled: !!studentData
