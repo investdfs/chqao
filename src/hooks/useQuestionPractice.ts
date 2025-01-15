@@ -62,32 +62,17 @@ export const useQuestionPractice = () => {
       
       let query = supabase
         .from('questions')
-        .select(`
-          *,
-          subject_structure!inner (
-            subject,
-            theme,
-            topic
-          )
-        `)
-        .eq('status', 'active');
+        .select('*')
+        .eq('status', 'active')
+        .eq('is_from_previous_exam', false);
 
       // Aplicar filtro por matéria se estiver definida
       if (selectedSubject) {
+        console.log("Aplicando filtro por matéria:", selectedSubject);
         query = query.eq('subject', selectedSubject);
       }
 
-      // Filtrar questões de concurso ou práticas
-      if (selectedExamYear) {
-        query = query
-          .eq('is_from_previous_exam', true)
-          .eq('exam_year', selectedExamYear);
-      } else {
-        query = query.eq('is_from_previous_exam', false);
-      }
-
-      const { data, error } = await query
-        .order('created_at', { ascending: true });
+      const { data, error } = await query.order('created_at', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -102,7 +87,9 @@ export const useQuestionPractice = () => {
       console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
       return data || [];
     },
-    enabled: !!studentData && (!!selectedSubject || !!selectedExamYear)
+    enabled: !!studentData && !!selectedSubject,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5, // 5 minutos
   });
 
   const handleNextQuestion = () => {
