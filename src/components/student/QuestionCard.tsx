@@ -3,6 +3,7 @@ import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
+import QuestionCounter from "./question/QuestionCounter";
 
 interface QuestionCardProps {
   question: {
@@ -59,7 +60,6 @@ const QuestionCard = memo(({
   const handleAnswer = async () => {
     await originalHandleAnswer();
     
-    // Update session stats after answering
     setSessionStats(prev => {
       const isCorrect = selectedAnswer === question.correct_answer;
       return {
@@ -70,11 +70,10 @@ const QuestionCard = memo(({
     });
   };
 
-  // Reset state when question changes
   useEffect(() => {
     console.log("Question ID mudou, resetando estado");
     handleReset();
-    setSelectedAnswer(''); // Explicitly reset selected answer
+    setSelectedAnswer('');
   }, [question.id]);
 
   if (isUserBlocked) {
@@ -86,6 +85,10 @@ const QuestionCard = memo(({
       <QuestionHeader
         isFocusMode={false}
         onFocusModeToggle={() => {}}
+      />
+      <QuestionCounter 
+        current={questionNumber} 
+        total={totalQuestions}
       />
       <QuestionContent
         question={question}

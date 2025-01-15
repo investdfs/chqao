@@ -6,6 +6,8 @@ interface QuestionCounterProps {
 }
 
 const QuestionCounter = memo(({ current, total }: QuestionCounterProps) => {
+  console.log("Renderizando QuestionCounter:", { current, total });
+  
   return (
     <div className="flex items-center justify-center">
       <span className="text-2xl font-bold bg-gradient-to-r from-accent-purple via-accent-pink to-accent-orange bg-clip-text text-transparent animate-pulse">
