@@ -87,7 +87,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
   const handleSubjectSelect = (subject: string) => {
     setSubjectDialogOpen(false);
     console.log("Selected subject:", subject);
-    navigate("/question-practice", { state: { selectedSubject: subject } });
+    navigate("/question-practice?subject=" + encodeURIComponent(subject));
   };
 
   const handleExamSelect = (year: number) => {

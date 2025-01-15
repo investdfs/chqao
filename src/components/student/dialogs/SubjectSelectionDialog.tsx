@@ -26,7 +26,8 @@ export const SubjectSelectionDialog = ({
       const { data, error } = await supabase
         .from('questions')
         .select('subject')
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .eq('is_from_previous_exam', false); // Apenas questões que não são de concursos anteriores
 
       if (error) {
         console.error("Erro ao buscar contagem de questões:", error);
@@ -51,6 +52,7 @@ export const SubjectSelectionDialog = ({
   });
 
   const handleSubjectSelect = (subject: string) => {
+    console.log("Matéria selecionada:", subject);
     const questionCount = subjectCounts[subject] || 0;
     
     if (questionCount === 0) {

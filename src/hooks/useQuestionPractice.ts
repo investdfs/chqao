@@ -10,6 +10,12 @@ export const useQuestionPractice = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Obter a matéria selecionada da URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const selectedSubject = searchParams.get('subject');
+
+  console.log("Matéria selecionada no hook:", selectedSubject);
+
   const { data: studentData, isLoading: isLoadingStudent } = useQuery({
     queryKey: ['student'],
     queryFn: async () => {
@@ -49,9 +55,10 @@ export const useQuestionPractice = () => {
   });
 
   const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
-    queryKey: ['questions', selectedExamYear],
+    queryKey: ['questions', selectedSubject, selectedExamYear],
     queryFn: async () => {
       console.log("Buscando questões do Supabase...");
+      console.log("Filtros aplicados:", { subject: selectedSubject, examYear: selectedExamYear });
       
       let query = supabase
         .from('questions')
@@ -65,14 +72,21 @@ export const useQuestionPractice = () => {
         `)
         .eq('status', 'active');
 
+      // Aplicar filtro por matéria se estiver definida
+      if (selectedSubject) {
+        query = query.eq('subject', selectedSubject);
+      }
+
+      // Filtrar questões de concurso ou práticas
       if (selectedExamYear) {
         query = query
           .eq('is_from_previous_exam', true)
           .eq('exam_year', selectedExamYear);
+      } else {
+        query = query.eq('is_from_previous_exam', false);
       }
 
       const { data, error } = await query
-        .order('subject', { ascending: true })
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -85,15 +99,10 @@ export const useQuestionPractice = () => {
         throw error;
       }
 
-      console.log(`${data?.length || 0} questões encontradas`);
-      console.log("Distribuição por matéria:", data?.reduce((acc: any, q) => {
-        acc[q.subject] = (acc[q.subject] || 0) + 1;
-        return acc;
-      }, {}));
-
+      console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
       return data || [];
     },
-    enabled: !!studentData
+    enabled: !!studentData && (!!selectedSubject || !!selectedExamYear)
   });
 
   const handleNextQuestion = () => {
