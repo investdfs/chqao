@@ -90,10 +90,12 @@ const QuestionCard = memo(({
         isFocusMode={false}
         onFocusModeToggle={() => {}}
       />
-      <QuestionCounter 
-        current={questionNumber} 
-        total={totalQuestions}
-      />
+      <div className="w-full max-w-4xl mx-auto">
+        <QuestionCounter 
+          current={questionNumber} 
+          total={totalQuestions}
+        />
+      </div>
       <QuestionContent
         question={question}
         selectedAnswer={selectedAnswer}
