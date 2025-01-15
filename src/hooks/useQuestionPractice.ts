@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Question } from "@/types/questions/common";
 
 export const useQuestionPractice = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -54,7 +55,7 @@ export const useQuestionPractice = () => {
     retry: false
   });
 
-  const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
+  const { data: questions = [], isLoading: isLoadingQuestions, error } = useQuery({
     queryKey: ['questions', selectedSubject],
     queryFn: async () => {
       if (!selectedSubject) {
@@ -64,11 +65,13 @@ export const useQuestionPractice = () => {
 
       console.log("Buscando questões para a matéria:", selectedSubject);
       
-      const { data, error } = await supabase.rpc('get_subject_questions', {
-        p_subject: selectedSubject,
-        p_is_active: true,
-        p_exclude_exam_questions: true
-      });
+      const { data, error } = await supabase
+        .from('questions')
+        .select()
+        .eq('subject', selectedSubject)
+        .eq('status', 'active')
+        .eq('is_from_previous_exam', false)
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -81,7 +84,7 @@ export const useQuestionPractice = () => {
       }
 
       console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
-      return data || [];
+      return data as Question[];
     },
     enabled: !!selectedSubject && !!studentData,
     refetchOnWindowFocus: false,

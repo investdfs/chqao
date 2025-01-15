@@ -1,20 +1,11 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useQuestionPractice } from '@/hooks/useQuestionPractice';
-
-interface Question {
-  id: string;
-  text: string;
-  subject?: string;
-  topic?: string;
-  options: Array<{ id: string; text: string }>;
-  correctAnswer: string;
-  explanation: string;
-}
+import { Question } from '@/types/questions/common';
 
 interface QuestionContextData {
   currentQuestionIndex: number;
   studentData: any;
-  questions: any[];
+  questions: Question[];
   isLoadingStudent: boolean;
   isLoadingQuestions: boolean;
   error: Error | null;
@@ -41,21 +32,7 @@ export function QuestionProvider({ children }: { children: ReactNode }) {
     setSelectedExamYear
   } = useQuestionPractice();
 
-  const currentQuestion = questions?.[currentQuestionIndex] ? {
-    id: questions[currentQuestionIndex].id,
-    text: questions[currentQuestionIndex].text,
-    subject: questions[currentQuestionIndex].subject,
-    topic: questions[currentQuestionIndex].topic || undefined,
-    options: [
-      { id: "A", text: questions[currentQuestionIndex].option_a },
-      { id: "B", text: questions[currentQuestionIndex].option_b },
-      { id: "C", text: questions[currentQuestionIndex].option_c },
-      { id: "D", text: questions[currentQuestionIndex].option_d },
-      { id: "E", text: questions[currentQuestionIndex].option_e },
-    ],
-    correctAnswer: questions[currentQuestionIndex].correct_answer,
-    explanation: questions[currentQuestionIndex].explanation || "",
-  } : null;
+  const currentQuestion = questions?.[currentQuestionIndex] || null;
 
   return (
     <QuestionContext.Provider
