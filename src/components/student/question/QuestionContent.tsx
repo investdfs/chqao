@@ -32,7 +32,6 @@ interface QuestionContentProps {
   handleReset: () => void;
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
-  onJumpToQuestion?: (questionNumber: number) => void;
   questionNumber: number;
   totalQuestions: number;
   studentId?: string;
@@ -53,7 +52,6 @@ const QuestionContent = memo(({
   handleReset,
   onNextQuestion,
   onPreviousQuestion,
-  onJumpToQuestion,
   questionNumber,
   totalQuestions,
   studentId,
@@ -133,7 +131,6 @@ const QuestionContent = memo(({
             hasAnswered={hasAnswered}
             questionNumber={questionNumber}
             totalQuestions={totalQuestions}
-            onJumpToQuestion={onJumpToQuestion}
           />
 
           {hasAnswered && (

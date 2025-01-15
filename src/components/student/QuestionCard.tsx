@@ -22,7 +22,6 @@ interface QuestionCardProps {
   };
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
-  onJumpToQuestion?: (questionNumber: number) => void;
   questionNumber: number;
   totalQuestions: number;
   isUserBlocked?: boolean;
@@ -33,7 +32,6 @@ const QuestionCard = memo(({
   question,
   onNextQuestion,
   onPreviousQuestion,
-  onJumpToQuestion,
   questionNumber,
   totalQuestions,
   isUserBlocked = false,
@@ -100,7 +98,6 @@ const QuestionCard = memo(({
         handleReset={handleReset}
         onNextQuestion={onNextQuestion}
         onPreviousQuestion={onPreviousQuestion}
-        onJumpToQuestion={onJumpToQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
         studentId={studentId}
