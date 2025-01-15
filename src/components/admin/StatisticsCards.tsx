@@ -40,91 +40,121 @@ export const StatisticsCards = ({
     };
   }, [queryClient, fetchStats, toast]);
 
-  // Subscribe to real-time database changes
+  // Subscribe to real-time database changes with retry logic
   useEffect(() => {
-    console.log('Setting up real-time subscription for questions table...');
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    const channel = supabase
-      .channel('questions-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'questions'
-        },
-        (payload) => {
-          console.log('Question change detected:', payload);
-          fetchStats().catch(error => {
-            console.error('Error fetching stats after change:', error);
+    const setupRealtimeSubscription = async () => {
+      try {
+        console.log('Setting up real-time subscription for questions table...');
+        
+        const channel = supabase
+          .channel('questions-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'questions'
+            },
+            (payload) => {
+              console.log('Question change detected:', payload);
+              fetchStats().catch(error => {
+                console.error('Error fetching stats after change:', error);
+              });
+            }
+          )
+          .subscribe((status) => {
+            console.log('Real-time subscription status:', status);
+            if (status === 'SUBSCRIBED') {
+              retryCount = 0; // Reset retry count on successful connection
+            }
+          });
+
+        // Initialize presence channel with retry logic
+        if (!channelRef.current) {
+          console.log('Initializing presence channel...');
+          channelRef.current = supabase.channel('online-users', {
+            config: {
+              presence: {
+                key: 'user_presence',
+              },
+            },
+          });
+
+          channelRef.current
+            .on('presence', { event: 'sync' }, () => {
+              const presenceState = channelRef.current.presenceState();
+              console.log('Presence state updated:', presenceState);
+              
+              const uniqueUsers = new Set();
+              Object.values(presenceState).forEach(stateUsers => {
+                (stateUsers as any[]).forEach(user => {
+                  uniqueUsers.add(user.user_id);
+                });
+              });
+              
+              console.log('Online users count:', uniqueUsers.size);
+            })
+            .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+              console.log('User joined:', newPresences);
+            })
+            .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+              console.log('User left:', leftPresences);
+            });
+
+          channelRef.current.subscribe(async (status: string) => {
+            if (status === 'SUBSCRIBED') {
+              console.log('Channel subscribed successfully');
+              const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+              
+              try {
+                const status = await channelRef.current.track({
+                  online_at: new Date().toISOString(),
+                  user_id: userId,
+                });
+                console.log('Presence tracking status:', status);
+              } catch (error) {
+                console.error('Error tracking presence:', error);
+              }
+            } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+              if (retryCount < maxRetries) {
+                retryCount++;
+                console.log(`Retrying connection (attempt ${retryCount}/${maxRetries})...`);
+                setTimeout(setupRealtimeSubscription, 2000 * retryCount); // Exponential backoff
+              } else {
+                console.error('Max retries reached for real-time connection');
+                toast({
+                  title: "Erro de conexão",
+                  description: "Não foi possível estabelecer conexão em tempo real",
+                  variant: "destructive"
+                });
+              }
+            }
           });
         }
-      )
-      .subscribe((status) => {
-        console.log('Real-time subscription status:', status);
-      });
 
-    // Initialize presence channel
-    if (!channelRef.current) {
-      console.log('Initializing presence channel...');
-      channelRef.current = supabase.channel('online-users', {
-        config: {
-          presence: {
-            key: 'user_presence',
-          },
-        },
-      });
-
-      channelRef.current
-        .on('presence', { event: 'sync' }, () => {
-          const presenceState = channelRef.current.presenceState();
-          console.log('Presence state updated:', presenceState);
-          
-          const uniqueUsers = new Set();
-          Object.values(presenceState).forEach(stateUsers => {
-            (stateUsers as any[]).forEach(user => {
-              uniqueUsers.add(user.user_id);
-            });
-          });
-          
-          console.log('Online users count:', uniqueUsers.size);
-        })
-        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-          console.log('User joined:', newPresences);
-        })
-        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-          console.log('User left:', leftPresences);
-        });
-
-      channelRef.current.subscribe(async (status: string) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('Channel subscribed successfully');
-          const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          
-          try {
-            const status = await channelRef.current.track({
-              online_at: new Date().toISOString(),
-              user_id: userId,
-            });
-            console.log('Presence tracking status:', status);
-          } catch (error) {
-            console.error('Error tracking presence:', error);
+        return () => {
+          console.log('Cleaning up subscriptions...');
+          channel.unsubscribe();
+          if (channelRef.current) {
+            channelRef.current.unsubscribe();
+            channelRef.current = null;
           }
-        } else {
-          console.log('Channel subscription status:', status);
+        };
+      } catch (error) {
+        console.error('Error in setupRealtimeSubscription:', error);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(`Retrying setup (attempt ${retryCount}/${maxRetries})...`);
+          setTimeout(setupRealtimeSubscription, 2000 * retryCount);
         }
-      });
-    }
-
-    return () => {
-      console.log('Cleaning up subscriptions...');
-      channel.unsubscribe();
-      if (channelRef.current) {
-        channelRef.current.unsubscribe();
-        channelRef.current = null;
       }
     };
-  }, [fetchStats]);
+
+    setupRealtimeSubscription();
+  }, [fetchStats, toast]);
 
   return (
     <div className="max-w-5xl mx-auto px-4">

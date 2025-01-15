@@ -35,39 +35,46 @@ export const useQuestionsStats = () => {
         throw regularError;
       }
 
-      // Fetch previous exam questions count
-      const { count: examQuestionsCount, error: examError } = await supabase
-        .from('previous_exam_questions')
-        .select('*', { count: 'exact', head: true });
+      // Fetch previous exam questions count with retry logic
+      const fetchExamStats = async (retryCount = 0) => {
+        try {
+          const { data: examStats, error: examError } = await supabase
+            .from('previous_exams')
+            .select(`
+              id,
+              previous_exam_questions (count)
+            `);
 
-      if (examError) {
-        console.error('Error fetching exam questions:', examError);
-        throw examError;
-      }
+          if (examError) {
+            throw examError;
+          }
 
-      // Fetch previous exams statistics
-      const { data: examStats, error: examStatsError } = await supabase
-        .from('previous_exams')
-        .select('id, year')
-        .order('year', { ascending: false });
-
-      if (examStatsError) {
-        console.error('Error fetching exam stats:', examStatsError);
-        throw examStatsError;
-      }
-
-      const totalExams = examStats?.length || 0;
-
-      const updatedStats = {
-        totalQuestions: (regularQuestionsCount || 0) + (examQuestionsCount || 0),
-        previousExams: {
-          total: totalExams,
-          questions: examQuestionsCount || 0
+          return {
+            total: examStats?.length || 0,
+            questions: examStats?.reduce((acc, exam) => 
+              acc + (exam.previous_exam_questions?.length || 0), 0) || 0
+          };
+        } catch (error) {
+          console.error(`Error fetching exam stats (attempt ${retryCount + 1}):`, error);
+          if (retryCount < 2) { // Try up to 3 times
+            await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+            return fetchExamStats(retryCount + 1);
+          }
+          throw error;
         }
       };
 
-      console.log('Statistics updated:', updatedStats);
-      setStats(updatedStats);
+      const examStats = await fetchExamStats();
+
+      const newStats = {
+        totalQuestions: (regularQuestionsCount || 0) + examStats.questions,
+        previousExams: examStats
+      };
+
+      console.log('Statistics updated:', newStats);
+      setStats(newStats);
+      
+      return newStats;
     } catch (error) {
       console.error('Error fetching statistics:', error);
       toast({
@@ -75,6 +82,7 @@ export const useQuestionsStats = () => {
         description: "Verifique sua conexão e tente novamente",
         variant: "destructive"
       });
+      throw error;
     }
   }, [toast]);
 
