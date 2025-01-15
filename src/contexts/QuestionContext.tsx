@@ -34,6 +34,9 @@ export function QuestionProvider({ children }: { children: ReactNode }) {
 
   const currentQuestion = questions?.[currentQuestionIndex] || null;
 
+  console.log("QuestionContext - Total de questões:", questions?.length);
+  console.log("QuestionContext - Questão atual:", currentQuestionIndex + 1);
+
   return (
     <QuestionContext.Provider
       value={{

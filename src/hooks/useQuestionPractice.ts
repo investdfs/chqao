@@ -65,12 +65,14 @@ export const useQuestionPractice = () => {
 
       console.log("Buscando questões para a matéria:", selectedSubject);
       
-      // Usar a função RPC get_subject_questions para buscar as questões
-      const { data, error } = await supabase.rpc('get_subject_questions', {
-        p_subject: selectedSubject,
-        p_is_active: true,
-        p_exclude_exam_questions: true
-      });
+      // Buscar diretamente da tabela questions com os filtros necessários
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('subject', selectedSubject)
+        .eq('status', 'active')
+        .eq('is_from_previous_exam', false)
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -83,12 +85,15 @@ export const useQuestionPractice = () => {
       }
 
       console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
-      console.log("Questões retornadas:", data);
       return data as Question[];
     },
-    enabled: !!selectedSubject && !!studentData,
-    refetchOnWindowFocus: false,
+    enabled: !!selectedSubject,
     staleTime: 1000 * 60 * 5, // 5 minutos
+    refetchOnWindowFocus: false,
+    select: (data) => {
+      console.log("Processando questões retornadas:", data.length);
+      return data;
+    }
   });
 
   const handleNextQuestion = () => {
