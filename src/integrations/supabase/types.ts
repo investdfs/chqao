@@ -399,6 +399,7 @@ export type Database = {
         Row: {
           created_at: string | null
           display_order: number | null
+          hierarchy_order: number | null
           id: string
           level: number
           name: string
@@ -410,6 +411,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           display_order?: number | null
+          hierarchy_order?: number | null
           id?: string
           level?: number
           name: string
@@ -421,6 +423,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           display_order?: number | null
+          hierarchy_order?: number | null
           id?: string
           level?: number
           name?: string
