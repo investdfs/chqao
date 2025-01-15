@@ -38,7 +38,11 @@ const QuestionCard = memo(({
   isUserBlocked = false,
   studentId,
 }: QuestionCardProps) => {
-  console.log("Renderizando QuestionCard para questão:", question.id);
+  console.log("Renderizando QuestionCard:", {
+    questionNumber,
+    totalQuestions,
+    questionId: question.id
+  });
 
   const [sessionStats, setSessionStats] = useState({
     totalAnswered: 0,
