@@ -1,89 +1,118 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, Loader2, HelpCircle } from "lucide-react";
 import Papa from 'papaparse';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
-interface CsvQuestion {
-  'Matéria': string;
-  'Tema': string;
-  'Assunto': string;
-  'Questão': string;
-  'Opção A': string;
-  'Opção B': string;
-  'Opção C': string;
-  'Opção D': string;
-  'Opção E': string;
-  'Resposta Correta': string;
-  'Explicação': string;
-  'Dificuldade': 'Fácil' | 'Médio' | 'Difícil';
-  'Questão de Concurso': string;
-  'Ano': string;
-  'Nome do Concurso': string;
-}
 
 export const CsvImporter = () => {
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const processCSV = async (file: File): Promise<CsvQuestion[]> => {
-    return new Promise((resolve, reject) => {
-      Papa.parse<CsvQuestion>(file, {
-        header: true,
-        delimiter: ';', // Especifica o ponto e vírgula como delimitador
-        skipEmptyLines: true,
-        encoding: 'UTF-8', // Garante suporte a caracteres especiais
-        complete: (results) => {
-          console.log('CSV parsed:', results);
-          resolve(results.data);
-        },
-        error: (error) => {
-          console.error('CSV parse error:', error);
-          reject(error);
+  const processQuestions = async (questions: any[]) => {
+    console.log('Processando questões do CSV...');
+    
+    const regularQuestions = [];
+    const examQuestions = [];
+
+    for (const question of questions) {
+      const isExamQuestion = question['Questão de Concurso']?.toUpperCase() === 'SIM';
+      const baseQuestion = {
+        subject: question['Matéria'],
+        theme: question['Tema'],
+        topic: question['Assunto'],
+        text: question['Questão'],
+        option_a: question['Opção A'],
+        option_b: question['Opção B'],
+        option_c: question['Opção C'],
+        option_d: question['Opção D'],
+        option_e: question['Opção E'],
+        correct_answer: question['Resposta Correta'],
+        explanation: question['Explicação'],
+        difficulty: question['Dificuldade'] || 'Médio',
+        status: 'active'
+      };
+
+      if (isExamQuestion) {
+        console.log('Processando questão de concurso:', question['Questão']);
+        
+        // Criar ou obter o exame
+        const { data: examData, error: examError } = await supabase
+          .from('previous_exams')
+          .select('id')
+          .eq('year', parseInt(question['Ano']))
+          .single();
+
+        if (examError && examError.code !== 'PGRST116') {
+          console.error('Erro ao buscar exame:', examError);
+          throw examError;
         }
-      });
-    });
-  };
 
-  const validateQuestion = (question: CsvQuestion) => {
-    const requiredFields = [
-      'Matéria',
-      'Tema',
-      'Assunto',
-      'Questão',
-      'Opção A',
-      'Opção B',
-      'Opção C',
-      'Opção D',
-      'Opção E',
-      'Resposta Correta',
-      'Explicação'
-    ];
+        let examId;
+        if (!examData) {
+          const { data: newExam, error: createError } = await supabase
+            .from('previous_exams')
+            .insert({
+              year: parseInt(question['Ano']),
+              name: question['Nome do Concurso'] || 'EIPS/CHQAO',
+              description: `Questões do concurso ${question['Nome do Concurso'] || 'EIPS/CHQAO'} ${question['Ano']}`
+            })
+            .select('id')
+            .single();
 
-    for (const field of requiredFields) {
-      if (!question[field as keyof CsvQuestion]) {
-        throw new Error(`Campo obrigatório faltando: ${field}`);
+          if (createError) {
+            console.error('Erro ao criar exame:', createError);
+            throw createError;
+          }
+          examId = newExam.id;
+        } else {
+          examId = examData.id;
+        }
+
+        examQuestions.push({
+          ...baseQuestion,
+          exam_id: examId
+        });
+      } else {
+        console.log('Processando questão regular:', question['Questão']);
+        regularQuestions.push({
+          ...baseQuestion,
+          is_from_previous_exam: false
+        });
       }
     }
 
-    if (!'ABCDE'.includes(question['Resposta Correta'].toUpperCase())) {
-      throw new Error('Resposta correta deve ser A, B, C, D ou E');
+    // Inserir questões regulares
+    if (regularQuestions.length > 0) {
+      const { error: regularError } = await supabase
+        .from('questions')
+        .insert(regularQuestions);
+
+      if (regularError) {
+        console.error('Erro ao inserir questões regulares:', regularError);
+        throw regularError;
+      }
     }
 
-    if (question['Dificuldade'] && !['Fácil', 'Médio', 'Difícil'].includes(question['Dificuldade'])) {
-      throw new Error('Dificuldade deve ser Fácil, Médio ou Difícil');
+    // Inserir questões de concurso
+    if (examQuestions.length > 0) {
+      const { error: examError } = await supabase
+        .from('previous_exam_questions')
+        .insert(examQuestions);
+
+      if (examError) {
+        console.error('Erro ao inserir questões de concurso:', examError);
+        throw examError;
+      }
     }
 
-    return true;
+    return {
+      regularCount: regularQuestions.length,
+      examCount: examQuestions.length
+    };
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,150 +122,109 @@ export const CsvImporter = () => {
     if (!file.name.endsWith('.csv')) {
       toast({
         title: "Arquivo inválido",
-        description: "Por favor, selecione um arquivo CSV.",
+        description: "Por favor, selecione um arquivo CSV",
         variant: "destructive",
       });
       return;
     }
 
+    setError(null);
+    setIsUploading(true);
+    setProgress(10);
+
     try {
-      setIsProcessing(true);
-      console.log('Iniciando processamento do arquivo CSV:', file.name);
-
-      const questions = await processCSV(file);
-      console.log(`Processadas ${questions.length} questões do CSV`);
-
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (const question of questions) {
-        try {
-          validateQuestion(question);
-
-          const { error } = await supabase
-            .from('questions')
-            .insert({
-              subject: question['Matéria'],
-              theme: question['Tema'],
-              topic: question['Assunto'],
-              text: question['Questão'],
-              option_a: question['Opção A'],
-              option_b: question['Opção B'],
-              option_c: question['Opção C'],
-              option_d: question['Opção D'],
-              option_e: question['Opção E'],
-              correct_answer: question['Resposta Correta'].toUpperCase(),
-              explanation: question['Explicação'],
-              difficulty: question['Dificuldade'] || 'Médio',
-              is_from_previous_exam: question['Questão de Concurso'] === 'Sim',
-              exam_year: question['Ano'] ? parseInt(question['Ano']) : null,
-              exam_name: question['Nome do Concurso'] || null,
-              status: 'active'
+      const text = await file.text();
+      
+      Papa.parse(text, {
+        header: true,
+        complete: async (results) => {
+          try {
+            setProgress(30);
+            const { regularCount, examCount } = await processQuestions(results.data);
+            setProgress(100);
+            
+            toast({
+              title: "Sucesso!",
+              description: `${regularCount} questões regulares e ${examCount} questões de concurso foram importadas.`,
             });
-
-          if (error) {
-            console.error('Erro ao inserir questão:', error);
-            throw error;
+          } catch (error: any) {
+            console.error("Erro ao processar questões:", error);
+            setError(error.message);
+            toast({
+              title: "Erro ao importar questões",
+              description: error.message || "Verifique se o arquivo está no formato correto.",
+              variant: "destructive",
+            });
+          } finally {
+            setIsUploading(false);
+            setProgress(0);
           }
-          successCount++;
-
-        } catch (error) {
-          console.error('Erro ao processar questão:', error);
-          errorCount++;
+        },
+        error: (error) => {
+          console.error("Erro ao fazer parse do CSV:", error);
+          setError(error.message);
+          setIsUploading(false);
+          setProgress(0);
+          toast({
+            title: "Erro ao ler arquivo",
+            description: "O arquivo CSV está em formato inválido.",
+            variant: "destructive",
+          });
         }
-      }
-
-      toast({
-        title: "Importação concluída",
-        description: `${successCount} questões importadas com sucesso. ${errorCount} erros.`,
-        variant: successCount > 0 ? "default" : "destructive"
       });
-
     } catch (error: any) {
-      console.error('Erro ao processar arquivo CSV:', error);
+      console.error("Erro ao ler arquivo:", error);
+      setError(error.message);
+      setIsUploading(false);
+      setProgress(0);
       toast({
-        title: "Erro na importação",
-        description: error.message || "Ocorreu um erro ao processar o arquivo.",
-        variant: "destructive"
+        title: "Erro ao ler arquivo",
+        description: error.message || "Não foi possível ler o arquivo.",
+        variant: "destructive",
       });
-    } finally {
-      setIsProcessing(false);
-      if (event.target) {
-        event.target.value = '';
-      }
     }
   };
 
-  // ... keep existing code (Dialog and UI components)
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Importar CSV</h3>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="icon">
-              <HelpCircle className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Formato do CSV</DialogTitle>
-              <DialogDescription>
-                <div className="space-y-4 mt-4">
-                  <p>O arquivo CSV deve seguir exatamente este formato:</p>
-                  <div className="bg-muted p-4 rounded-md space-y-2 text-sm">
-                    <p>Cabeçalho obrigatório (com ponto e vírgula como separador):</p>
-                    <code className="block bg-background p-2 rounded">
-                      Matéria;Tema;Assunto;Questão;Opção A;Opção B;Opção C;Opção D;Opção E;Resposta Correta;Explicação;Dificuldade;Questão de Concurso;Ano;Nome do Concurso
-                    </code>
-                    
-                    <div className="mt-4 text-sm text-muted-foreground">
-                      <p className="font-medium">Observações importantes:</p>
-                      <ul className="list-disc list-inside space-y-1 mt-2">
-                        <li>Use ponto e vírgula (;) como separador</li>
-                        <li>Mantenha a ordem exata das colunas</li>
-                        <li>Salve o arquivo com codificação UTF-8</li>
-                        <li>Resposta Correta deve ser A, B, C, D ou E</li>
-                        <li>Dificuldade deve ser Fácil, Médio ou Difícil</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
         <input
           type="file"
           accept=".csv"
           className="hidden"
           id="csv-upload"
           onChange={handleFileUpload}
-          disabled={isProcessing}
+          disabled={isUploading}
         />
         <label
           htmlFor="csv-upload"
           className={`cursor-pointer flex flex-col items-center space-y-2 ${
-            isProcessing ? "opacity-50" : ""
+            isUploading ? "opacity-50" : ""
           }`}
         >
-          {isProcessing ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Processando arquivo...</span>
+          {isUploading ? (
+            <div className="space-y-4 w-full">
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Processando arquivo...</span>
+              </div>
+              <Progress value={progress} className="w-full" />
             </div>
           ) : (
             <>
-              <Upload className="h-8 w-8 text-gray-400" />
               <span className="text-sm text-gray-600">
                 Clique para fazer upload ou arraste um arquivo CSV
               </span>
-              <span className="text-xs text-gray-500">
-                Use ponto e vírgula (;) como separador
+              <span className="text-xs text-gray-400">
+                O arquivo deve conter as colunas: Matéria, Tema, Assunto, Questão, Opções A-E, 
+                Resposta Correta, Explicação, Questão de Concurso (SIM/NÃO), Ano, Nome do Concurso
               </span>
             </>
           )}
