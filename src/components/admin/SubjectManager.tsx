@@ -55,7 +55,7 @@ export const SubjectManager = () => {
                   <SelectValue placeholder="Selecione uma matéria" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800">
-                  {availableSubjects.map((subject) => (
+                  {availableSubjects.sort((a, b) => a.name.localeCompare(b.name)).map((subject) => (
                     <SelectItem 
                       key={subject.id} 
                       value={subject.name}
@@ -138,4 +138,4 @@ const availableSubjects = [
     theme: "Conhecimentos Profissionais",
     topics: []
   }
-];
+].sort((a, b) => a.name.localeCompare(b.name));
