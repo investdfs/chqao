@@ -3,6 +3,8 @@ import QuestionCard from "@/features/questions/components/QuestionCard";
 import { QuestionProvider, useQuestion } from "@/features/questions/contexts/QuestionContext";
 import { ExamModeProvider } from "@/features/questions/contexts/ExamModeContext";
 import { PreviewUser } from "@/types/user";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface QuestionPracticeProps {
   previewUser?: PreviewUser;
@@ -20,6 +22,19 @@ const QuestionPracticeContent = () => {
     currentQuestion
   } = useQuestion();
 
+  const { toast } = useToast();
+  const searchParams = new URLSearchParams(window.location.search);
+  const selectedSubject = searchParams.get('subject');
+
+  useEffect(() => {
+    if (selectedSubject && questions.length === 0 && !isLoadingQuestions) {
+      toast({
+        title: "Nenhuma questão encontrada",
+        description: `Não há questões disponíveis para a matéria ${selectedSubject}`,
+      });
+    }
+  }, [selectedSubject, questions.length, isLoadingQuestions, toast]);
+
   if (isLoadingQuestions) {
     return (
       <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center">
@@ -30,7 +45,7 @@ const QuestionPracticeContent = () => {
     );
   }
 
-  if (error || !questions) {
+  if (error) {
     return (
       <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center justify-center">
         <div className="max-w-4xl w-full mx-auto text-center bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
@@ -45,6 +60,21 @@ const QuestionPracticeContent = () => {
     );
   }
 
+  if (!selectedSubject) {
+    return (
+      <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Selecione uma matéria
+          </h2>
+          <p className="text-gray-600">
+            Escolha uma matéria para começar a praticar
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (questions.length === 0) {
     return (
       <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center justify-center">
@@ -53,7 +83,7 @@ const QuestionPracticeContent = () => {
             Nenhuma questão disponível
           </h2>
           <p className="text-gray-600">
-            Aguarde até que novas questões sejam adicionadas
+            Não há questões disponíveis para a matéria selecionada
           </p>
         </div>
       </div>

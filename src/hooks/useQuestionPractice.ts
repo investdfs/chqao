@@ -15,7 +15,7 @@ export const useQuestionPractice = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const selectedSubject = searchParams.get('subject');
 
-  console.log("Matéria selecionada no hook:", selectedSubject);
+  console.log("Matéria selecionada:", selectedSubject);
 
   const { data: studentData, isLoading: isLoadingStudent } = useQuery({
     queryKey: ['student'],
@@ -35,8 +35,6 @@ export const useQuestionPractice = () => {
         return null;
       }
 
-      console.log("Email do usuário logado:", session.user.email);
-
       const { data: student, error: studentError } = await supabase
         .from('students')
         .select('*')
@@ -49,7 +47,6 @@ export const useQuestionPractice = () => {
         return null;
       }
 
-      console.log("Dados do estudante encontrados:", student);
       return student;
     },
     retry: false
@@ -65,13 +62,14 @@ export const useQuestionPractice = () => {
 
       console.log("Buscando questões para a matéria:", selectedSubject);
       
+      // Buscar questões diretamente da tabela com filtros específicos
       const { data, error } = await supabase
         .from('questions')
         .select('*')
         .eq('subject', selectedSubject)
         .eq('status', 'active')
         .eq('is_from_previous_exam', false)
-        .order('created_at', { ascending: true });
+        .order('created_at');
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -84,6 +82,16 @@ export const useQuestionPractice = () => {
       }
 
       console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
+      
+      // Validar se há questões
+      if (!data || data.length === 0) {
+        toast({
+          title: "Nenhuma questão encontrada",
+          description: `Não há questões disponíveis para a matéria ${selectedSubject}`,
+        });
+        return [];
+      }
+
       return data as Question[];
     },
     enabled: !!selectedSubject,
@@ -102,6 +110,11 @@ export const useQuestionPractice = () => {
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
+
+  // Reset o índice quando mudar a matéria
+  useEffect(() => {
+    setCurrentQuestionIndex(0);
+  }, [selectedSubject]);
 
   return {
     currentQuestionIndex,
