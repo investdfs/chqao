@@ -14,6 +14,7 @@ export const SubjectSelect = ({ value, onChange, subjects, disabled }: SubjectSe
         <SelectValue placeholder="Escolha uma matéria" />
       </SelectTrigger>
       <SelectContent>
+        <SelectItem value="">Todas as matérias</SelectItem>
         {subjects.map((subject) => (
           <SelectItem key={subject.id} value={subject.name}>
             {subject.name}
