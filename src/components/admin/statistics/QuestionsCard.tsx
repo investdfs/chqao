@@ -16,8 +16,8 @@ interface QuestionsCardProps {
 export const QuestionsCard = ({ totalQuestions, stats }: QuestionsCardProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  // Calculate the breakdown based on is_from_previous_exam flag
-  const regularQuestions = totalQuestions - (stats?.previousExams?.questions || 0);
+  // Calcular questões inéditas (total - questões de provas)
+  const regularQuestions = Math.max(0, totalQuestions - (stats?.previousExams?.questions || 0));
   const examQuestions = stats?.previousExams?.questions || 0;
 
   return (

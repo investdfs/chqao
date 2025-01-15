@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
-interface QuestionStats {
+interface QuestionsStatsData {
   totalQuestions: number;
   previousExams: {
     total: number;
@@ -10,57 +11,74 @@ interface QuestionStats {
 }
 
 export const useQuestionsStats = () => {
-  const [stats, setStats] = useState<QuestionStats>({
+  const [stats, setStats] = useState<QuestionsStatsData>({
     totalQuestions: 0,
     previousExams: {
       total: 0,
       questions: 0
     }
   });
+  const { toast } = useToast();
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
-      console.log('Fetching questions stats...');
+      console.log('Fetching questions statistics...');
       
-      // Get total active questions
-      const { count: totalQuestions, error: questionsError } = await supabase
+      // Buscar total de questões ativas
+      const { count: activeQuestionsCount, error: activeError } = await supabase
         .from('questions')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'active');
 
-      if (questionsError) throw questionsError;
+      if (activeError) {
+        console.error('Error fetching active questions:', activeError);
+        throw activeError;
+      }
 
-      // Get previous exams stats
-      const { data: examsData, error: examsError } = await supabase
+      // Buscar questões de provas anteriores
+      const { count: examQuestionsCount, error: examError } = await supabase
+        .from('questions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active')
+        .eq('is_from_previous_exam', true);
+
+      if (examError) {
+        console.error('Error fetching exam questions:', examError);
+        throw examError;
+      }
+
+      // Buscar total de provas anteriores
+      const { data: examStats, error: examStatsError } = await supabase
         .from('previous_exams')
-        .select(`
-          id,
-          previous_exam_questions (count)
-        `);
+        .select('id');
 
-      if (examsError) throw examsError;
+      if (examStatsError) {
+        console.error('Error fetching exam stats:', examStatsError);
+        throw examStatsError;
+      }
 
-      const totalExams = examsData?.length || 0;
-      const totalExamQuestions = examsData?.reduce((acc, exam) => 
-        acc + (exam.previous_exam_questions?.length || 0), 0) || 0;
-
-      const newStats = {
-        totalQuestions: totalQuestions || 0,
+      const updatedStats = {
+        totalQuestions: activeQuestionsCount || 0,
         previousExams: {
-          total: totalExams,
-          questions: totalExamQuestions
+          total: examStats?.length || 0,
+          questions: examQuestionsCount || 0
         }
       };
 
-      console.log('Statistics updated:', newStats);
-      setStats(newStats);
+      console.log('Statistics updated:', updatedStats);
+      setStats(updatedStats);
       
-      return newStats;
+      return updatedStats;
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('Error fetching statistics:', error);
+      toast({
+        title: "Erro ao carregar estatísticas",
+        description: "Verifique sua conexão e tente novamente",
+        variant: "destructive"
+      });
       throw error;
     }
-  };
+  }, [toast]);
 
   return {
     stats,
