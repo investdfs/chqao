@@ -168,7 +168,7 @@ export const QuestionsTreeStats = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {treeData.map((node, index) => renderNode(node, index.toString()))}
+        {treeData?.map((node, index) => renderNode(node, index.toString()))}
       </CardContent>
     </Card>
   );

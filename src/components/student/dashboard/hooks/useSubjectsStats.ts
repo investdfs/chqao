@@ -23,12 +23,14 @@ export const useSubjectsStats = () => {
           .from('questions')
           .select('subject')
           .eq('status', 'active')
-          .throwOnError();
+          .eq('is_from_previous_exam', false);
 
         if (error) {
           console.error('Error fetching subjects:', error);
           throw error;
         }
+
+        console.log('Raw questions data:', data);
 
         // Process the data
         const subjectCounts: Record<string, number> = {};
@@ -36,6 +38,8 @@ export const useSubjectsStats = () => {
           const subject = question.subject;
           subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
         });
+
+        console.log('Processed subject counts:', subjectCounts);
 
         // Group subjects
         const groups: Record<string, SubjectGroup> = {};
@@ -55,7 +59,9 @@ export const useSubjectsStats = () => {
           groups[groupName].totalQuestions += count;
         });
 
-        return Object.values(groups).sort((a, b) => b.totalQuestions - a.totalQuestions);
+        const result = Object.values(groups).sort((a, b) => b.totalQuestions - a.totalQuestions);
+        console.log('Final grouped statistics:', result);
+        return result;
       } catch (error) {
         console.error('Error in useSubjectsStats:', error);
         throw error;
