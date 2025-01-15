@@ -3,7 +3,6 @@ import QuestionHeader from "./question/QuestionHeader";
 import QuestionContent from "./question/QuestionContent";
 import BlockedUserCard from "./question/BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
-import QuestionCounter from "./question/QuestionCounter";
 
 interface QuestionCardProps {
   question: {
@@ -90,12 +89,6 @@ const QuestionCard = memo(({
         isFocusMode={false}
         onFocusModeToggle={() => {}}
       />
-      <div className="w-full max-w-4xl mx-auto">
-        <QuestionCounter 
-          current={questionNumber} 
-          total={totalQuestions}
-        />
-      </div>
       <QuestionContent
         question={question}
         selectedAnswer={selectedAnswer}

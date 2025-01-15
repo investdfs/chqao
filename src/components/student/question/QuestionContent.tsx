@@ -7,6 +7,7 @@ import QuestionFeedback from "./QuestionFeedback";
 import { QuestionCommentsDialog } from "./QuestionCommentsDialog";
 import PreviousAnswerInfo from "./PreviousAnswerInfo";
 import QuestionStats from "./QuestionStats";
+import QuestionCounter from "./QuestionCounter";
 
 interface QuestionContentProps {
   question: {
@@ -92,6 +93,11 @@ const QuestionContent = memo(({
             topic={question.topic}
             source={question.source}
             showId={showQuestionId}
+          />
+
+          <QuestionCounter 
+            current={questionNumber} 
+            total={totalQuestions}
           />
 
           <div className="text-base dark:text-gray-200 text-left">
