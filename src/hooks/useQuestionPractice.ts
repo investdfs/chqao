@@ -52,6 +52,7 @@ export const useQuestionPractice = () => {
     queryKey: ['questions', selectedExamYear],
     queryFn: async () => {
       console.log("Buscando questões do Supabase...");
+      
       let query = supabase
         .from('questions')
         .select(`
@@ -62,9 +63,7 @@ export const useQuestionPractice = () => {
             topic
           )
         `)
-        .eq('status', 'active')
-        .order('subject', { ascending: true })
-        .order('created_at', { ascending: true });
+        .eq('status', 'active');
 
       if (selectedExamYear) {
         query = query
@@ -72,7 +71,9 @@ export const useQuestionPractice = () => {
           .eq('exam_year', selectedExamYear);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query
+        .order('subject', { ascending: true })
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -84,7 +85,12 @@ export const useQuestionPractice = () => {
         throw error;
       }
 
-      console.log(`Questões buscadas com sucesso:`, data?.length, "questões");
+      console.log(`${data?.length || 0} questões encontradas`);
+      console.log("Distribuição por matéria:", data?.reduce((acc: any, q) => {
+        acc[q.subject] = (acc[q.subject] || 0) + 1;
+        return acc;
+      }, {}));
+
       return data || [];
     },
     enabled: !!studentData
