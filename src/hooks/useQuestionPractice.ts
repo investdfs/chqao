@@ -55,24 +55,20 @@ export const useQuestionPractice = () => {
   });
 
   const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
-    queryKey: ['questions', selectedSubject, selectedExamYear],
+    queryKey: ['questions', selectedSubject],
     queryFn: async () => {
-      console.log("Buscando questões do Supabase...");
-      console.log("Filtros aplicados:", { subject: selectedSubject, examYear: selectedExamYear });
-      
-      let query = supabase
-        .from('questions')
-        .select('*')
-        .eq('status', 'active')
-        .eq('is_from_previous_exam', false);
-
-      // Aplicar filtro por matéria se estiver definida
-      if (selectedSubject) {
-        console.log("Aplicando filtro por matéria:", selectedSubject);
-        query = query.eq('subject', selectedSubject);
+      if (!selectedSubject) {
+        console.log("Nenhuma matéria selecionada, retornando array vazio");
+        return [];
       }
 
-      const { data, error } = await query.order('created_at', { ascending: true });
+      console.log("Buscando questões para a matéria:", selectedSubject);
+      
+      const { data, error } = await supabase.rpc('get_subject_questions', {
+        p_subject: selectedSubject,
+        p_is_active: true,
+        p_exclude_exam_questions: true
+      });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
@@ -87,7 +83,7 @@ export const useQuestionPractice = () => {
       console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
       return data || [];
     },
-    enabled: !!studentData && !!selectedSubject,
+    enabled: !!selectedSubject && !!studentData,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5, // 5 minutos
   });
