@@ -76,11 +76,13 @@ const QuestionPracticeContent = () => {
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
             Selecione uma matéria
           </h2>
-          <SubjectSelect
-            value={selectedSubject}
-            onChange={setSelectedSubject}
-            subjects={subjects}
-          />
+          {subjects.length > 0 && (
+            <SubjectSelect
+              value={selectedSubject}
+              onChange={setSelectedSubject}
+              subjects={subjects}
+            />
+          )}
         </div>
       </div>
     );
@@ -96,11 +98,13 @@ const QuestionPracticeContent = () => {
           <p className="text-gray-600 mb-6">
             Selecione outra matéria ou aguarde até que novas questões sejam adicionadas
           </p>
-          <SubjectSelect
-            value={selectedSubject}
-            onChange={setSelectedSubject}
-            subjects={subjects}
-          />
+          {subjects.length > 0 && (
+            <SubjectSelect
+              value={selectedSubject}
+              onChange={setSelectedSubject}
+              subjects={subjects}
+            />
+          )}
         </div>
       </div>
     );
@@ -112,11 +116,13 @@ const QuestionPracticeContent = () => {
     <div className="min-h-screen bg-[#1A1F2C] flex flex-col relative overflow-hidden">
       <div className="p-4 bg-white/10 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-4xl mx-auto">
-          <SubjectSelect
-            value={selectedSubject}
-            onChange={setSelectedSubject}
-            subjects={subjects}
-          />
+          {subjects.length > 0 && (
+            <SubjectSelect
+              value={selectedSubject}
+              onChange={setSelectedSubject}
+              subjects={subjects}
+            />
+          )}
         </div>
       </div>
       <div className="flex-1 p-4 md:p-6 lg:p-8 flex items-center justify-center relative z-10">
