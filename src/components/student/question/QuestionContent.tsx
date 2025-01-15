@@ -95,12 +95,11 @@ const QuestionContent = memo(({
             showId={showQuestionId}
           />
 
-          <QuestionCounter 
-            current={questionNumber} 
-            total={totalQuestions}
-          />
-
           <div className="text-base dark:text-gray-200 text-left">
+            <QuestionCounter 
+              current={questionNumber} 
+              total={totalQuestions}
+            />
             {question.text}
             {question.image_url && (
               <div className="flex justify-center my-4">
