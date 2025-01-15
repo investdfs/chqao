@@ -70,6 +70,6 @@ export const useSubjectsStats = () => {
     retry: 3,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchInterval: 1000 * 30, // 30 seconds
+    refetchInterval: 1000 * 30, // 30 seconds - garante atualização automática
   });
 };
