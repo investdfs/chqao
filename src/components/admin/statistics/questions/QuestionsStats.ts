@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 interface QuestionsStatsData {
   totalQuestions: number;
@@ -18,7 +18,6 @@ export const useQuestionsStats = () => {
       questions: 0
     }
   });
-  const { toast } = useToast();
 
   const fetchStats = useCallback(async () => {
     try {
@@ -78,7 +77,7 @@ export const useQuestionsStats = () => {
       });
       throw error;
     }
-  }, [toast]);
+  }, []);
 
   return {
     stats,
