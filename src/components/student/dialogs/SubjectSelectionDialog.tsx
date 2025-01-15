@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { SubjectCard } from "./SubjectCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SubjectSelectionDialogProps {
   open: boolean;
@@ -37,7 +38,6 @@ export const SubjectSelectionDialog = ({
         return {};
       }
 
-      // Agrupa as contagens por matéria
       const counts = data.reduce((acc: Record<string, number>, curr) => {
         acc[curr.subject] = (acc[curr.subject] || 0) + 1;
         return acc;
@@ -68,20 +68,22 @@ export const SubjectSelectionDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="max-h-[85vh] p-0">
+        <DialogHeader className="p-4 pb-2">
           <DialogTitle>Selecione uma Matéria</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 gap-4">
-          {Object.keys(subjectCounts).map((subject) => (
-            <SubjectCard
-              key={subject}
-              subject={subject}
-              questionCount={subjectCounts[subject]}
-              onSelect={handleSubjectSelect}
-            />
-          ))}
-        </div>
+        <ScrollArea className="max-h-[calc(85vh-80px)] px-4 pb-4">
+          <div className="grid grid-cols-1 gap-2">
+            {Object.keys(subjectCounts).map((subject) => (
+              <SubjectCard
+                key={subject}
+                subject={subject}
+                questionCount={subjectCounts[subject]}
+                onSelect={handleSubjectSelect}
+              />
+            ))}
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

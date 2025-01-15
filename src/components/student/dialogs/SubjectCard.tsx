@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
 
@@ -15,24 +15,25 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
   onSelect,
 }) => {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg font-bold">{subject}</CardTitle>
-        <BookOpen className="h-5 w-5 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            {questionCount} {questionCount === 1 ? 'questão' : 'questões'} disponível{questionCount === 1 ? '' : 'is'}
-          </p>
-          <Button 
-            onClick={() => onSelect(subject)}
-            variant="outline"
-            size="sm"
-          >
-            Selecionar
-          </Button>
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-3 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <div>
+            <h4 className="text-sm font-medium">{subject}</h4>
+            <p className="text-xs text-muted-foreground">
+              {questionCount} {questionCount === 1 ? 'questão' : 'questões'}
+            </p>
+          </div>
         </div>
+        <Button 
+          onClick={() => onSelect(subject)}
+          variant="outline"
+          size="sm"
+          className="ml-2"
+        >
+          Selecionar
+        </Button>
       </CardContent>
     </Card>
   );
