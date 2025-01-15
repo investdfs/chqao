@@ -40,7 +40,22 @@ export const SubjectSelectionDialog = ({
       console.log("Buscando contagem de questões por matéria...");
       
       const { data, error } = await supabase
-        .rpc('get_subjects_count');
+        .from('questions')
+        .select('subject, count')
+        .eq('status', 'active')
+        .then(result => {
+          if (result.error) throw result.error;
+          
+          // Agrupa as contagens por matéria
+          const counts = result.data.reduce((acc: Record<string, number>, curr) => {
+            const subject = curr.subject;
+            acc[subject] = (acc[subject] || 0) + 1;
+            return acc;
+          }, {});
+          
+          console.log("Contagem de questões por matéria:", counts);
+          return counts;
+        });
 
       if (error) {
         console.error("Erro ao buscar contagem de questões:", error);
@@ -48,18 +63,11 @@ export const SubjectSelectionDialog = ({
           title: "Erro ao carregar questões",
           description: "Houve um problema ao buscar as questões. Por favor, tente novamente mais tarde.",
           variant: "destructive",
-          className: "bg-white border-red-500"
         });
         return {};
       }
 
-      const counts = data?.reduce((acc: Record<string, number>, curr: { subject: string, count: number }) => {
-        acc[curr.subject] = Number(curr.count);
-        return acc;
-      }, {});
-
-      console.log("Contagem de questões por matéria:", counts);
-      return counts || {};
+      return data || {};
     },
     retry: 1,
     staleTime: 1000 * 60 * 5, // 5 minutos
@@ -73,7 +81,6 @@ export const SubjectSelectionDialog = ({
         title: "Desculpe, não há questões disponíveis",
         description: "Estamos trabalhando para adicionar milhares de novas questões. Por favor, tente outra matéria ou volte mais tarde.",
         variant: "destructive",
-        className: "bg-white border-red-500"
       });
       return;
     }

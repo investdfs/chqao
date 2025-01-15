@@ -37,9 +37,6 @@ export const useQuestionPractice = () => {
 
       if (studentError) {
         console.error("Erro ao buscar estudante:", studentError);
-        if (studentError.code === 'PGRST116') {
-          console.log("Estudante não encontrado para o email:", session.user.email);
-        }
         navigate("/login");
         return null;
       }
@@ -54,9 +51,11 @@ export const useQuestionPractice = () => {
     queryKey: ['questions'],
     queryFn: async () => {
       console.log("Buscando questões do Supabase...");
+      
       const { data, error } = await supabase
         .from('questions')
         .select('*')
+        .eq('status', 'active')
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -70,6 +69,7 @@ export const useQuestionPractice = () => {
       }
 
       console.log("Questões buscadas com sucesso:", data?.length, "questões");
+      console.log("Questões:", data); // Log detalhado das questões
       return data || [];
     },
     enabled: !!studentData
