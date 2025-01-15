@@ -66,11 +66,12 @@ export const useQuestionPractice = () => {
       console.log("Buscando questões para a matéria:", selectedSubject);
       
       const { data, error } = await supabase
-        .rpc('get_subject_questions', {
-          p_subject: selectedSubject,
-          p_is_active: true,
-          p_exclude_exam_questions: true
-        });
+        .from('questions')
+        .select('*')
+        .eq('subject', selectedSubject)
+        .eq('status', 'active')
+        .eq('is_from_previous_exam', false)
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
