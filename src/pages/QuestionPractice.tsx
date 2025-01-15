@@ -46,9 +46,9 @@ const QuestionPracticeContent = () => {
 
   if (isLoadingQuestions) {
     return (
-      <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 flex items-center">
         <div className="max-w-4xl w-full mx-auto">
-          <Skeleton className="h-[calc(100vh-2rem)] w-full rounded-xl bg-white/50" />
+          <Skeleton className="h-[calc(100vh-2rem)] w-full rounded-xl bg-white/5" />
         </div>
       </div>
     );
@@ -56,12 +56,12 @@ const QuestionPracticeContent = () => {
 
   if (error || !questions) {
     return (
-      <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center justify-center">
-        <div className="max-w-4xl w-full mx-auto text-center bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-white mb-2">
             Erro ao carregar questões
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Por favor, tente novamente mais tarde
           </p>
         </div>
@@ -71,9 +71,9 @@ const QuestionPracticeContent = () => {
 
   if (!selectedSubject) {
     return (
-      <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center justify-center">
-        <div className="max-w-md w-full mx-auto bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 flex items-center justify-center">
+        <div className="max-w-md w-full mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">
             Selecione uma matéria
           </h2>
           {subjects.length > 0 && (
@@ -90,12 +90,12 @@ const QuestionPracticeContent = () => {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-[#1A1F2C] p-4 flex items-center justify-center">
-        <div className="max-w-4xl w-full mx-auto text-center bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto text-center bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-white mb-2">
             Nenhuma questão disponível para esta matéria
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-300 mb-6">
             Selecione outra matéria ou aguarde até que novas questões sejam adicionadas
           </p>
           {subjects.length > 0 && (
@@ -113,8 +113,8 @@ const QuestionPracticeContent = () => {
   if (!currentQuestion) return null;
 
   return (
-    <div className="min-h-screen bg-[#1A1F2C] flex flex-col relative overflow-hidden">
-      <div className="p-4 bg-white/10 backdrop-blur-sm border-b border-white/20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
+      <div className="sticky top-0 z-50 bg-white/10 backdrop-blur-sm border-b border-white/20 p-4">
         <div className="max-w-4xl mx-auto">
           {subjects.length > 0 && (
             <SubjectSelect
@@ -125,8 +125,8 @@ const QuestionPracticeContent = () => {
           )}
         </div>
       </div>
-      <div className="flex-1 p-4 md:p-6 lg:p-8 flex items-center justify-center relative z-10">
-        <div className="max-w-4xl w-full mx-auto">
+      <div className="flex-1 p-4 md:p-6 lg:p-8">
+        <div className="max-w-4xl mx-auto">
           <div className="transform transition-all duration-300 hover:translate-y-[-2px]">
             <QuestionCard
               question={currentQuestion}
