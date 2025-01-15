@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { StudentFormData } from "../validation/studentValidation";
+import { StudentInsert, StudentUpdate, StudentStatus } from "@/types/database/supabase";
 
 export const createStudent = async (data: StudentFormData) => {
   console.log('Iniciando cadastro de novo aluno:', { 
@@ -27,14 +28,16 @@ export const createStudent = async (data: StudentFormData) => {
   console.log('Usuário criado na autenticação:', authData);
 
   // Depois, inserir na tabela students
+  const studentData: StudentInsert = {
+    email: data.email,
+    name: data.name,
+    password: data.password,
+    status: 'active',
+  };
+
   const { error: studentError } = await supabase
     .from('students')
-    .insert([{
-      email: data.email,
-      name: data.name,
-      password: data.password,
-      status: 'active',
-    }]);
+    .insert([studentData]);
 
   if (studentError) {
     console.error('Erro ao inserir estudante:', studentError);
@@ -47,9 +50,13 @@ export const createStudent = async (data: StudentFormData) => {
 export const toggleStudentStatus = async (studentId: string, currentStatus: string) => {
   const newStatus = currentStatus === "active" ? "blocked" : "active";
   
+  const updateData: StudentUpdate = { 
+    status: newStatus as StudentStatus 
+  };
+
   const { error } = await supabase
     .from('students')
-    .update({ status: newStatus })
+    .update(updateData)
     .eq('id', studentId);
 
   if (error) {
@@ -61,9 +68,13 @@ export const toggleStudentStatus = async (studentId: string, currentStatus: stri
 };
 
 export const updateStudentData = async (studentId: string, data: Partial<StudentFormData>) => {
+  const updateData: StudentUpdate = {
+    ...data
+  };
+
   const { error } = await supabase
     .from('students')
-    .update(data)
+    .update(updateData)
     .eq('id', studentId);
 
   if (error) {

@@ -22,18 +22,10 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   db: {
     schema: 'public'
   },
-  // Adiciona configurações para melhor tratamento de erros e reconexão
   realtime: {
     params: {
       eventsPerSecond: 10
     }
-  },
-  // Aumenta o timeout para requisições
-  fetch: (url, options) => {
-    return fetch(url, {
-      ...options,
-      timeout: 30000, // 30 segundos
-    });
   }
 });
 
