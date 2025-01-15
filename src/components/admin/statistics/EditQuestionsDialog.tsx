@@ -7,6 +7,9 @@ import { QuestionsList } from "./questions/QuestionsList";
 import { QuestionEditForm } from "./questions/QuestionEditForm";
 import { QuestionsCounter } from "./questions/QuestionsCounter";
 import { BulkActionButtons } from "./questions/BulkActionButtons";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface EditQuestionsDialogProps {
   open: boolean;
@@ -155,13 +158,40 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
     }
   };
 
-  const handleQuestionsSelect = (questionIds: string[]) => {
-    setSelectedQuestions(questionIds);
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedQuestions(questions.map(q => q.id));
+    } else {
+      setSelectedQuestions([]);
+    }
   };
 
-  const handleBulkActionSuccess = () => {
-    setSelectedQuestions([]);
-    fetchQuestions();
+  const handleDeleteSelected = async () => {
+    if (!selectedQuestions.length) return;
+
+    try {
+      const { error } = await supabase
+        .from("questions")
+        .update({ status: 'deleted' })
+        .in('id', selectedQuestions);
+
+      if (error) throw error;
+
+      toast({
+        title: "Questões excluídas",
+        description: `${selectedQuestions.length} questões foram excluídas com sucesso.`,
+      });
+      
+      setSelectedQuestions([]);
+      fetchQuestions();
+    } catch (error) {
+      console.error("Erro ao excluir questões:", error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir as questões selecionadas.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -176,14 +206,36 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
         </DialogHeader>
 
         <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                checked={selectedQuestions.length === questions.length}
+                onCheckedChange={handleSelectAll}
+                id="select-all"
+              />
+              <label 
+                htmlFor="select-all" 
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Selecionar todas
+              </label>
+            </div>
+            {selectedQuestions.length > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDeleteSelected}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Deletar selecionadas ({selectedQuestions.length})
+              </Button>
+            )}
+          </div>
+
           <QuestionFilters 
             filters={filters}
             onFilterChange={handleFilterChange}
-          />
-
-          <BulkActionButtons 
-            selectedQuestions={selectedQuestions}
-            onSuccess={handleBulkActionSuccess}
           />
 
           {loading ? (
@@ -193,7 +245,7 @@ export const EditQuestionsDialog = ({ open, onOpenChange }: EditQuestionsDialogP
               questions={questions}
               onQuestionSelect={setSelectedQuestion}
               onQuestionsUpdate={fetchQuestions}
-              onQuestionsSelect={handleQuestionsSelect}
+              onQuestionsSelect={setSelectedQuestions}
               selectedQuestions={selectedQuestions}
             />
           )}
