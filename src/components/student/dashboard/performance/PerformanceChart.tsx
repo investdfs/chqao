@@ -8,6 +8,14 @@ interface PerformanceChartProps {
 }
 
 export const PerformanceChart = ({ monthlyPerformance }: PerformanceChartProps) => {
+  if (!monthlyPerformance || monthlyPerformance.length === 0) {
+    return (
+      <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">
+        Ainda não há dados de desempenho disponíveis
+      </div>
+    );
+  }
+
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">

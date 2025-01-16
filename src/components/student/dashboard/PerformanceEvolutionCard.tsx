@@ -18,22 +18,6 @@ export const PerformanceEvolutionCard = ({ userId }: { userId?: string }) => {
     );
   }
 
-  if (!monthlyPerformance || monthlyPerformance.length === 0) {
-    return (
-      <Card className="bg-white/80 backdrop-blur-sm border-2 border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Evolução do Desempenho</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-center text-muted-foreground py-8">
-            Você ainda não possui histórico de desempenho.
-            Continue praticando para acompanhar sua evolução!
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-2 border-primary/20">
       <CardHeader>
@@ -43,9 +27,11 @@ export const PerformanceEvolutionCard = ({ userId }: { userId?: string }) => {
         <div className="h-[300px]">
           <PerformanceChart monthlyPerformance={monthlyPerformance} />
         </div>
-        <p className="text-sm text-muted-foreground text-center mt-4">
-          Média de aproveitamento mensal nos últimos 6 meses
-        </p>
+        {monthlyPerformance.length > 0 && (
+          <p className="text-sm text-muted-foreground text-center mt-4">
+            Média de aproveitamento mensal nos últimos 6 meses
+          </p>
+        )}
       </CardContent>
     </Card>
   );
