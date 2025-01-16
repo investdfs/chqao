@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePerformanceData } from "./performance/usePerformanceData";
+import { PerformanceChart } from "./performance/PerformanceChart";
 
 export const PerformanceEvolutionCard = ({ userId }: { userId?: string }) => {
   const { data: monthlyPerformance = [], isLoading } = usePerformanceData(userId);
