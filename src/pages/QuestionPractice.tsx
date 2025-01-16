@@ -14,7 +14,7 @@ const QuestionPracticeContent = () => {
   const {
     currentQuestionIndex,
     studentData,
-    questions,
+    questions = [], // Fornece um valor padrão vazio
     isLoadingQuestions,
     error,
     handleNextQuestion,
