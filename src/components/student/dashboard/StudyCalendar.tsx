@@ -14,54 +14,17 @@ interface DayPerformance {
   questionsAnswered: number;
 }
 
-const getPerformanceIcon = (performance: number) => {
-  if (performance >= 70) {
-    return <CheckCircle className="h-4 w-4 text-green-500" />;
-  }
-  if (performance >= 50) {
-    return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-  }
-  return <XCircle className="h-4 w-4 text-red-500" />;
-};
-
-const PREVIEW_DATA: DayPerformance[] = [
-  {
-    date: new Date(),
-    performance: 85,
-    questionsAnswered: 20
-  },
-  {
-    date: new Date(Date.now() - 86400000),
-    performance: 65,
-    questionsAnswered: 15
-  },
-  {
-    date: new Date(Date.now() - 172800000),
-    performance: 45,
-    questionsAnswered: 10
-  }
-];
-
-interface StudyCalendarProps {
-  userId?: string;
-}
-
-export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
-  const isPreviewMode = userId === 'preview-user-id';
-
+export const StudyCalendar = ({ userId }: { userId?: string }) => {
   const { data: studyDays, isLoading } = useQuery({
     queryKey: ['study-calendar', userId],
     queryFn: async () => {
-      if (!userId || isPreviewMode) {
-        console.log("Usando dados de preview para calendário");
-        return PREVIEW_DATA;
+      if (!userId) {
+        console.log("Usuário não autenticado, retornando dados vazios");
+        return [];
       }
 
       console.log("Buscando dados do calendário para usuário:", userId);
       
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);
-
       const { data: answers, error } = await supabase
         .from('question_answers')
         .select(`
@@ -72,12 +35,17 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
           selected_option
         `)
         .eq('student_id', userId)
-        .gte('created_at', startDate.toISOString())
-        .order('created_at', { ascending: true });
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+        .order('created_at');
 
       if (error) {
         console.error("Erro ao buscar dados do calendário:", error);
-        throw error;
+        return [];
+      }
+
+      if (!answers || answers.length === 0) {
+        console.log("Nenhum dado encontrado para o usuário");
+        return [];
       }
 
       const dailyPerformance = answers.reduce((acc: Record<string, DayPerformance>, answer) => {
@@ -98,6 +66,7 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
         return acc;
       }, {});
 
+      console.log("Dados processados:", Object.values(dailyPerformance));
       return Object.values(dailyPerformance);
     },
     enabled: !!userId
@@ -116,7 +85,7 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
 
   if (isLoading) {
     return (
-      <Card className="h-full">
+      <Card>
         <CardHeader>
           <CardTitle>Calendário de Estudos</CardTitle>
         </CardHeader>
@@ -155,7 +124,13 @@ export const StudyCalendar = ({ userId }: StudyCalendarProps) => {
                 <div className="relative w-full h-full flex items-center justify-center">
                   <span>{date.getDate()}</span>
                   <div className="absolute bottom-0 right-0">
-                    {getPerformanceIcon(dayPerformance.performance)}
+                    {dayPerformance.performance >= 70 ? (
+                      <CheckCircle className="h-4 w-4 text-success" />
+                    ) : dayPerformance.performance >= 50 ? (
+                      <AlertCircle className="h-4 w-4 text-warning" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-error" />
+                    )}
                   </div>
                 </div>
               );

@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Brain, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,44 +9,18 @@ import { DifficultyCard } from "./components/DifficultyCard";
 import { UnstudiedSubjects } from "./components/UnstudiedSubjects";
 import { TopicDifficulty } from "./types";
 
-const PREVIEW_DATA: TopicDifficulty[] = [
-  {
-    topic: "História do Brasil Império",
-    subject: "História do Brasil",
-    performance: 65.5,
-    totalQuestions: 12
-  },
-  {
-    topic: "Independência do Brasil",
-    subject: "História do Brasil",
-    performance: 58.3,
-    totalQuestions: 8
-  },
-  {
-    topic: "República Velha",
-    subject: "História do Brasil",
-    performance: 45.0,
-    totalQuestions: 15
-  }
-];
-
-interface DifficultyTagsProps {
-  userId?: string;
-}
-
-export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
+export const DifficultyTags = ({ userId }: { userId?: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const isPreviewMode = !userId || userId === 'preview-user-id';
 
   const { data: topicDifficulties, isLoading } = useQuery({
     queryKey: ['topic-difficulties', userId],
     queryFn: async () => {
-      if (isPreviewMode) {
-        console.log("Using preview data for difficulties");
-        return PREVIEW_DATA;
+      if (!userId) {
+        console.log("Usuário não autenticado, retornando dados vazios");
+        return [];
       }
 
-      console.log("Fetching topic difficulties for user:", userId);
+      console.log("Buscando dificuldades por tópico para usuário:", userId);
       
       try {
         const { data, error } = await supabase
@@ -56,8 +29,13 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
           });
 
         if (error) {
-          console.error("Error fetching topic difficulties:", error);
-          return PREVIEW_DATA;
+          console.error("Erro ao buscar dificuldades:", error);
+          return [];
+        }
+
+        if (!data || data.length === 0) {
+          console.log("Nenhum dado de dificuldade encontrado para o usuário");
+          return [];
         }
 
         return data.map((topic: any) => ({
@@ -67,11 +45,11 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
           totalQuestions: topic.total_questions
         }));
       } catch (error) {
-        console.error("Error in topic difficulties query:", error);
-        return PREVIEW_DATA;
+        console.error("Erro na query de dificuldades:", error);
+        return [];
       }
     },
-    enabled: true
+    enabled: !!userId
   });
 
   const { data: allSubjects } = useQuery({
@@ -84,14 +62,14 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
           .eq('level', 1);
 
         if (error) {
-          console.error("Error fetching subjects:", error);
+          console.error("Erro ao buscar matérias:", error);
           return [];
         }
 
         const subjects = data.map(item => item.subject);
         return [...new Set(subjects)];
       } catch (error) {
-        console.error("Error in subjects query:", error);
+        console.error("Erro na query de matérias:", error);
         return [];
       }
     }
@@ -110,7 +88,30 @@ export const DifficultyTags = ({ userId }: DifficultyTagsProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[200px] w-full" />
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded-lg w-3/4" />
+            <div className="h-8 bg-gray-200 rounded-lg w-2/3" />
+            <div className="h-8 bg-gray-200 rounded-lg w-1/2" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!topicDifficulties || topicDifficulties.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            Análise por Tópicos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-muted-foreground py-4">
+            Você ainda não respondeu questões suficientes para gerar análises.
+            Comece a praticar para ver suas estatísticas!
+          </p>
         </CardContent>
       </Card>
     );
