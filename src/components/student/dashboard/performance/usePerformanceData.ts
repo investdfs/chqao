@@ -48,10 +48,10 @@ export const usePerformanceData = (userId?: string) => {
 
       try {
         // Buscar dados de desempenho atual do aluno
-        const { data: performance, error: perfError } = await supabase
+        const { data: answers, error: answersError } = await supabase
           .from('question_answers')
           .select(`
-            questions!inner (
+            questions (
               subject,
               correct_answer
             ),
@@ -59,13 +59,13 @@ export const usePerformanceData = (userId?: string) => {
           `)
           .eq('student_id', userId);
 
-        if (perfError) {
-          console.error('Erro ao buscar desempenho:', perfError);
+        if (answersError) {
+          console.error('Erro ao buscar respostas:', answersError);
           return [];
         }
 
         // Agrupar por matéria e calcular aproveitamento
-        const subjectPerformance = performance.reduce((acc: Record<string, { total: number; correct: number }>, answer) => {
+        const subjectPerformance = answers.reduce((acc: Record<string, { total: number; correct: number }>, answer) => {
           const subject = answer.questions.subject;
           if (!acc[subject]) {
             acc[subject] = { total: 0, correct: 0 };
