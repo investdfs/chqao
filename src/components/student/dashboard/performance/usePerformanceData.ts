@@ -47,7 +47,6 @@ export const usePerformanceData = (userId?: string) => {
       console.log("Buscando recomendações de estudo para usuário:", userId);
 
       try {
-        // Buscar dados de desempenho atual do aluno
         const { data: answers, error: answersError } = await supabase
           .from('question_answers')
           .select(`
@@ -66,7 +65,9 @@ export const usePerformanceData = (userId?: string) => {
 
         // Agrupar por matéria e calcular aproveitamento
         const subjectPerformance = answers.reduce((acc: Record<string, { total: number; correct: number }>, answer) => {
-          const subject = answer.questions.subject;
+          const subject = answer.questions?.subject;
+          if (!subject) return acc;
+          
           if (!acc[subject]) {
             acc[subject] = { total: 0, correct: 0 };
           }
