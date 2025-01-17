@@ -60,7 +60,7 @@ export const usePerformanceData = (userId?: string) => {
 
         if (answersError) {
           console.error('Erro ao buscar respostas:', answersError);
-          return [];
+          return PREVIEW_DATA;
         }
 
         // Agrupar por matéria e calcular aproveitamento
@@ -95,13 +95,13 @@ export const usePerformanceData = (userId?: string) => {
         });
 
         console.log("Recomendações calculadas:", recommendations);
-        return recommendations;
+        return recommendations.length > 0 ? recommendations : PREVIEW_DATA;
       } catch (error) {
         console.error('Erro ao processar dados:', error);
-        return [];
+        return PREVIEW_DATA;
       }
     },
-    enabled: true // Sempre habilitado para mostrar pelo menos dados de preview
+    enabled: true
   });
 };
 
