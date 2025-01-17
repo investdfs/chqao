@@ -9,15 +9,36 @@ import { DifficultyCard } from "./components/DifficultyCard";
 import { UnstudiedSubjects } from "./components/UnstudiedSubjects";
 import { TopicDifficulty } from "./types";
 
+const PREVIEW_DIFFICULTIES: TopicDifficulty[] = [
+  {
+    topic: "História do Brasil Império",
+    subject: "História",
+    performance: 65.5,
+    totalQuestions: 12
+  },
+  {
+    topic: "Geografia Física",
+    subject: "Geografia",
+    performance: 78.3,
+    totalQuestions: 15
+  },
+  {
+    topic: "Direito Constitucional",
+    subject: "Direito",
+    performance: 45.0,
+    totalQuestions: 8
+  }
+];
+
 export const DifficultyTags = ({ userId }: { userId?: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: topicDifficulties, isLoading } = useQuery({
     queryKey: ['topic-difficulties', userId],
     queryFn: async () => {
-      if (!userId) {
-        console.log("Usuário não autenticado, retornando dados vazios");
-        return [];
+      if (!userId || userId === 'preview-user-id') {
+        console.log("Modo preview ou usuário não autenticado, retornando dados de exemplo");
+        return PREVIEW_DIFFICULTIES;
       }
 
       console.log("Buscando dificuldades por tópico para usuário:", userId);
@@ -49,7 +70,7 @@ export const DifficultyTags = ({ userId }: { userId?: string }) => {
         return [];
       }
     },
-    enabled: !!userId
+    enabled: true
   });
 
   const { data: allSubjects } = useQuery({

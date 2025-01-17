@@ -10,6 +10,12 @@ interface HourlyPerformance {
   percentage: number;
 }
 
+const PREVIEW_DATA: HourlyPerformance[] = [
+  { hour: "9:00", questionsAnswered: 10, correctAnswers: 8, percentage: 80 },
+  { hour: "14:00", questionsAnswered: 15, correctAnswers: 12, percentage: 80 },
+  { hour: "19:00", questionsAnswered: 8, correctAnswers: 6, percentage: 75 }
+];
+
 export const ProductiveHours = () => {
   const { data: hourlyStats } = useQuery({
     queryKey: ['hourly-performance'],
@@ -18,8 +24,8 @@ export const ProductiveHours = () => {
       const userId = session?.user?.id;
       
       if (!userId) {
-        console.log("Usuário não autenticado");
-        return [];
+        console.log("Modo preview ou usuário não autenticado, retornando dados de exemplo");
+        return PREVIEW_DATA;
       }
 
       console.log("Buscando estatísticas por hora para usuário:", userId);
@@ -74,8 +80,7 @@ export const ProductiveHours = () => {
 
       console.log("Estatísticas processadas:", formattedData);
       return formattedData;
-    },
-    refetchInterval: 30000 // Atualiza a cada 30 segundos
+    }
   });
 
   const getBestHour = () => {
