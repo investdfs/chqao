@@ -6,6 +6,7 @@ import { PreviousExamsCard } from "./statistics/PreviousExamsCard";
 import { useQuestionsStats } from "./statistics/questions/QuestionsStats";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface StatisticsCardsProps {
   totalStudents: number;
@@ -20,6 +21,24 @@ export const StatisticsCards = ({
   const channelRef = useRef<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Fetch total admins
+  const { data: adminCount = 0 } = useQuery({
+    queryKey: ['admin-count'],
+    queryFn: async () => {
+      console.log('Fetching admin count...');
+      const { count, error } = await supabase
+        .from('admins')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('Error fetching admin count:', error);
+        throw error;
+      }
+      
+      return count || 0;
+    }
+  });
 
   // Subscribe to query cache updates
   useEffect(() => {
@@ -159,7 +178,10 @@ export const StatisticsCards = ({
   return (
     <div className="max-w-5xl mx-auto px-4">
       <div className="grid grid-cols-3 gap-6">
-        <StudentCard totalStudents={initialTotalStudents} />
+        <StudentCard 
+          totalStudents={initialTotalStudents} 
+          totalAdmins={adminCount}
+        />
         <QuestionsCard 
           totalQuestions={stats.totalQuestions} 
           stats={stats}
