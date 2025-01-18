@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { NotificationDemo } from "@/components/ui/success-alert-with-button";
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -54,15 +55,7 @@ export const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <Button
-                onClick={() => navigate("/register")}
-                className="group px-6 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <span className="flex items-center gap-2">
-                  Comece Agora Gratuitamente
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Button>
+              <NotificationDemo />
               
               <Button
                 onClick={() => navigate("/login")}
