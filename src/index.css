@@ -10,11 +10,11 @@
     --input: 240 5.9% 90%;
     --ring: 222 47% 11%;
     --radius: 0.5rem;
-    --color-1: 89 42% 33%;
-    --color-2: 89 42% 33%;
-    --color-3: 89 42% 33%;
-    --color-4: 89 42% 33%;
-    --color-5: 89 42% 33%;
+    --color-1: 89 42% 33%;  /* Base green */
+    --color-2: 89 42% 38%;  /* Lighter green */
+    --color-3: 89 42% 28%;  /* Darker green */
+    --color-4: 89 42% 43%;  /* Even lighter green */
+    --color-5: 89 42% 23%;  /* Even darker green */
   }
 
   body {
