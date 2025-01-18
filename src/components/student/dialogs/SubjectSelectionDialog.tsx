@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { SubjectCard } from "./SubjectCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { showError } from "@/components/ui/notification";
 
 interface SubjectSelectionDialogProps {
   open: boolean;
@@ -31,10 +32,9 @@ export const SubjectSelectionDialog = ({
 
       if (error) {
         console.error("Erro ao buscar contagem de questões:", error);
-        toast({
+        showError({
           title: "Erro ao carregar questões",
           description: "Houve um problema ao buscar as questões. Por favor, tente novamente mais tarde.",
-          variant: "destructive",
         });
         return {};
       }
@@ -56,11 +56,10 @@ export const SubjectSelectionDialog = ({
     const questionCount = subjectCounts[subject] || 0;
     
     if (questionCount === 0) {
-      toast({
-        title: "Desculpe, não há questões disponíveis",
-        description: "Estamos trabalhando para adicionar milhares de novas questões. Por favor, tente outra matéria ou volte mais tarde.",
-        variant: "destructive",
-      });
+      showError(
+        "Desculpe, não há questões disponíveis",
+        "Estamos trabalhando para adicionar milhares de novas questões. Por favor, tente outra matéria ou volte mais tarde."
+      );
       return;
     }
 

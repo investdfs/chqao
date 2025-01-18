@@ -12,6 +12,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { showSuccess, showError } from "@/components/ui/notification";
 
 interface ResetProgressDialogProps {
   open: boolean;
@@ -52,20 +53,18 @@ export const ResetProgressDialog = ({ open, onOpenChange }: ResetProgressDialogP
 
       if (error) throw error;
 
-      toast({
-        title: "Progresso resetado com sucesso!",
-        description: "Seu dashboard foi reiniciado. Todas as estatísticas foram zeradas.",
-      });
+      showSuccess(
+        "Progresso resetado com sucesso!",
+        "Seu dashboard foi reiniciado. Todas as estatísticas foram zeradas."
+      );
 
-      // Recarrega a página para atualizar todos os componentes
       window.location.reload();
     } catch (error) {
       console.error("Erro ao resetar progresso:", error);
-      toast({
-        title: "Erro ao resetar progresso",
-        description: "Ocorreu um erro ao tentar resetar seu progresso. Tente novamente.",
-        variant: "destructive",
-      });
+      showError(
+        "Erro ao resetar progresso",
+        "Ocorreu um erro ao tentar resetar seu progresso. Tente novamente."
+      );
     } finally {
       setIsResetting(false);
       onOpenChange(false);

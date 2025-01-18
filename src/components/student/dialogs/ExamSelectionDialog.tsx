@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { showError } from "@/components/ui/notification";
 
 interface ExamSelectionDialogProps {
   open: boolean;
@@ -61,11 +62,11 @@ export const ExamSelectionDialog = ({
     const count = examQuestionsCount?.[year] || 0;
     
     if (count === 0) {
-      toast({
-        title: "Desculpe, não há questões disponíveis",
-        description: "Estamos trabalhando para adicionar mais questões de provas anteriores. Por favor, tente outro ano ou volte mais tarde.",
+      showError(
+        "Desculpe, não há questões disponíveis",
+        "Estamos trabalhando para adicionar mais questões de provas anteriores. Por favor, tente outro ano ou volte mais tarde.",
         variant: "destructive"
-      });
+      );
       return;
     }
 
