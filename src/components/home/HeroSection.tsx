@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { NotificationDemo } from "@/components/ui/success-alert-with-button";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -55,7 +55,12 @@ export const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <NotificationDemo />
+              <RainbowButton
+                onClick={() => navigate("/register")}
+                className="text-white"
+              >
+                Começar Agora
+              </RainbowButton>
               
               <Button
                 onClick={() => navigate("/login")}
