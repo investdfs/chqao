@@ -1,33 +1,24 @@
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import { ResetProgressDialog } from "./ResetProgressDialog";
-import { showWarning } from "@/components/ui/notification";
 
 export const ResetProgressButton = () => {
   const [showDialog, setShowDialog] = useState(false);
-
-  const handleClick = () => {
-    showWarning(
-      "Atenção! Esta ação é irreversível!",
-      "Você está prestes a apagar todo seu progresso de estudos."
-    );
-    setShowDialog(true);
-  };
 
   return (
     <>
       <Button
         variant="destructive"
-        onClick={handleClick}
-        className="w-full"
+        size="sm"
+        className="ml-auto flex items-center gap-2 bg-red-500 hover:bg-red-600"
+        onClick={() => setShowDialog(true)}
       >
-        Resetar Todo Progresso
+        <Trash2 className="h-4 w-4" />
+        Resetar Progresso
       </Button>
 
-      <ResetProgressDialog
-        open={showDialog}
-        onOpenChange={setShowDialog}
-      />
+      <ResetProgressDialog open={showDialog} onOpenChange={setShowDialog} />
     </>
   );
 };

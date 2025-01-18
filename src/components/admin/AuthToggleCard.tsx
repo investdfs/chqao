@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
-import { showSuccess, showWarning } from "@/components/ui/notification";
 
 export const AuthToggleCard = () => {
   const { authRequired, toggleAuth } = useAuthStore();
@@ -23,8 +22,10 @@ export const AuthToggleCard = () => {
 
   const handleToggleRequest = () => {
     if (authRequired) {
+      // Se está ativado e quer desativar, mostra o diálogo
       setShowConfirmDialog(true);
     } else {
+      // Se está desativado e quer ativar, ativa direto
       handleToggle();
     }
   };
@@ -33,17 +34,13 @@ export const AuthToggleCard = () => {
     toggleAuth();
     setShowConfirmDialog(false);
     
-    if (authRequired) {
-      showWarning(
-        "Autenticação desativada",
-        "Os alunos agora podem acessar o sistema sem login"
-      );
-    } else {
-      showSuccess(
-        "Autenticação ativada",
-        "Os alunos agora precisam fazer login para acessar o sistema"
-      );
-    }
+    toast({
+      title: authRequired ? "Autenticação desativada" : "Autenticação ativada",
+      description: authRequired 
+        ? "Os alunos agora podem acessar o sistema sem login" 
+        : "Os alunos agora precisam fazer login para acessar o sistema",
+      variant: authRequired ? "destructive" : "default",
+    });
   };
 
   return (
