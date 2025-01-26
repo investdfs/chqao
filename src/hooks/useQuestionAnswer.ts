@@ -7,7 +7,8 @@ interface UseQuestionAnswerProps {
   studentId?: string;
 }
 
-const PREVIEW_USER_ID = '00000000-0000-0000-0000-000000000000';
+// Using a valid UUID format for preview user
+export const PREVIEW_USER_ID = '00000000-0000-0000-0000-000000000000';
 
 export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
