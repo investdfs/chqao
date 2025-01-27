@@ -82,7 +82,6 @@ export const useQuestionPractice = () => {
 
       console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
       
-      // Validar se há questões
       if (!data || data.length === 0) {
         toast({
           title: "Nenhuma questão encontrada",
@@ -93,7 +92,7 @@ export const useQuestionPractice = () => {
 
       return data as Question[];
     },
-    enabled: !!selectedSubject,
+    enabled: !!selectedSubject && !!studentData?.id,
     staleTime: 1000 * 60 * 5, // 5 minutos
     refetchOnWindowFocus: false
   });
