@@ -17,7 +17,6 @@ import { RecommendedTopics } from "@/components/student/dashboard/RecommendedTop
 import { PerformanceEvolutionCard } from "@/components/student/dashboard/PerformanceEvolutionCard";
 import { StudyCalendar } from "@/components/student/dashboard/StudyCalendar";
 import { DifficultyTags } from "@/components/student/dashboard/DifficultyTags";
-import { PREVIEW_USER_ID } from "@/hooks/useQuestionAnswer";
 
 interface PreviewUser {
   id: string;
@@ -40,7 +39,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
     queryFn: async () => {
       if (previewUser) {
         console.log("Usando dados de preview para sessão");
-        return { user: { ...previewUser, id: PREVIEW_USER_ID } };
+        return { user: previewUser };
       }
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error || !session) {

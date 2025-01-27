@@ -7,9 +7,6 @@ interface UseQuestionAnswerProps {
   studentId?: string;
 }
 
-// Using a valid UUID format for preview user
-export const PREVIEW_USER_ID = '00000000-0000-0000-0000-000000000000';
-
 export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
@@ -22,19 +19,24 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
       return;
     }
 
+    // Se não houver studentId, estamos no modo preview
+    if (!studentId) {
+      console.log("Modo preview - simulando resposta");
+      setHasAnswered(true);
+      return;
+    }
+
     setIsAnswering(true);
 
     try {
-      // Se não houver studentId, usar o ID do usuário visitante
-      const effectiveStudentId = studentId || PREVIEW_USER_ID;
-      console.log("Usando ID do estudante:", effectiveStudentId);
+      console.log("Salvando resposta para o estudante:", studentId);
 
       // Primeiro verifica se já existe uma resposta
       const { data: existingAnswer } = await supabase
         .from('question_answers')
         .select()
         .eq('question_id', questionId)
-        .eq('student_id', effectiveStudentId)
+        .eq('student_id', studentId)
         .single();
 
       if (existingAnswer) {
@@ -43,7 +45,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
           .from('question_answers')
           .update({ selected_option: selectedAnswer })
           .eq('question_id', questionId)
-          .eq('student_id', effectiveStudentId);
+          .eq('student_id', studentId);
 
         if (updateError) {
           throw updateError;
@@ -55,7 +57,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
           .insert({
             question_id: questionId,
             selected_option: selectedAnswer,
-            student_id: effectiveStudentId
+            student_id: studentId
           });
 
         if (insertError) {
