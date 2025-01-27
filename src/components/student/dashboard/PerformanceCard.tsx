@@ -1,12 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartBar } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { usePerformanceStats } from "./components/PerformanceStats";
 import { PerformanceChart } from "./components/PerformanceChart";
 import { PerformanceMetrics } from "./components/PerformanceMetrics";
+
+const PREVIEW_DATA = {
+  studySessions: [
+    { correct_answers: 15, incorrect_answers: 5 },
+    { correct_answers: 12, incorrect_answers: 8 },
+    { correct_answers: 18, incorrect_answers: 2 }
+  ]
+};
 
 export const PerformanceCard = () => {
   const [userId, setUserId] = useState<string | null>(null);
@@ -59,9 +66,12 @@ export const PerformanceCard = () => {
     };
   }, [userId, queryClient]);
 
+  // Use preview data if no user is authenticated
+  const sessions = userId ? studySessions : PREVIEW_DATA.studySessions;
+
   // Calculate totals
-  const totalCorrect = studySessions.reduce((sum, session) => sum + session.correct_answers, 0);
-  const totalIncorrect = studySessions.reduce((sum, session) => sum + session.incorrect_answers, 0);
+  const totalCorrect = sessions.reduce((sum, session) => sum + session.correct_answers, 0);
+  const totalIncorrect = sessions.reduce((sum, session) => sum + session.incorrect_answers, 0);
   const totalQuestions = totalCorrect + totalIncorrect;
   const percentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
