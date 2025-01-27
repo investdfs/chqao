@@ -62,14 +62,13 @@ export const useQuestionPractice = () => {
 
       console.log("Buscando questões para a matéria:", selectedSubject);
       
-      // Buscar questões diretamente da tabela com filtros específicos
+      // Buscar questões usando a função get_subject_questions
       const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('subject', selectedSubject)
-        .eq('status', 'active')
-        .eq('is_from_previous_exam', false)
-        .order('created_at');
+        .rpc('get_subject_questions', {
+          p_subject: selectedSubject,
+          p_is_active: true,
+          p_exclude_exam_questions: true
+        });
 
       if (error) {
         console.error("Erro ao buscar questões:", error);
