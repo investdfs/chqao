@@ -11,10 +11,22 @@ interface SessionStatsDialogProps {
   };
 }
 
+const PREVIEW_STATS = {
+  correctAnswers: 7,
+  totalAnswers: 10,
+  answerDistribution: {
+    'A': 3,
+    'B': 2,
+    'C': 2,
+    'D': 2,
+    'E': 1
+  }
+};
+
 export const SessionStatsDialog = ({
   open,
   onOpenChange,
-  sessionStats,
+  sessionStats = PREVIEW_STATS,
 }: SessionStatsDialogProps) => {
   const { correctAnswers, totalAnswers, answerDistribution } = sessionStats;
   const incorrectAnswers = totalAnswers - correctAnswers;
