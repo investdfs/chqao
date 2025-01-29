@@ -550,6 +550,32 @@ export type Database = {
           avg_difficulty: number
         }[]
       }
+      get_filtered_questions: {
+        Args: {
+          p_subject: string
+        }
+        Returns: {
+          id: string
+          subject: string
+          topic: string
+          text: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          option_e: string
+          correct_answer: string
+          explanation: string
+          difficulty: Database["public"]["Enums"]["question_difficulty"]
+          created_at: string
+          image_url: string
+          status: string
+          is_from_previous_exam: boolean
+          exam_year: number
+          exam_name: string
+          theme: string
+        }[]
+      }
       get_import_statistics: {
         Args: {
           batch_id: string
