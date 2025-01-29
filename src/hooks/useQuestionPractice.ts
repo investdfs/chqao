@@ -60,9 +60,9 @@ export const useQuestionPractice = () => {
         return [];
       }
 
-      console.log("Buscando questões para a matéria:", selectedSubject);
+      console.log("Iniciando busca de questões para matéria:", selectedSubject);
       
-      // Usar a nova função RPC get_filtered_questions
+      // Usar a função RPC get_filtered_questions com logs detalhados
       const { data, error } = await supabase
         .rpc('get_filtered_questions', {
           p_subject: selectedSubject
@@ -78,7 +78,11 @@ export const useQuestionPractice = () => {
         throw error;
       }
 
-      console.log(`${data?.length || 0} questões encontradas para a matéria ${selectedSubject}`);
+      console.log(`Questões retornadas para ${selectedSubject}:`, {
+        totalQuestoes: data?.length || 0,
+        primeiraQuestao: data?.[0],
+        ultimaQuestao: data?.[data?.length - 1]
+      });
       
       if (!data || data.length === 0) {
         toast({
@@ -86,6 +90,18 @@ export const useQuestionPractice = () => {
           description: `Não há questões disponíveis para a matéria ${selectedSubject}`,
         });
         return [];
+      }
+
+      // Verificar se todas as questões são da matéria correta
+      const questoesIncorretas = data.filter(q => q.subject !== selectedSubject);
+      if (questoesIncorretas.length > 0) {
+        console.error("Encontradas questões de outras matérias:", {
+          materiaEsperada: selectedSubject,
+          questoesIncorretas: questoesIncorretas.map(q => ({
+            id: q.id,
+            materia: q.subject
+          }))
+        });
       }
 
       return data as Question[];
@@ -109,6 +125,7 @@ export const useQuestionPractice = () => {
 
   // Reset o índice quando mudar a matéria
   useEffect(() => {
+    console.log("Matéria mudou, resetando índice da questão");
     setCurrentQuestionIndex(0);
   }, [selectedSubject]);
 
