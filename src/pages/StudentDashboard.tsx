@@ -65,12 +65,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
       study_day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
       question_count: Math.floor(Math.random() * 50),
       study_time: '2h'
-    })),
-    performance: {
-      totalCorrect: 75,
-      totalQuestions: 100,
-      performancePercentage: 75
-    }
+    }))
   };
 
   const { 
@@ -78,11 +73,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
     weeklyStudyData = isPreviewMode ? previewData.weeklyStudyData : undefined 
   } = useStudentStats(isPreviewMode ? undefined : userId);
 
-  const { 
-    totalCorrect = isPreviewMode ? previewData.performance.totalCorrect : 0,
-    totalQuestions = isPreviewMode ? previewData.performance.totalQuestions : 0,
-    performancePercentage = isPreviewMode ? previewData.performance.performancePercentage : 0
-  } = useStudentPerformance(isPreviewMode ? undefined : userId);
+  const { data: performanceData } = useStudentPerformance(isPreviewMode ? undefined : userId);
 
   const handleSubjectSelect = (subject: string) => {
     setSubjectDialogOpen(false);
