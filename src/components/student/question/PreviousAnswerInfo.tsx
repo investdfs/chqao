@@ -15,7 +15,12 @@ const PreviousAnswerInfo = memo(({ questionId, studentId }: PreviousAnswerInfoPr
   const { data: previousAnswer } = useQuery({
     queryKey: ['previousAnswer', questionId, studentId],
     queryFn: async () => {
-      if (!studentId) return null;
+      // Se não houver studentId ou for preview-user-id, não buscar dados
+      if (!studentId || studentId === 'preview-user-id') {
+        console.log("Modo preview - não buscando resposta anterior");
+        return null;
+      }
+
       console.log("Buscando resposta anterior para questão:", questionId);
 
       const { data, error } = await supabase
@@ -29,7 +34,7 @@ const PreviousAnswerInfo = memo(({ questionId, studentId }: PreviousAnswerInfoPr
         .eq('question_id', questionId)
         .eq('student_id', studentId)
         .order('created_at', { ascending: false })
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+        .maybeSingle();
 
       if (error) {
         console.error('Erro ao buscar resposta anterior:', error);
@@ -39,7 +44,7 @@ const PreviousAnswerInfo = memo(({ questionId, studentId }: PreviousAnswerInfoPr
       console.log("Resposta anterior encontrada:", data);
       return data;
     },
-    enabled: !!studentId && !!questionId,
+    enabled: !!questionId && !!studentId && studentId !== 'preview-user-id',
   });
 
   if (!previousAnswer) return null;

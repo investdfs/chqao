@@ -19,8 +19,8 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
       return;
     }
 
-    // Se não houver studentId, estamos no modo preview
-    if (!studentId) {
+    // Se não houver studentId ou for preview-user-id, estamos no modo preview
+    if (!studentId || studentId === 'preview-user-id') {
       console.log("Modo preview - simulando resposta");
       setHasAnswered(true);
       return;
@@ -37,7 +37,7 @@ export const useQuestionAnswer = ({ questionId, studentId }: UseQuestionAnswerPr
         .select()
         .eq('question_id', questionId)
         .eq('student_id', studentId)
-        .single();
+        .maybeSingle();
 
       if (existingAnswer) {
         // Se existe, atualiza
