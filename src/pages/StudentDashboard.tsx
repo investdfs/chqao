@@ -3,20 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { DashboardHeader } from "@/components/student/dashboard/DashboardHeader";
-import { StudyTimeCard } from "@/components/student/dashboard/StudyTimeCard";
-import { PerformanceCard } from "@/components/student/dashboard/PerformanceCard";
-import { WeeklyGoals } from "@/components/student/dashboard/WeeklyGoals";
-import { StudyStreak } from "@/components/student/dashboard/StudyStreak";
-import { ProductiveHours } from "@/components/student/dashboard/ProductiveHours";
-import { useStudentStats } from "@/components/student/dashboard/hooks/useStudentStats";
-import { useStudentPerformance } from "@/components/student/dashboard/hooks/useStudentPerformance";
+import { StudyModeSelector } from "@/components/student/dashboard/StudyModeSelector";
 import { SubjectSelectionDialog } from "@/components/student/dialogs/SubjectSelectionDialog";
 import { ExamSelectionDialog } from "@/components/student/dialogs/ExamSelectionDialog";
-import { StudyModeSelector } from "@/components/student/dashboard/StudyModeSelector";
-import { RecommendedTopics } from "@/components/student/dashboard/RecommendedTopics";
-import { PerformanceEvolutionCard } from "@/components/student/dashboard/PerformanceEvolutionCard";
-import { StudyCalendar } from "@/components/student/dashboard/StudyCalendar";
-import { DifficultyTags } from "@/components/student/dashboard/DifficultyTags";
+import { useStudentStats } from "@/components/student/dashboard/hooks/useStudentStats";
+import { DashboardContent } from "@/components/student/dashboard/components/DashboardContent";
+import { PREVIEW_STUDY_DATA } from "@/components/student/dashboard/constants/previewData";
 
 interface PreviewUser {
   id: string;
@@ -28,21 +20,6 @@ interface PreviewUser {
 interface StudentDashboardProps {
   previewUser?: PreviewUser;
 }
-
-const PREVIEW_STUDY_DATA = {
-  studyStats: {
-    total_study_time: '10h',
-    consecutive_study_days: 5,
-    weekly_study_hours: 20,
-    weekly_questions_target: 250,
-    weekly_questions_completed: 150
-  },
-  weeklyStudyData: Array.from({ length: 7 }, (_, i) => ({
-    study_day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
-    question_count: Math.floor(Math.random() * 50),
-    study_time: '2h'
-  }))
-};
 
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
   const navigate = useNavigate();
@@ -68,8 +45,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
   const userId = session?.user?.id;
   const isPreviewMode = !!previewUser;
 
-  const { data: performanceData } = useStudentPerformance(isPreviewMode ? 'preview-user-id' : userId);
-
   const { 
     studyStats = isPreviewMode ? PREVIEW_STUDY_DATA.studyStats : undefined, 
     weeklyStudyData = isPreviewMode ? PREVIEW_STUDY_DATA.weeklyStudyData : undefined 
@@ -91,45 +66,16 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
     <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-white">
       <DashboardHeader />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <StudyModeSelector 
-          onPracticeClick={() => setSubjectDialogOpen(true)}
-          onExamClick={() => setExamDialogOpen(true)}
-        />
+      <StudyModeSelector 
+        onPracticeClick={() => setSubjectDialogOpen(true)}
+        onExamClick={() => setExamDialogOpen(true)}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <StudyTimeCard totalTime={studyStats?.total_study_time || "0h"} />
-          <PerformanceCard />
-          <StudyStreak />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <StudyCalendar userId={userId} />
-          <DifficultyTags userId={userId} />
-        </div>
-
-        <PerformanceEvolutionCard userId={userId} />
-
-        <RecommendedTopics userId={userId} />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-8">
-            <WeeklyGoals
-              studyHours={{
-                current: Number(studyStats?.weekly_study_hours || 0),
-                target: 35,
-                percentage: (Number(studyStats?.weekly_study_hours || 0) / 35) * 100,
-              }}
-              questions={{
-                completed: studyStats?.weekly_questions_completed || 0,
-                target: studyStats?.weekly_questions_target || 250,
-                percentage: ((studyStats?.weekly_questions_completed || 0) / (studyStats?.weekly_questions_target || 250)) * 100,
-              }}
-            />
-          </div>
-          <ProductiveHours />
-        </div>
-      </div>
+      <DashboardContent 
+        userId={userId}
+        studyStats={studyStats}
+        weeklyStudyData={weeklyStudyData}
+      />
 
       <SubjectSelectionDialog
         open={subjectDialogOpen}
