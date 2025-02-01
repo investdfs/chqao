@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { isValidUUID } from "@/utils/validation";
 
 const PREVIEW_DATA = [
   { correct_answers: 15, incorrect_answers: 5, percentage: 75, created_at: new Date().toISOString() },
@@ -14,7 +15,7 @@ export const usePerformanceStats = (userId: string | null) => {
   return useQuery({
     queryKey: ['study-sessions', userId],
     queryFn: async () => {
-      if (!userId) {
+      if (!userId || !isValidUUID(userId)) {
         console.log("Modo preview ou usuário não autenticado, retornando dados de exemplo");
         return PREVIEW_DATA;
       }
