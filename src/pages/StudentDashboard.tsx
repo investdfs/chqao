@@ -53,6 +53,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
   const userId = session?.user?.id;
   const isPreviewMode = !!previewUser;
 
+  const { data: performanceData } = useStudentPerformance(isPreviewMode ? 'preview-user-id' : userId);
+
   const previewData = {
     studyStats: {
       total_study_time: '10h',
@@ -72,8 +74,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ previewUser }) => {
     studyStats = isPreviewMode ? previewData.studyStats : undefined, 
     weeklyStudyData = isPreviewMode ? previewData.weeklyStudyData : undefined 
   } = useStudentStats(isPreviewMode ? undefined : userId);
-
-  const { data: performanceData } = useStudentPerformance(isPreviewMode ? undefined : userId);
 
   const handleSubjectSelect = (subject: string) => {
     setSubjectDialogOpen(false);

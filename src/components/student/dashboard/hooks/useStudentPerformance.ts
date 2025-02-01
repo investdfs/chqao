@@ -13,13 +13,18 @@ const PREVIEW_DATA: PerformanceData = {
   performancePercentage: 75
 };
 
+const isValidUUID = (uuid: string) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+};
+
 export const useStudentPerformance = (userId?: string) => {
   return useQuery({
     queryKey: ['student-performance', userId],
     queryFn: async () => {
       // Return preview data if no userId or in preview mode
-      if (!userId || userId === 'preview-user-id') {
-        console.log("Modo preview - retornando dados de preview para performance");
+      if (!userId || userId === 'preview-user-id' || !isValidUUID(userId)) {
+        console.log("Modo preview ou UUID inválido - retornando dados de preview para performance");
         return PREVIEW_DATA;
       }
 
@@ -40,11 +45,7 @@ export const useStudentPerformance = (userId?: string) => {
 
         if (error) {
           console.error('Erro ao buscar performance:', error);
-          return {
-            totalCorrect: 0,
-            totalQuestions: 0,
-            performancePercentage: 0
-          };
+          return PREVIEW_DATA;
         }
 
         const totalQuestions = answers.length;
@@ -69,11 +70,7 @@ export const useStudentPerformance = (userId?: string) => {
         };
       } catch (error) {
         console.error('Erro ao processar performance:', error);
-        return {
-          totalCorrect: 0,
-          totalQuestions: 0,
-          performancePercentage: 0
-        };
+        return PREVIEW_DATA;
       }
     },
     enabled: true
