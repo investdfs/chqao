@@ -6,6 +6,7 @@ export const useQuestionImporter = () => {
   const [questions, setQuestions] = useState<any[]>([]);
   const [showQuestions, setShowQuestions] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedTopic, setSelectedTopic] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -100,11 +101,13 @@ export const useQuestionImporter = () => {
     questions,
     showQuestions,
     setShowQuestions,
+    selectedTheme,
     selectedSubject,
     selectedTopic,
     searchTerm,
     showResetDialog,
     setShowResetDialog,
+    setSelectedTheme,
     setSelectedSubject,
     setSelectedTopic,
     setSearchTerm,
