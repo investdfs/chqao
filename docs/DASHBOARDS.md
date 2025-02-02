@@ -2,65 +2,108 @@
 
 ## Dashboard do Administrador
 
-### 1. Visão Geral
-O dashboard administrativo oferece controle completo sobre:
-- Gestão de usuários (administradores e estudantes)
-- Gerenciamento de questões
-- Estatísticas gerais do sistema
-- Configurações de acesso
+### 1. Visão Geral do Sistema
+- Total de questões ativas
+- Distribuição por matéria
+- Questões de concursos anteriores
+- Estatísticas de uso
 
-### 2. Componentes Principais
+### 2. Gestão de Questões
 
-#### 2.1 Gerenciamento de Administradores
-- **Lista de Administradores**: Visualização e gestão de todos os admins
-- **Controle de Status**: Ativação/desativação de contas
-- **Adição de Novos Admins**: Interface para cadastro
-- **Logs de Atividade**: Registro de ações administrativas
+#### 2.1 Importação
+- Upload via Excel padronizado
+- Importação via JSON
+- Validação automática
+- Log de importações
 
-#### 2.2 Gerenciamento de Estudantes
-- **Lista Completa**: Visualização de todos os estudantes
-- **Filtros Avançados**: Busca por nome, email, status
-- **Controle de Acesso**: Bloqueio/desbloqueio de contas
-- **Estatísticas Individuais**: Desempenho por aluno
+#### 2.2 Organização
+- Estrutura hierárquica
+  - Matérias
+  - Temas
+  - Tópicos
+- Ordenação personalizada
+- Metadados completos
 
-#### 2.3 Gestão de Questões
-- **Upload em Massa**: Importação via Excel
-- **Editor Individual**: Interface para edição detalhada
-- **Visualização**: Preview de questões
-- **Organização**: Categorização por matéria/tema
-- **Backup**: Sistema de exportação completa
+#### 2.3 Qualidade
+- Revisão de conteúdo
+- Validação de imagens
+- Correção de metadados
+- Histórico de alterações
 
-#### 2.4 Estatísticas do Sistema
-- **Métricas Gerais**: Usuários ativos, questões respondidas
-- **Gráficos de Desempenho**: Análise temporal
-- **Relatórios Detalhados**: Exportação de dados
-- **Monitoramento**: Uso do sistema em tempo real
+### 3. Gestão de Usuários
+
+#### 3.1 Estudantes
+- Lista completa com filtros
+- Status de atividade
+- Métricas de uso
+- Histórico de acesso
+
+#### 3.2 Administradores
+- Controle de acesso
+- Log de ações
+- Permissões por função
+- Auditoria de operações
+
+### 4. Estatísticas
+
+#### 4.1 Uso do Sistema
+- Acessos diários
+- Questões respondidas
+- Tempo de estudo
+- Picos de utilização
+
+#### 4.2 Performance
+- Taxa de acerto por matéria
+- Questões mais erradas
+- Tempo médio por questão
+- Progresso dos estudantes
 
 ## Dashboard do Estudante
 
 ### 1. Visão Geral
-Interface personalizada focada em:
-- Prática de questões
-- Acompanhamento de progresso
-- Estatísticas de desempenho
-- Planejamento de estudos
+- Progresso geral
+- Matérias pendentes
+- Sequência de estudos
+- Metas semanais
 
-### 2. Componentes Principais
+### 2. Desempenho
 
-#### 2.1 Painel de Estatísticas
-- **Desempenho Geral**: Taxa de acertos/erros
-- **Tempo de Estudo**: Controle de horas dedicadas
-- **Progresso no Edital**: Cobertura do conteúdo
-- **Metas Semanais**: Acompanhamento de objetivos
+#### 2.1 Estatísticas
+- Taxa de acerto
+- Questões respondidas
+- Tempo de estudo
+- Evolução temporal
 
-#### 2.2 Área de Prática
-- **Seleção de Matérias**: Filtros por conteúdo
-- **Modos de Estudo**: Normal e Simulado
-- **Feedback Detalhado**: Explicações e estatísticas
-- **Histórico**: Registro de questões respondidas
+#### 2.2 Análise por Matéria
+- Performance individual
+- Comparativo geral
+- Pontos fortes/fracos
+- Recomendações
 
-#### 2.3 Análise de Desempenho
-- **Gráficos Detalhados**: Evolução temporal
-- **Pontos Fortes/Fracos**: Análise por matéria
-- **Recomendações**: Sugestões de estudo
-- **Comparativo**: Posição relativa na turma
+### 3. Prática
+
+#### 3.1 Modos de Estudo
+- Questões novas
+- Revisão de erros
+- Simulado
+- Matéria específica
+
+#### 3.2 Feedback
+- Explicações detalhadas
+- Estatísticas da questão
+- Dicas de estudo
+- Material complementar
+
+### 4. Planejamento
+
+#### 4.1 Metas
+- Definição de objetivos
+- Acompanhamento
+- Ajustes automáticos
+- Notificações
+
+#### 4.2 Calendário
+- Rotina de estudos
+- Marcos importantes
+- Histórico de atividades
+- Previsões de conclusão
