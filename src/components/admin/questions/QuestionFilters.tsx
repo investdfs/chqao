@@ -55,13 +55,6 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
     enabled: !!filters.subject
   });
 
-  const questionTypeOptions = [
-    { id: "all", name: "Todas as questões" },
-    { id: "hidden", name: "Questões ocultas" },
-    { id: "exam", name: "Questões de provas" },
-    { id: "new", name: "Questões inéditas" },
-  ];
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="space-y-2">
@@ -135,11 +128,10 @@ export const QuestionFilters = ({ filters, onFilterChange }: QuestionFiltersProp
             <SelectValue placeholder="Selecione o tipo de questão" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            {questionTypeOptions.map((option) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.name}
-              </SelectItem>
-            ))}
+            <SelectItem value="all">Todas as questões</SelectItem>
+            <SelectItem value="hidden">Questões ocultas</SelectItem>
+            <SelectItem value="exam">Questões de provas</SelectItem>
+            <SelectItem value="new">Questões inéditas</SelectItem>
           </SelectContent>
         </Select>
       </div>
