@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { LogOut, Book } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ResetProgressButton } from "./ResetProgressButton";
-import { SubjectsPanel } from "./SubjectsPanel";
+import { ResetProgressButton } from "./components/ResetProgressButton";
+import { SubjectsPanel } from "./components/SubjectsPanel";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();

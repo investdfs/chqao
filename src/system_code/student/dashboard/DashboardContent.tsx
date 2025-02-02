@@ -1,13 +1,13 @@
 import React from 'react';
-import { StudyTimeCard } from '../StudyTimeCard';
-import { PerformanceCard } from '../PerformanceCard';
-import { StudyStreak } from '../StudyStreak';
-import { StudyCalendar } from '../StudyCalendar';
-import { DifficultyTags } from '../DifficultyTags';
-import { PerformanceEvolutionCard } from '../PerformanceEvolutionCard';
-import { RecommendedTopics } from '../RecommendedTopics';
-import { WeeklyGoals } from '../WeeklyGoals';
-import { ProductiveHours } from '../ProductiveHours';
+import { StudyTimeCard } from './components/StudyTimeCard';
+import { PerformanceCard } from './components/PerformanceCard';
+import { StudyStreak } from './components/StudyStreak';
+import { StudyCalendar } from './components/StudyCalendar';
+import { DifficultyTags } from './components/DifficultyTags';
+import { PerformanceEvolutionCard } from './components/PerformanceEvolutionCard';
+import { RecommendedTopics } from './components/RecommendedTopics';
+import { WeeklyGoals } from './components/WeeklyGoals';
+import { ProductiveHours } from './components/ProductiveHours';
 
 interface DashboardContentProps {
   userId?: string;
