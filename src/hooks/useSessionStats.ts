@@ -16,6 +16,13 @@ const PREVIEW_DATA: SessionStats[] = [
       correct_answer: 'A'
     },
     selected_option: 'A'
+  },
+  {
+    created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+    questions: {
+      correct_answer: 'B'
+    },
+    selected_option: 'C'
   }
 ];
 
