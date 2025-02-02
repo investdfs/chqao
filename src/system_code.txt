@@ -1,0 +1,273 @@
+# Documentação do Sistema - Estrutura de Código
+
+## 1. Páginas Principais
+
+### 1.1 Dashboard do Estudante (src/pages/StudentDashboard.tsx)
+```typescript
+// Componente principal do dashboard do estudante
+// Gerencia estado de diálogos, navegação e dados do usuário
+// Inclui:
+// - Header com informações do usuário
+// - Seletor de modo de estudo
+// - Cards de estatísticas
+// - Calendário de estudos
+// - Recomendações personalizadas
+```
+
+### 1.2 Dashboard do Administrador (src/pages/AdminDashboard.tsx)
+```typescript
+// Painel administrativo para gestão de:
+// - Usuários (estudantes e admins)
+// - Questões (importação, exportação)
+// - Estatísticas gerais
+// - Configurações do sistema
+```
+
+### 1.3 Prática de Questões (src/pages/QuestionPractice.tsx)
+```typescript
+// Interface de estudo com:
+// - Filtros de matéria/tema
+// - Exibição de questões
+// - Sistema de resposta
+// - Feedback imediato
+// - Estatísticas da sessão
+```
+
+## 2. Componentes Principais
+
+### 2.1 Componentes do Estudante
+
+#### 2.1.1 PerformanceMetrics
+```typescript
+// Exibe métricas de desempenho:
+// - Taxa de acertos
+// - Questões respondidas
+// - Tempo de estudo
+// - Média por sessão
+```
+
+#### 2.1.2 StudyCalendar
+```typescript
+// Calendário interativo mostrando:
+// - Dias de estudo
+// - Streak atual
+// - Metas atingidas
+// - Progresso mensal
+```
+
+#### 2.1.3 QuestionCard
+```typescript
+// Card de questão com:
+// - Texto da questão
+// - Alternativas
+// - Sistema de resposta
+// - Feedback
+// - Explicação
+```
+
+### 2.2 Componentes do Administrador
+
+#### 2.2.1 QuestionImporter
+```typescript
+// Interface de importação com:
+// - Upload de arquivo
+// - Validação de dados
+// - Preview de questões
+// - Feedback de importação
+```
+
+#### 2.2.2 UserManager
+```typescript
+// Gerenciamento de usuários:
+// - Lista de usuários
+// - Edição de dados
+// - Controle de status
+// - Histórico de ações
+```
+
+## 3. Hooks Personalizados
+
+### 3.1 useQuestionPractice
+```typescript
+// Gerencia estado da prática:
+// - Questão atual
+// - Respostas selecionadas
+// - Navegação
+// - Estatísticas
+```
+
+### 3.2 useSessionStats
+```typescript
+// Controle de estatísticas:
+// - Tempo de sessão
+// - Questões respondidas
+// - Taxa de acertos
+// - Progresso atual
+```
+
+## 4. Integrações
+
+### 4.1 Supabase Client
+```typescript
+// Cliente Supabase configurado com:
+// - Autenticação
+// - Queries otimizadas
+// - Políticas de segurança
+// - Cache apropriado
+```
+
+## 5. Tipos e Interfaces
+
+### 5.1 Question Types
+```typescript
+// Definições para questões:
+// - Estrutura básica
+// - Opções de resposta
+// - Metadados
+// - Estatísticas
+```
+
+### 5.2 User Types
+```typescript
+// Tipos de usuário:
+// - Estudante
+// - Administrador
+// - Permissões
+// - Status
+```
+
+## 6. Utilitários
+
+### 6.1 Excel Processing
+```typescript
+// Processamento de planilhas:
+// - Leitura de arquivo
+// - Validação de dados
+// - Transformação
+// - Importação
+```
+
+### 6.2 Validation Utils
+```typescript
+// Funções de validação:
+// - Dados de usuário
+// - Formato de questões
+// - Permissões
+// - Integridade
+```
+
+## 7. Configurações
+
+### 7.1 Database Schema
+```sql
+-- Estrutura do banco:
+-- - Tabelas principais
+-- - Relacionamentos
+-- - Índices
+-- - Constraints
+```
+
+### 7.2 RLS Policies
+```sql
+-- Políticas de segurança:
+-- - Controle de acesso
+-- - Permissões
+-- - Proteção de dados
+-- - Auditoria
+```
+
+## 8. Features Principais
+
+### 8.1 Autenticação
+```typescript
+// Sistema de auth:
+// - Login/Registro
+// - Recuperação de senha
+// - Sessões
+// - Proteção de rotas
+```
+
+### 8.2 Gestão de Questões
+```typescript
+// Funcionalidades:
+// - CRUD completo
+// - Importação em massa
+// - Validações
+// - Histórico
+```
+
+### 8.3 Analytics
+```typescript
+// Análise de dados:
+// - Desempenho
+// - Uso do sistema
+// - Tendências
+// - Relatórios
+```
+
+## 9. Estilos e Temas
+
+### 9.1 Tailwind Config
+```typescript
+// Configurações:
+// - Cores do sistema
+// - Componentes base
+// - Responsividade
+// - Animações
+```
+
+### 9.2 Shadcn Components
+```typescript
+// Componentes UI:
+// - Botões
+// - Forms
+// - Modais
+// - Feedback
+```
+
+## 10. Edge Functions
+
+### 10.1 Question Generation
+```typescript
+// Geração de questões:
+// - Processamento de PDF
+// - Integração OpenAI
+// - Validação
+// - Formatação
+```
+
+### 10.2 Stats Processing
+```typescript
+// Processamento estatístico:
+// - Cálculos complexos
+// - Agregações
+// - Recomendações
+// - Cache
+```
+
+# Notas Importantes
+
+1. Esta documentação representa a estrutura atual do sistema
+2. Cada componente segue padrões de:
+   - Tipagem forte
+   - Componentização
+   - Responsividade
+   - Manutenibilidade
+
+3. Práticas implementadas:
+   - Console.logs extensivos
+   - Tratamento de erros
+   - Feedback ao usuário
+   - Cache apropriado
+
+4. Integrações principais:
+   - Supabase (banco e auth)
+   - Excel (importação)
+   - OpenAI (geração)
+   - Shadcn (UI)
+
+5. Considerações de segurança:
+   - RLS implementado
+   - Validações em todas as operações
+   - Proteção contra operações inválidas
+   - Auditoria de ações
