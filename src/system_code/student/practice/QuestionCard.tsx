@@ -8,16 +8,12 @@ interface QuestionCardProps {
   question: {
     id: string;
     text: string;
-    option_a: string;
-    option_b: string;
-    option_c: string;
-    option_d: string;
-    option_e: string;
-    correct_answer: string;
-    explanation: string;
-    source?: string;
     subject?: string;
     topic?: string;
+    source?: string;
+    options: { id: string; text: string; }[];
+    correctAnswer: string;
+    explanation: string;
     image_url?: string;
   };
   onNextQuestion: () => void;
@@ -79,9 +75,17 @@ const QuestionCard = memo(({
     setSelectedAnswer('');
   }, [question.id]);
 
-  if (isUserBlocked) {
-    return <BlockedUserCard />;
-  }
+  const formattedQuestion = {
+    ...question,
+    options: [
+      { id: 'a', text: question.option_a },
+      { id: 'b', text: question.option_b },
+      { id: 'c', text: question.option_c },
+      { id: 'd', text: question.option_d },
+      { id: 'e', text: question.option_e }
+    ],
+    correctAnswer: question.correct_answer
+  };
 
   return (
     <div className="space-y-6">
@@ -90,7 +94,7 @@ const QuestionCard = memo(({
         onFocusModeToggle={() => {}}
       />
       <QuestionContent
-        question={question}
+        question={formattedQuestion}
         selectedAnswer={selectedAnswer}
         setSelectedAnswer={setSelectedAnswer}
         hasAnswered={hasAnswered}

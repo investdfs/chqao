@@ -20,14 +20,13 @@ export const verifySupabaseHealth = async () => {
     }
     console.log('Status da autenticação:', authData.session ? 'Autenticado' : 'Não autenticado');
 
-    // Verifica acesso às tabelas principais
-    const tables = ['students', 'questions', 'subject_structure'];
+    // Verifica acesso às tabelas principais usando tipo literal
+    const tables = ['students', 'questions', 'subject_structure'] as const;
     for (const table of tables) {
       const { error } = await supabase
         .from(table)
-        .select('count')
-        .limit(1)
-        .single();
+        .select('*')
+        .limit(1);
       
       if (error) {
         console.error(`Erro ao acessar tabela ${table}:`, error);
