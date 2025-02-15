@@ -1,9 +1,47 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Question } from "@/types/questions/common";
+
+const PREVIEW_QUESTIONS = [
+  {
+    id: "preview-1",
+    text: "Questão de exemplo 1: Qual é a capital do Brasil?",
+    subject: "Geografia",
+    topic: "Capitais",
+    source: "Exemplo",
+    option_a: "São Paulo",
+    option_b: "Rio de Janeiro",
+    option_c: "Brasília",
+    option_d: "Salvador",
+    option_e: "Belo Horizonte",
+    correct_answer: "C",
+    explanation: "Brasília é a capital do Brasil desde 1960.",
+    status: "active",
+    difficulty: "easy",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "preview-2",
+    text: "Questão de exemplo 2: Quem escreveu 'Os Lusíadas'?",
+    subject: "Literatura",
+    topic: "Literatura Portuguesa",
+    source: "Exemplo",
+    option_a: "Fernando Pessoa",
+    option_b: "Luís de Camões",
+    option_c: "José Saramago",
+    option_d: "Eça de Queirós",
+    option_e: "Gil Vicente",
+    correct_answer: "B",
+    explanation: "Os Lusíadas foi escrito por Luís de Camões, sendo publicado em 1572.",
+    status: "active",
+    difficulty: "medium",
+    created_at: new Date().toISOString()
+  }
+];
 
 export const useQuestionPractice = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -55,6 +93,13 @@ export const useQuestionPractice = () => {
   const { data: questions = [], isLoading: isLoadingQuestions, error } = useQuery({
     queryKey: ['questions', selectedSubject],
     queryFn: async () => {
+      // Se estivermos em desenvolvimento e não houver matéria selecionada,
+      // retornar as questões de preview
+      if (process.env.NODE_ENV === 'development' && !selectedSubject) {
+        console.log("Ambiente de desenvolvimento - usando questões de preview");
+        return PREVIEW_QUESTIONS;
+      }
+
       if (!selectedSubject) {
         console.log("Nenhuma matéria selecionada, retornando array vazio");
         return [];
@@ -62,7 +107,6 @@ export const useQuestionPractice = () => {
 
       console.log("Iniciando busca de questões para matéria:", selectedSubject);
       
-      // Usar a função RPC get_filtered_questions com logs detalhados
       const { data, error } = await supabase
         .rpc('get_filtered_questions', {
           p_subject: selectedSubject
@@ -92,21 +136,9 @@ export const useQuestionPractice = () => {
         return [];
       }
 
-      // Verificar se todas as questões são da matéria correta
-      const questoesIncorretas = data.filter(q => q.subject !== selectedSubject);
-      if (questoesIncorretas.length > 0) {
-        console.error("Encontradas questões de outras matérias:", {
-          materiaEsperada: selectedSubject,
-          questoesIncorretas: questoesIncorretas.map(q => ({
-            id: q.id,
-            materia: q.subject
-          }))
-        });
-      }
-
       return data as Question[];
     },
-    enabled: !!selectedSubject && !!studentData?.id,
+    enabled: process.env.NODE_ENV === 'development' || !!selectedSubject,
     staleTime: 1000 * 60 * 5, // 5 minutos
     refetchOnWindowFocus: false
   });
@@ -122,12 +154,6 @@ export const useQuestionPractice = () => {
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
-
-  // Reset o índice quando mudar a matéria
-  useEffect(() => {
-    console.log("Matéria mudou, resetando índice da questão");
-    setCurrentQuestionIndex(0);
-  }, [selectedSubject]);
 
   return {
     currentQuestionIndex,
