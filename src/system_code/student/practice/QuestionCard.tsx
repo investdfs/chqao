@@ -1,21 +1,28 @@
+
 import { useEffect, memo, useState } from "react";
 import QuestionHeader from "./QuestionHeader";
 import QuestionContent from "./QuestionContent";
 import BlockedUserCard from "./BlockedUserCard";
 import { useQuestionAnswer } from "@/hooks/useQuestionAnswer";
 
+interface QuestionData {
+  id: string;
+  text: string;
+  subject?: string;
+  topic?: string;
+  source?: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  option_e: string;
+  correct_answer: string;
+  explanation: string;
+  image_url?: string;
+}
+
 interface QuestionCardProps {
-  question: {
-    id: string;
-    text: string;
-    subject?: string;
-    topic?: string;
-    source?: string;
-    options: { id: string; text: string; }[];
-    correctAnswer: string;
-    explanation: string;
-    image_url?: string;
-  };
+  question: QuestionData;
   onNextQuestion: () => void;
   onPreviousQuestion: () => void;
   questionNumber: number;
@@ -75,16 +82,28 @@ const QuestionCard = memo(({
     setSelectedAnswer('');
   }, [question.id]);
 
+  if (isUserBlocked) {
+    return <BlockedUserCard />;
+  }
+
+  const formattedOptions = [
+    { id: 'a', text: question.option_a },
+    { id: 'b', text: question.option_b },
+    { id: 'c', text: question.option_c },
+    { id: 'd', text: question.option_d },
+    { id: 'e', text: question.option_e }
+  ];
+
   const formattedQuestion = {
-    ...question,
-    options: [
-      { id: 'a', text: question.option_a },
-      { id: 'b', text: question.option_b },
-      { id: 'c', text: question.option_c },
-      { id: 'd', text: question.option_d },
-      { id: 'e', text: question.option_e }
-    ],
-    correctAnswer: question.correct_answer
+    id: question.id,
+    text: question.text,
+    subject: question.subject,
+    topic: question.topic,
+    source: question.source,
+    options: formattedOptions,
+    correctAnswer: question.correct_answer,
+    explanation: question.explanation,
+    image_url: question.image_url
   };
 
   return (
@@ -105,7 +124,6 @@ const QuestionCard = memo(({
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
         studentId={studentId}
-        sessionStats={sessionStats}
       />
     </div>
   );

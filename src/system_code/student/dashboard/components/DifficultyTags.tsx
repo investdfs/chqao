@@ -5,9 +5,9 @@ import { Brain, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { DifficultyCard } from "./components/DifficultyCard";
-import { UnstudiedSubjects } from "./components/UnstudiedSubjects";
-import { TopicDifficulty } from "./types";
+import { DifficultyCard } from "./DifficultyCard";
+import { UnstudiedSubjects } from "./UnstudiedSubjects";
+import { TopicDifficulty } from "../types";
 
 const PREVIEW_DIFFICULTIES: TopicDifficulty[] = [
   {
