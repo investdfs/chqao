@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Question } from "@/types/questions/common";
 
-const PREVIEW_QUESTIONS = [
+const PREVIEW_QUESTIONS: Question[] = [
   {
     id: "preview-1",
     text: "Questão de exemplo 1: Qual é a capital do Brasil?",
@@ -21,8 +21,10 @@ const PREVIEW_QUESTIONS = [
     correct_answer: "C",
     explanation: "Brasília é a capital do Brasil desde 1960.",
     status: "active",
-    difficulty: "easy",
-    created_at: new Date().toISOString()
+    difficulty: "Fácil",
+    created_at: new Date().toISOString(),
+    theme: "Geografia do Brasil",
+    is_from_previous_exam: false
   },
   {
     id: "preview-2",
@@ -38,8 +40,10 @@ const PREVIEW_QUESTIONS = [
     correct_answer: "B",
     explanation: "Os Lusíadas foi escrito por Luís de Camões, sendo publicado em 1572.",
     status: "active",
-    difficulty: "medium",
-    created_at: new Date().toISOString()
+    difficulty: "Médio",
+    created_at: new Date().toISOString(),
+    theme: "Literatura Portuguesa",
+    is_from_previous_exam: false
   }
 ];
 
@@ -58,6 +62,11 @@ export const useQuestionPractice = () => {
   const { data: studentData, isLoading: isLoadingStudent } = useQuery({
     queryKey: ['student'],
     queryFn: async () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Ambiente de desenvolvimento - ignorando autenticação");
+        return { id: 'preview-user-id' };
+      }
+
       console.log("Buscando dados do estudante...");
       
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
