@@ -1,3 +1,4 @@
+
 export interface Question {
   id: string;
   subject: string;
@@ -18,6 +19,7 @@ export interface Question {
   exam_year?: number | null;
   exam_name?: string | null;
   theme?: string | null;
+  source?: string | null;
 }
 
 export interface PreviousExam {
@@ -43,3 +45,4 @@ export interface PreviousExamQuestion {
   explanation?: string;
   created_at: string;
 }
+
