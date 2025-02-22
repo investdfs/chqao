@@ -1,4 +1,3 @@
-
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
 
 interface StudyRecommendation {
@@ -69,4 +68,3 @@ export const PerformanceChart = ({ recommendations }: PerformanceChartProps) => 
     </div>
   );
 };
-
