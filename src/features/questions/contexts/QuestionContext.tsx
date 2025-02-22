@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,25 +26,35 @@ export const useQuestion = () => {
 export const QuestionProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  // Fetch questions without requiring authentication
+  // Obter o parâmetro subject da URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const selectedSubject = searchParams.get('subject');
+
+  // Fetch questions using the RPC function and filtering by subject
   const { data: questions, isLoading: isLoadingQuestions, error } = useQuery({
-    queryKey: ['questions'],
+    queryKey: ['questions', selectedSubject], // Adicionar subject na queryKey
     queryFn: async () => {
-      console.log("Fetching questions...");
+      console.log("Buscando questões para matéria:", selectedSubject);
+      
+      if (!selectedSubject) {
+        console.log("Nenhuma matéria selecionada, retornando array vazio");
+        return [];
+      }
+
       const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at');
+        .rpc('get_filtered_questions', {
+          p_subject: selectedSubject
+        });
 
       if (error) {
-        console.error("Error fetching questions:", error);
+        console.error("Erro ao buscar questões:", error);
         throw error;
       }
       
-      console.log("Questions fetched successfully:", data?.length, "questions");
+      console.log("Questões retornadas:", data?.length || 0);
       return data;
     },
+    enabled: !!selectedSubject, // Só executa a query se tiver uma matéria selecionada
   });
 
   const currentQuestion = questions?.[currentQuestionIndex];
